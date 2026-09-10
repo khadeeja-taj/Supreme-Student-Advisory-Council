@@ -15,7 +15,9 @@
   <button class="drawer-close" onclick="closeDrawer()">&times;</button>
   <nav>
     <a href="#" onclick="go('home');closeDrawer();return false;" data-i18n="nav.home">Home</a>
-    <a href="#" onclick="go('departments');closeDrawer();return false;" data-i18n="nav.departments">Departments</a>
+    <a href="#" onclick="go('reps');closeDrawer();return false;" data-i18n="nav.reps">Representatives</a>
+    <a href="#" onclick="go('news');closeDrawer();return false;" data-i18n="nav.news">News</a>
+    <a href="#" onclick="go('contact');closeDrawer();return false;" data-i18n="nav.contact">Contact</a>
     <a href="#" onclick="go('admin');closeDrawer();return false;" data-i18n="nav.admin">Admin</a>
     <button class="linklike" onclick="go('departments');closeDrawer();" data-i18n="nav.getstarted">Get Started</button>
     <button class="linklike" onclick="toggleLang();" id="langBtnMobile">العربية</button>
@@ -41,7 +43,9 @@
   <div class="topnav-right">
     <div class="navlinks">
       <a href="#" onclick="go('home');return false;" data-i18n="nav.home">Home</a>
-      <a href="#" onclick="go('departments');return false;" data-i18n="nav.departments">Departments</a>
+      <a href="#" onclick="go('reps');return false;" data-i18n="nav.reps">Representatives</a>
+      <a href="#" onclick="go('news');return false;" data-i18n="nav.news">News</a>
+      <a href="#" onclick="go('contact');return false;" data-i18n="nav.contact">Contact</a>
       <a href="#" onclick="go('admin');return false;" data-i18n="nav.admin">Admin</a>
       <button class="lang-pill" onclick="toggleLang()" id="langBtn">🌐 العربية</button>
       <button class="pill-btn" onclick="go('departments')" data-i18n="nav.getstarted">Get Started</button>
@@ -77,7 +81,6 @@
       <div class="info-card"><div class="num">03</div><h3 data-i18n="how.c3t">Submit and you're in</h3><p data-i18n="how.c3p">One click submits your application to the Council for review.</p></div>
     </div>
   </div>
-  <footer class="site-footer" data-i18n="footer">© 2026 Supreme Student Advisory Council · International Islamic University, Islamabad</footer>
 </section>
 
 <!-- ================= DEPARTMENTS ================= -->
@@ -259,6 +262,58 @@
   </div>
 </section>
 
+<!-- ================= REPRESENTATIVES ================= -->
+<section class="page" id="page-reps">
+  <div class="stepheader">
+    <div class="chevron-motif"></div>
+    <div class="kicker">FACULTY REPRESENTATIVES</div>
+    <h2>Council Representatives</h2>
+    <p>Selected student representatives serving on the Supreme Student Advisory Council, listed by faculty.</p>
+  </div>
+  <div class="wrap-narrow"><div id="repsList" class="reps-list"></div></div>
+</section>
+
+<!-- ================= NEWS ================= -->
+<section class="page" id="page-news">
+  <div class="stepheader">
+    <div class="chevron-motif"></div>
+    <div class="kicker">UPDATES</div>
+    <h2>News &amp; Announcements</h2>
+    <p>Upcoming events, deadlines, and important notices from the Council.</p>
+  </div>
+  <div class="wrap-narrow"><div id="newsList" class="news-list"></div></div>
+</section>
+
+<!-- ================= CONTACT ================= -->
+<section class="page" id="page-contact">
+  <div class="stepheader">
+    <div class="chevron-motif"></div>
+    <div class="kicker">GET IN TOUCH</div>
+    <h2>Contact Us</h2>
+    <p>We would be honored to answer your questions.</p>
+  </div>
+  <div class="wrap-narrow">
+    <div class="contact-grid">
+      <div class="contact-info">
+        <div class="ci-item"><span class="ci-ic">📞</span><div><small>PHONE</small><b>+92 51 9019000</b></div></div>
+        <div class="ci-item"><span class="ci-ic">✉️</span><div><small>EMAIL</small><b>ssac@iiu.edu.pk</b></div></div>
+        <div class="ci-item"><span class="ci-ic">📍</span><div><small>ADDRESS</small><b>International Islamic University, Islamabad, Pakistan</b></div></div>
+        <a class="map-link" href="https://www.google.com/maps/search/?api=1&amp;query=International+Islamic+University+Islamabad" target="_blank" rel="noopener">Open location in Google Maps →</a>
+      </div>
+      <form class="contact-form" onsubmit="submitMessage(event)">
+        <div class="field-row">
+          <div class="field"><label>Your Name *</label><input id="c_name" type="text" placeholder="Your name"></div>
+          <div class="field"><label>Email *</label><input id="c_email" type="email" placeholder="you@example.com"></div>
+        </div>
+        <div class="field"><label>Subject</label><input id="c_subject" type="text" placeholder="Subject"></div>
+        <div class="field"><label>Message *</label><textarea id="c_message" rows="5" placeholder="Your message"></textarea></div>
+        <div id="contactThanks" class="thanks-note" hidden>✓ Thank you — your message has been sent to the Council.</div>
+        <button class="btn-teal" type="submit">Send Message</button>
+      </form>
+    </div>
+  </div>
+</section>
+
 <!-- ================= ADMIN ================= -->
 <section class="page" id="page-admin">
   <div class="admin-wrap">
@@ -276,28 +331,106 @@
 
     <div id="adminPanel" style="display:none;">
       <div class="admin-topbar">
-        <h2 style="margin:0;color:var(--navy);" data-i18n="admin.regs">Council Registrations</h2>
-        <div style="display:flex;gap:10px;">
+        <h2 style="margin:0;color:var(--navy);">Admin Dashboard</h2>
+        <button class="btn-outline" onclick="adminLogout()" data-i18n="admin.logout">Log Out</button>
+      </div>
+      <div class="admin-tabs">
+        <button class="atab active" data-tab="overview" onclick="showAdminTab('overview')">Overview</button>
+        <button class="atab" data-tab="regs" onclick="showAdminTab('regs')">Registrations</button>
+        <button class="atab" data-tab="reps" onclick="showAdminTab('reps')">Representatives</button>
+        <button class="atab" data-tab="news" onclick="showAdminTab('news')">Announcements</button>
+        <button class="atab" data-tab="messages" onclick="showAdminTab('messages')">Messages</button>
+      </div>
+
+      <div class="atab-panel" id="apanel-overview">
+        <div class="admin-stats" id="adminStats"></div>
+        <div class="chart-grid">
+          <div class="chart-card"><h4>Registrations by faculty</h4><div id="chartFaculty" class="bars"></div></div>
+          <div class="chart-card"><h4>Council split</h4><div id="chartCouncil" class="bars"></div></div>
+        </div>
+        <div class="chart-card"><h4>Approval flow</h4><div id="chartFlow"></div></div>
+      </div>
+
+      <div class="atab-panel" id="apanel-regs" hidden>
+        <div class="panel-actions">
           <button class="btn-outline" onclick="loadAdminData()" data-i18n="admin.refresh">Refresh</button>
           <button class="btn-outline" onclick="clearAllRegistrations()" data-i18n="admin.clear">Clear All</button>
-          <button class="btn-outline" onclick="adminLogout()" data-i18n="admin.logout">Log Out</button>
         </div>
+        <div class="admin-table-wrap">
+          <table id="adminTable">
+            <thead><tr><th>Name</th><th>Email</th><th>Faculty</th><th>Council</th><th>Reg #</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="adminTbody"></tbody>
+          </table>
+        </div>
+        <div id="adminEmpty" class="empty-state" style="display:none;">No registrations yet.</div>
       </div>
-      <div class="admin-stats" id="adminStats"></div>
-      <div class="admin-table-wrap">
-        <table id="adminTable">
-          <thead>
-            <tr>
-              <th data-i18n="admin.th.name">Name</th><th data-i18n="admin.th.email">Email</th><th data-i18n="admin.th.phone">Phone</th><th data-i18n="admin.th.faculty">Faculty</th><th data-i18n="admin.th.category">Category</th><th data-i18n="admin.th.program">Program</th><th data-i18n="admin.th.semester">Semester</th><th data-i18n="admin.th.reg">Reg #</th><th data-i18n="admin.th.submitted">Submitted</th>
-            </tr>
-          </thead>
-          <tbody id="adminTbody"></tbody>
-        </table>
+
+      <div class="atab-panel" id="apanel-reps" hidden>
+        <form class="mng-form" onsubmit="addRep(event)">
+          <input id="rep_name" placeholder="Student name">
+          <input id="rep_role" placeholder="Role (e.g. President)">
+          <select id="rep_faculty"></select>
+          <button class="btn-teal" type="submit">Add</button>
+        </form>
+        <div id="adminRepsList" class="mng-list"></div>
       </div>
-      <div id="adminEmpty" class="empty-state" style="display:none;" data-i18n="admin.empty">No registrations yet.</div>
+
+      <div class="atab-panel" id="apanel-news" hidden>
+        <form class="mng-form col" onsubmit="addAnnouncement(event)">
+          <input id="an_title" placeholder="Announcement title">
+          <textarea id="an_body" rows="3" placeholder="Details"></textarea>
+          <button class="btn-teal" type="submit">Publish</button>
+        </form>
+        <div id="adminNewsList" class="mng-list"></div>
+      </div>
+
+      <div class="atab-panel" id="apanel-messages" hidden>
+        <div id="adminMsgList" class="mng-list"></div>
+      </div>
     </div>
   </div>
 </section>
+
+<!-- ================= FOOTER ================= -->
+<footer class="site-footer-rich">
+  <div class="footer-grid">
+    <div class="footer-about">
+      <div class="brand-logos">
+        <img src="assets/seal-1.png" alt="IIUI seal">
+        <img class="seal2" src="assets/seal-2.png" alt="Council logo">
+      </div>
+      <p>The Supreme Student Advisory Council — a platform for students across every faculty of the International Islamic University, Islamabad to represent, advise and shape campus life.</p>
+      <div class="footer-socials">
+        <a href="#" title="Facebook">f</a>
+        <a href="#" title="Chat">💬</a>
+        <a href="#" title="Email">✉</a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>Quick Links</h4>
+      <a href="#" onclick="go('home');return false;">Home</a>
+      <a href="#" onclick="go('reps');return false;">Representatives</a>
+      <a href="#" onclick="go('news');return false;">News &amp; Announcements</a>
+      <a href="#" onclick="go('contact');return false;">Contact</a>
+      <a href="#" onclick="go('departments');return false;">Student Registration</a>
+    </div>
+    <div class="footer-col">
+      <h4>The Council</h4>
+      <a href="#" onclick="go('departments');return false;">Eleven Faculties</a>
+      <a href="#" onclick="go('gender');return false;">Male &amp; Female Councils</a>
+      <a href="#" onclick="go('reps');return false;">Faculty Representatives</a>
+      <a href="#" onclick="go('admin');return false;">Admin</a>
+    </div>
+    <div class="footer-col">
+      <h4>Connect</h4>
+      <span>+92 51 9019000</span>
+      <span>ssac@iiu.edu.pk</span>
+      <span>International Islamic University,<br>Islamabad, Pakistan</span>
+    </div>
+  </div>
+  <div class="footer-bottom">© 2026 Supreme Student Advisory Council · International Islamic University, Islamabad</div>
+</footer>
+
 <script src="js/app.js"></script>
 </body>
 </html>

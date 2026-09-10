@@ -97,7 +97,7 @@ const ICONS = {
 
 const I18N = {
   en:{
-    "nav.home":"Home","nav.departments":"Departments","nav.admin":"Admin","nav.getstarted":"Get Started",
+    "nav.home":"Home","nav.departments":"Departments","nav.reps":"Representatives","nav.news":"News","nav.contact":"Contact","nav.admin":"Admin","nav.getstarted":"Get Started",
     "brand.title":"Supreme Student Advisory Council","brand.sub":"INTERNATIONAL ISLAMIC UNIVERSITY, ISLAMABAD",
     "hero.tag":"ISLAMIC · INTERNATIONAL ISLAMIC UNIVERSITY, ISLAMABAD",
     "hero.title":"Supreme Student Advisory Council",
@@ -129,7 +129,7 @@ const I18N = {
     "admin.th.name":"Name","admin.th.email":"Email","admin.th.phone":"Phone","admin.th.faculty":"Faculty","admin.th.category":"Category","admin.th.program":"Program","admin.th.semester":"Semester","admin.th.reg":"Reg #","admin.th.submitted":"Submitted"
   },
   ar:{
-    "nav.home":"الرئيسية","nav.departments":"الكليات","nav.admin":"الإدارة","nav.getstarted":"ابدأ الآن",
+    "nav.home":"الرئيسية","nav.departments":"الكليات","nav.reps":"الممثلون","nav.news":"الأخبار","nav.contact":"اتصل بنا","nav.admin":"الإدارة","nav.getstarted":"ابدأ الآن",
     "brand.title":"المجلس الاستشاري الطلابي الأعلى","brand.sub":"الجامعة الإسلامية العالمية بإسلام آباد",
     "hero.tag":"الجامعة الإسلامية العالمية بإسلام آباد",
     "hero.title":"المجلس الاستشاري الطلابي الأعلى",
@@ -406,3 +406,193 @@ async function clearAllRegistrations(){
     alert((lang==='ar' ? 'تعذّر الحذف: ' : 'Could not delete: ') + e.message);
   }
 }
+
+/* =========================================================
+   EXTENDED FEATURES: news, contact messages, representatives,
+   admin dashboard (analytics + approve/delete). These override
+   the earlier localApi / loadAdminData / tryAdminLogin (last
+   function declaration wins) and add the new pages' logic.
+   In static mode everything persists in localStorage; when a
+   real back-end answers /api/*, those endpoints are used instead.
+   ========================================================= */
+
+/* ---- small helpers ---- */
+function val(id){ const el=document.getElementById(id); return el?el.value.trim():''; }
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+function fmtDate(d){ try{ return new Date(d).toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'}); }catch(e){ return ''; } }
+function initials(n){ return String(n||'').split(/\s+/).filter(Boolean).slice(0,2).map(function(w){return w[0].toUpperCase();}).join(''); }
+function authHdr(){ return { Authorization: 'Bearer ' + adminToken }; }
+
+/* ---- localStorage-backed API (static mode) ---- */
+function localApi(path, opts){
+  var method = (opts.method || 'GET').toUpperCase();
+  var payload = opts.body ? JSON.parse(opts.body) : {};
+  function get(k){ try{ return JSON.parse(localStorage.getItem(k) || '[]'); }catch(e){ return []; } }
+  function set(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+  function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+
+  if(path === '/api/register' && method === 'POST'){ var a=get('ssac_registrations'); payload.id=uid(); payload.status='pending'; a.push(payload); set('ssac_registrations',a); return {ok:true,id:payload.id}; }
+  if(path === '/api/admin/login' && method === 'POST'){ if(payload.password===STATIC_ADMIN_PASSWORD) return {ok:true,token:'local'}; var e=new Error('Incorrect password'); e.status=401; throw e; }
+  if(path === '/api/registrations' && method === 'GET'){ return {registrations:get('ssac_registrations')}; }
+  if(path === '/api/registrations' && method === 'DELETE'){ set('ssac_registrations',[]); return {ok:true}; }
+  if(path === '/api/registrations/update' && method === 'POST'){ set('ssac_registrations', get('ssac_registrations').map(function(r){ return r.id===payload.id ? Object.assign({},r,{status:payload.status}) : r; })); return {ok:true}; }
+  if(path === '/api/registrations/delete' && method === 'POST'){ set('ssac_registrations', get('ssac_registrations').filter(function(r){ return r.id!==payload.id; })); return {ok:true}; }
+
+  if(path === '/api/announcements' && method === 'GET'){ return {items:get('ssac_news')}; }
+  if(path === '/api/announcements' && method === 'POST'){ var n=get('ssac_news'); payload.id=uid(); payload.date=new Date().toISOString(); n.unshift(payload); set('ssac_news',n); return {ok:true}; }
+  if(path === '/api/announcements/delete' && method === 'POST'){ set('ssac_news', get('ssac_news').filter(function(x){return x.id!==payload.id;})); return {ok:true}; }
+
+  if(path === '/api/messages' && method === 'POST'){ var m=get('ssac_messages'); payload.id=uid(); payload.date=new Date().toISOString(); m.unshift(payload); set('ssac_messages',m); return {ok:true}; }
+  if(path === '/api/messages' && method === 'GET'){ return {items:get('ssac_messages')}; }
+  if(path === '/api/messages/delete' && method === 'POST'){ set('ssac_messages', get('ssac_messages').filter(function(x){return x.id!==payload.id;})); return {ok:true}; }
+
+  if(path === '/api/reps' && method === 'GET'){ return {items:get('ssac_reps')}; }
+  if(path === '/api/reps' && method === 'POST'){ var p=get('ssac_reps'); payload.id=uid(); p.push(payload); set('ssac_reps',p); return {ok:true}; }
+  if(path === '/api/reps/delete' && method === 'POST'){ set('ssac_reps', get('ssac_reps').filter(function(x){return x.id!==payload.id;})); return {ok:true}; }
+
+  var err=new Error('Not found'); err.status=404; throw err;
+}
+
+/* ---- PUBLIC: News ---- */
+async function renderNews(){
+  var box=document.getElementById('newsList'); if(!box) return;
+  var items=[]; try{ var r=await api('/api/announcements'); items=r.items||[]; }catch(e){}
+  if(!items.length){ box.innerHTML='<div class="empty-card">'+(lang==='ar'?'لا توجد إعلانات بعد. يرجى المراجعة لاحقًا.':'No announcements yet. Please check back soon, in shā’ Allah.')+'</div>'; return; }
+  box.innerHTML=items.map(function(n){ return '<article class="news-card"><div class="news-date">'+fmtDate(n.date)+'</div><h3>'+esc(n.title)+'</h3><p>'+esc(n.body)+'</p></article>'; }).join('');
+}
+
+/* ---- PUBLIC: Contact ---- */
+async function submitMessage(ev){
+  if(ev) ev.preventDefault();
+  var name=val('c_name'), email=val('c_email'), subject=val('c_subject'), message=val('c_message');
+  if(!name||!email||!message){ alert(lang==='ar'?'يرجى تعبئة الحقول المطلوبة.':'Please fill in the required fields.'); return; }
+  try{ await api('/api/messages',{method:'POST',body:JSON.stringify({name:name,email:email,subject:subject,message:message})}); }
+  catch(e){ alert((lang==='ar'?'تعذّر الإرسال: ':'Could not send: ')+e.message); return; }
+  ['c_name','c_email','c_subject','c_message'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
+  var t=document.getElementById('contactThanks'); if(t){ t.hidden=false; setTimeout(function(){ t.hidden=true; },6000); }
+}
+
+/* ---- PUBLIC: Representatives ---- */
+async function renderReps(){
+  var box=document.getElementById('repsList'); if(!box) return;
+  var items=[]; try{ var r=await api('/api/reps'); items=r.items||[]; }catch(e){}
+  if(!items.length){ box.innerHTML='<div class="empty-card">'+(lang==='ar'?'سيتم الإعلان عن الممثلين قريبًا.':'Representatives will be announced soon.')+'</div>'; return; }
+  var groups={}; items.forEach(function(r){ (groups[r.faculty]=groups[r.faculty]||[]).push(r); });
+  box.innerHTML=Object.keys(groups).map(function(fac){
+    return '<div class="rep-group"><h3>'+esc(fac)+'</h3><div class="rep-cards">'+groups[fac].map(function(r){
+      return '<div class="rep-card"><div class="rep-avatar">'+initials(r.name)+'</div><div class="rep-meta"><b>'+esc(r.name)+'</b><span>'+esc(r.role||'Representative')+'</span></div></div>';
+    }).join('')+'</div></div>';
+  }).join('');
+}
+
+/* ---- ADMIN: tabs ---- */
+function showAdminTab(name){
+  document.querySelectorAll('.atab').forEach(function(b){ b.classList.toggle('active', b.dataset.tab===name); });
+  ['overview','regs','reps','news','messages'].forEach(function(t){ var p=document.getElementById('apanel-'+t); if(p) p.hidden=(t!==name); });
+  if(name==='overview') renderAnalytics();
+  if(name==='regs') loadAdminData();
+  if(name==='reps') renderAdminReps();
+  if(name==='news') renderAdminNews();
+  if(name==='messages') renderAdminMessages();
+}
+async function tryAdminLogin(){
+  var pass=document.getElementById('adminPass').value;
+  try{
+    var r=await api('/api/admin/login',{method:'POST',body:JSON.stringify({password:pass})});
+    adminToken=r.token; sessionStorage.setItem('ssac_admin_token',adminToken);
+    document.getElementById('adminPass').value='';
+    document.getElementById('adminLoginBox').style.display='none';
+    document.getElementById('adminPanel').style.display='block';
+    showAdminTab('overview');
+  }catch(e){ alert(lang==='ar'?'كلمة مرور غير صحيحة.':'Incorrect password.'); }
+}
+
+async function getRegs(){ try{ var r=await api('/api/registrations',{headers:authHdr()}); return r.registrations||[]; }catch(e){ if(e.status===401){ adminLogout(); } return []; } }
+
+/* ---- ADMIN: analytics ---- */
+async function renderAnalytics(){
+  var rows=await getRegs();
+  var total=rows.length;
+  var male=rows.filter(function(r){return r.gender==='Male';}).length;
+  var female=rows.filter(function(r){return r.gender==='Female';}).length;
+  var approved=rows.filter(function(r){return r.status==='approved';}).length;
+  var pending=total-approved;
+  document.getElementById('adminStats').innerHTML=
+    '<div class="stat"><b>'+total+'</b><span>Total registrations</span></div>'+
+    '<div class="stat"><b>'+approved+'</b><span>Approved</span></div>'+
+    '<div class="stat"><b>'+pending+'</b><span>Pending</span></div>'+
+    '<div class="stat"><b>'+(new Set(rows.map(function(r){return r.faculty;})).size)+'</b><span>Faculties</span></div>';
+  var byFac={}; rows.forEach(function(r){ var f=r.faculty||'—'; byFac[f]=(byFac[f]||0)+1; });
+  var keys=Object.keys(byFac).sort(function(a,b){return byFac[b]-byFac[a];});
+  var maxF=Math.max.apply(null,[1].concat(keys.map(function(k){return byFac[k];})));
+  document.getElementById('chartFaculty').innerHTML= keys.length ? keys.map(function(f){
+    return '<div class="bar-row"><span class="bar-label">'+esc(f)+'</span><span class="bar-track"><span class="bar-fill" style="width:'+Math.round(byFac[f]/maxF*100)+'%"></span></span><span class="bar-val">'+byFac[f]+'</span></div>';
+  }).join('') : '<div class="empty-card">No data yet.</div>';
+  var cm=Math.max(1,male,female);
+  document.getElementById('chartCouncil').innerHTML=
+    '<div class="bar-row"><span class="bar-label">Male</span><span class="bar-track"><span class="bar-fill male" style="width:'+Math.round(male/cm*100)+'%"></span></span><span class="bar-val">'+male+'</span></div>'+
+    '<div class="bar-row"><span class="bar-label">Female</span><span class="bar-track"><span class="bar-fill female" style="width:'+Math.round(female/cm*100)+'%"></span></span><span class="bar-val">'+female+'</span></div>';
+  document.getElementById('chartFlow').innerHTML=
+    '<div class="flow"><div class="flow-step"><b>'+total+'</b><span>Applied</span></div><div class="flow-arrow">→</div>'+
+    '<div class="flow-step pend"><b>'+pending+'</b><span>Pending review</span></div><div class="flow-arrow">→</div>'+
+    '<div class="flow-step ok"><b>'+approved+'</b><span>Approved</span></div></div>';
+}
+
+/* ---- ADMIN: registrations table (approve / delete) ---- */
+async function loadAdminData(){
+  var tbody=document.getElementById('adminTbody'); if(!tbody) return; tbody.innerHTML='';
+  var rows=await getRegs();
+  rows.sort(function(a,b){ return new Date(b.submittedAt)-new Date(a.submittedAt); });
+  document.getElementById('adminEmpty').style.display=rows.length?'none':'block';
+  document.getElementById('adminTable').style.display=rows.length?'table':'none';
+  rows.forEach(function(d){
+    var tr=document.createElement('tr');
+    var st = d.status==='approved' ? '<span class="tag ok">Approved</span>' : '<span class="tag pend">Pending</span>';
+    var approveBtn = d.status==='approved' ? '' : '<button class="mini ok" onclick="approveReg(\''+d.id+'\')">Approve</button>';
+    tr.innerHTML='<td>'+esc(d.name)+'</td><td>'+esc(d.email)+'</td><td>'+esc(d.faculty)+'</td>'+
+      '<td><span class="tag '+(d.gender==='Female'?'female':'male')+'">'+esc(d.gender)+'</span></td>'+
+      '<td>'+esc(d.regno)+'</td><td>'+st+'</td>'+
+      '<td class="row-actions">'+approveBtn+'<button class="mini danger" onclick="deleteReg(\''+d.id+'\')">Delete</button></td>';
+    tbody.appendChild(tr);
+  });
+}
+async function approveReg(id){ try{ await api('/api/registrations/update',{method:'POST',headers:authHdr(),body:JSON.stringify({id:id,status:'approved'})}); loadAdminData(); }catch(e){ alert(e.message); } }
+async function deleteReg(id){ if(!confirm('Delete this registration?')) return; try{ await api('/api/registrations/delete',{method:'POST',headers:authHdr(),body:JSON.stringify({id:id})}); loadAdminData(); }catch(e){ alert(e.message); } }
+
+/* ---- ADMIN: announcements ---- */
+async function renderAdminNews(){
+  var box=document.getElementById('adminNewsList'); if(!box) return;
+  var items=[]; try{ var r=await api('/api/announcements'); items=r.items||[]; }catch(e){}
+  box.innerHTML=items.length?items.map(function(n){ return '<div class="mng-row"><div class="mng-body"><b>'+esc(n.title)+'</b><span class="muted"> · '+fmtDate(n.date)+'</span><p>'+esc(n.body)+'</p></div><button class="mini danger" onclick="deleteAnnouncement(\''+n.id+'\')">Delete</button></div>'; }).join(''):'<div class="empty-card">No announcements.</div>';
+}
+async function addAnnouncement(ev){ if(ev) ev.preventDefault(); var title=val('an_title'), body=val('an_body'); if(!title||!body){ alert('Enter a title and details.'); return; } try{ await api('/api/announcements',{method:'POST',headers:authHdr(),body:JSON.stringify({title:title,body:body})}); document.getElementById('an_title').value=''; document.getElementById('an_body').value=''; renderAdminNews(); }catch(e){ alert(e.message); } }
+async function deleteAnnouncement(id){ if(!confirm('Delete this announcement?')) return; try{ await api('/api/announcements/delete',{method:'POST',headers:authHdr(),body:JSON.stringify({id:id})}); renderAdminNews(); }catch(e){ alert(e.message); } }
+
+/* ---- ADMIN: messages ---- */
+async function renderAdminMessages(){
+  var box=document.getElementById('adminMsgList'); if(!box) return;
+  var items=[]; try{ var r=await api('/api/messages',{headers:authHdr()}); items=r.items||[]; }catch(e){ if(e.status===401){ adminLogout(); return; } }
+  box.innerHTML=items.length?items.map(function(m){ return '<div class="mng-row"><div class="mng-body"><b>'+esc(m.name)+'</b> <span class="muted">&lt;'+esc(m.email)+'&gt; · '+fmtDate(m.date)+'</span>'+(m.subject?'<div class="msg-subj">'+esc(m.subject)+'</div>':'')+'<p>'+esc(m.message)+'</p></div><button class="mini danger" onclick="deleteMessage(\''+m.id+'\')">Delete</button></div>'; }).join(''):'<div class="empty-card">No messages yet.</div>';
+}
+async function deleteMessage(id){ if(!confirm('Delete this message?')) return; try{ await api('/api/messages/delete',{method:'POST',headers:authHdr(),body:JSON.stringify({id:id})}); renderAdminMessages(); }catch(e){ alert(e.message); } }
+
+/* ---- ADMIN: representatives ---- */
+async function renderAdminReps(){
+  var box=document.getElementById('adminRepsList'); if(!box) return;
+  var sel=document.getElementById('rep_faculty');
+  if(sel && !sel.dataset.filled){ sel.innerHTML=DEPARTMENTS.map(function(d){ return '<option value="'+esc(d.en)+'">'+esc(d.en)+'</option>'; }).join(''); sel.dataset.filled='1'; }
+  var items=[]; try{ var r=await api('/api/reps'); items=r.items||[]; }catch(e){}
+  box.innerHTML=items.length?items.map(function(r){ return '<div class="mng-row"><div class="mng-body"><b>'+esc(r.name)+'</b><span class="muted"> · '+esc(r.role||'Representative')+'</span><div class="muted">'+esc(r.faculty)+'</div></div><button class="mini danger" onclick="deleteRep(\''+r.id+'\')">Delete</button></div>'; }).join(''):'<div class="empty-card">No representatives added.</div>';
+}
+async function addRep(ev){ if(ev) ev.preventDefault(); var name=val('rep_name'), role=val('rep_role'), faculty=val('rep_faculty'); if(!name||!faculty){ alert('Enter a name and choose a faculty.'); return; } try{ await api('/api/reps',{method:'POST',headers:authHdr(),body:JSON.stringify({name:name,role:role,faculty:faculty})}); document.getElementById('rep_name').value=''; document.getElementById('rep_role').value=''; renderAdminReps(); }catch(e){ alert(e.message); } }
+async function deleteRep(id){ if(!confirm('Delete this representative?')) return; try{ await api('/api/reps/delete',{method:'POST',headers:authHdr(),body:JSON.stringify({id:id})}); renderAdminReps(); }catch(e){ alert(e.message); } }
+
+/* ---- hook new pages into navigation ---- */
+(function(){
+  var _go = window.go;
+  window.go = function(pageId){
+    _go(pageId);
+    if(pageId==='news') renderNews();
+    if(pageId==='reps') renderReps();
+  };
+})();
