@@ -88,7 +88,41 @@ node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"
 
 ---
 
-## Deploy to a domain
+## Two ways to run this
+
+This project works in **two modes from the same code**:
+
+| Mode | Where it runs | Data storage |
+|------|---------------|--------------|
+| **Static** | GitHub Pages (free) | Saved in each visitor's own browser. Simplest to publish; the admin only sees registrations made in that same browser. |
+| **Full** | Render / Railway / Docker | Saved in a central SQLite database. The admin sees registrations from **every** device. |
+
+The front-end automatically uses the database when a back-end is present, and
+falls back to browser storage when there isn't one — so you don't change any
+code to switch between them.
+
+---
+
+## Deploy on GitHub Pages (static, free, no server)
+
+The `docs/` folder is a ready-to-publish copy of the site.
+
+1. Push this repo to GitHub (already done if you're reading this on GitHub).
+2. In your repo, open **Settings → Pages**.
+3. Under **Build and deployment → Source**, choose **Deploy from a branch**.
+4. Set **Branch** to your branch and **Folder** to **`/docs`**, then **Save**.
+5. Wait ~1 minute. GitHub gives you a link like
+   `https://<your-username>.github.io/Supreme-Student-Advisory-Council/`.
+
+That's it — no terminal, no `npm`. To change the admin password for static mode,
+edit `STATIC_ADMIN_PASSWORD` near the top of `docs/js/app.js`.
+
+> Static mode stores each browser's registrations locally. If you need to
+> collect submissions centrally, use the **Full** deploy below.
+
+---
+
+## Deploy the full version (central database) to a domain
 
 This app serves the front-end and the API together, so you deploy it as **one**
 Node service. Pick any host below, then point your domain at it.
