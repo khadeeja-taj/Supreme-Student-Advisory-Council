@@ -102,8 +102,8 @@
   #page-home{ position:relative; }
   .hero{
     position:relative; min-height:100vh; display:flex; align-items:flex-end;
-    background-image: linear-gradient(180deg, rgba(2,48,71,0.60) 0%, rgba(2,48,71,0.55) 45%, rgba(2,48,71,0.92) 100%), url('../assets/hero-bg.jpg');
-    background-size:cover; background-position:center;
+    background-image: linear-gradient(180deg, rgba(2,48,71,0.12) 0%, rgba(2,48,71,0.02) 34%, rgba(2,48,71,0.50) 74%, rgba(2,48,71,0.86) 100%), url('../assets/hero-bg.jpg');
+    background-size:cover; background-position:center top;
     padding: 130px 6vw 60px;
     color:#fff;
   }
