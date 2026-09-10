@@ -1,0 +1,21 @@
+# One-click deploy config for https://render.com
+services:
+  - type: web
+    name: supreme-student-advisory-council
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: DB_PATH
+        value: /data/council.db
+    disk:
+      name: council-data
+      mountPath: /data
+      sizeGB: 1

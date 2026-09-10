@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" id="htmlRoot">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Supreme Student Advisory Council — IIUI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<div class="scrim" id="scrim" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer">
+  <button class="drawer-close" onclick="closeDrawer()">&times;</button>
+  <nav>
+    <a href="#" onclick="go('home');closeDrawer();return false;" data-i18n="nav.home">Home</a>
+    <a href="#" onclick="go('departments');closeDrawer();return false;" data-i18n="nav.departments">Departments</a>
+    <a href="#" onclick="go('admin');closeDrawer();return false;" data-i18n="nav.admin">Admin</a>
+    <button class="linklike" onclick="go('departments');closeDrawer();" data-i18n="nav.getstarted">Get Started</button>
+    <button class="linklike" onclick="toggleLang();" id="langBtnMobile">العربية</button>
+  </nav>
+  <div class="socials">
+    <a href="#" title="Facebook">f</a>
+    <a href="#" title="Chat">💬</a>
+    <a href="#" title="Email">✉</a>
+  </div>
+</div>
+
+<nav class="topnav">
+  <div class="brand" onclick="go('home')">
+    <div class="brand-logos">
+      <img src="assets/seal-1.png" alt="IIUI seal">
+      <img class="seal2" src="assets/seal-2.png" alt="Council logo">
+    </div>
+    <div>
+      <span data-i18n="brand.title">Supreme Student Advisory Council</span>
+      <small data-i18n="brand.sub">INTERNATIONAL ISLAMIC UNIVERSITY, ISLAMABAD</small>
+    </div>
+  </div>
+  <div class="topnav-right">
+    <div class="navlinks">
+      <a href="#" onclick="go('home');return false;" data-i18n="nav.home">Home</a>
+      <a href="#" onclick="go('departments');return false;" data-i18n="nav.departments">Departments</a>
+      <a href="#" onclick="go('admin');return false;" data-i18n="nav.admin">Admin</a>
+      <button class="lang-pill" onclick="toggleLang()" id="langBtn">🌐 العربية</button>
+      <button class="pill-btn" onclick="go('departments')" data-i18n="nav.getstarted">Get Started</button>
+    </div>
+    <button class="burger" onclick="openDrawer()"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+
+<!-- ================= HOME ================= -->
+<section class="page active" id="page-home">
+  <div class="hero">
+    <div class="hero-inner">
+      <div class="hero-photo"><img src="assets/president.png" alt="Council Chairman"></div>
+      <div class="eyebrow-row">
+        <span class="iiu-tag" data-i18n="hero.tag">ISLAMIC · INTERNATIONAL ISLAMIC UNIVERSITY, ISLAMABAD</span>
+      </div>
+      <h1 data-i18n="hero.title">Supreme Student Advisory Council</h1>
+      <div class="arabic-title arabic">المجلس الاستشاري الطلابي الأعلى</div>
+      <p class="lead" data-i18n="hero.lead">Under the direction of the Worthy President of the International Islamic University Islamabad, the University is pleased to announce the establishment of the Supreme Student Advisory Council — a platform for students across every faculty to represent, advise and shape campus life.</p>
+      <div class="cta-row">
+        <button class="btn-primary" onclick="go('departments')"><span data-i18n="hero.cta">Get Started</span> →</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2 data-i18n="how.title">How registration works</h2>
+    <p class="subtitle" data-i18n="how.sub">Three quick steps to join your faculty's advisory representation.</p>
+    <div class="info-grid">
+      <div class="info-card"><div class="num">01</div><h3 data-i18n="how.c1t">Choose your faculty</h3><p data-i18n="how.c1p">Select the department you're currently enrolled in from the eleven faculties of IIUI.</p></div>
+      <div class="info-card"><div class="num">02</div><h3 data-i18n="how.c2t">Tell us about you</h3><p data-i18n="how.c2p">Share a few personal and academic details so we can place you correctly.</p></div>
+      <div class="info-card"><div class="num">03</div><h3 data-i18n="how.c3t">Submit and you're in</h3><p data-i18n="how.c3p">One click submits your application to the Council for review.</p></div>
+    </div>
+  </div>
+  <footer class="site-footer" data-i18n="footer">© 2026 Supreme Student Advisory Council · International Islamic University, Islamabad</footer>
+</section>
+
+<!-- ================= DEPARTMENTS ================= -->
+<section class="page" id="page-departments">
+  <div class="stepheader">
+    <div class="chevron-motif"></div>
+    <div class="breadcrumb"><button onclick="go('home')" data-i18n="crumb.home">← Home</button></div>
+    <div class="kicker" data-i18n="dept.kicker">STEP 1 OF 3</div>
+    <h2 data-i18n="dept.title">Overview of Faculties</h2>
+    <p data-i18n="dept.sub">Select the faculty you are currently enrolled in to continue your registration.</p>
+  </div>
+  <div class="wrap-narrow">
+    <div class="dept-grid" id="deptGrid"></div>
+    <div class="continue-bar">
+      <button class="btn-teal" id="deptContinue" disabled onclick="go('gender')" data-i18n="btn.continue">Next →</button>
+    </div>
+  </div>
+</section>
+
+<!-- ================= GENDER ================= -->
+<section class="page" id="page-gender">
+  <div class="stepheader">
+    <div class="chevron-motif"></div>
+    <div class="breadcrumb"><button onclick="go('departments')" data-i18n="crumb.dept">← Change faculty</button><span id="genderFacultyCrumb"></span></div>
+    <div class="kicker" data-i18n="gender.kicker">STEP 2 OF 3</div>
+    <h2 data-i18n="gender.title">Select Your Council</h2>
+    <p data-i18n="gender.sub">The Supreme Student Advisory Council operates as two parallel wings.</p>
+  </div>
+  <div class="wrap-narrow">
+    <div class="gender-grid">
+      <button class="gender-card" id="genderMale" onclick="selectGender('Male')">
+        <div class="icon"><svg class="avatar" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <circle cx="50" cy="50" r="50" fill="#DCEEF7"/>
+          <path d="M14 94c1-19 16-31 36-31s35 12 36 31z" fill="#219EBC"/>
+          <path d="M40 60h20v10a10 10 0 0 1-20 0z" fill="#E7B58C"/>
+          <circle cx="50" cy="41" r="18" fill="#F2C79B"/>
+          <path d="M32 41a18 18 0 0 1 36 0c-3-9-10-13-18-13s-15 4-18 13z" fill="#2b2016"/>
+          <path d="M40 74h20l-2 6a8 8 0 0 1-16 0z" fill="#F5FAFC" opacity=".85"/>
+        </svg></div>
+        <div class="selbadge"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></div>
+        <h3 data-i18n="gender.male">Male Council</h3>
+        <p data-i18n="gender.malep">Register under the Male Student Advisory Council</p>
+      </button>
+      <button class="gender-card" id="genderFemale" onclick="selectGender('Female')">
+        <div class="icon"><svg class="avatar" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <circle cx="50" cy="50" r="50" fill="#FBE4EC"/>
+          <path d="M16 96c0-23 15-35 34-35s34 12 34 35z" fill="#9B5C86"/>
+          <ellipse cx="50" cy="47" rx="15" ry="17" fill="#F2C79B"/>
+          <path d="M20 54C20 31 33 17 50 17s30 14 30 37c0 5-1 9-2 13-3-15-13-23-28-23s-25 8-28 23c-1-4-2-8-2-13z" fill="#A56A90"/>
+          <path d="M50 61c-9 0-16 8-19 21 6 3 12 4 19 4s13-1 19-4c-3-13-10-21-19-21z" fill="#8E5079"/>
+        </svg></div>
+        <div class="selbadge"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></div>
+        <h3 data-i18n="gender.female">Female Council</h3>
+        <p data-i18n="gender.femalep">Register under the Female Student Advisory Council</p>
+      </button>
+    </div>
+    <div class="continue-bar">
+      <button class="btn-teal" id="genderContinue" disabled onclick="go('register')" data-i18n="btn.continue">Next →</button>
+    </div>
+  </div>
+</section>
+
+<!-- ================= REGISTER ================= -->
+<section class="page" id="page-register">
+  <div class="stepheader">
+    <div class="chevron-motif"></div>
+    <div class="breadcrumb"><button onclick="go('gender')" data-i18n="crumb.gender">← Change council</button><span id="registerCrumb"></span></div>
+    <div class="kicker" data-i18n="reg.kicker">STEP 3 OF 3</div>
+    <h2 data-i18n="reg.title">Student Registration</h2>
+    <p data-i18n="reg.sub">Complete the form below to join the Supreme Student Advisory Council.</p>
+  </div>
+  <div class="wrap-narrow" style="padding-top:34px;">
+    <div class="stepper">
+      <div class="st active" data-step="1"><div class="line"></div><div class="circ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg></div><label data-i18n="step.personal">Personal</label></div>
+      <div class="st" data-step="2"><div class="line"></div><div class="circ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V4H6.5A2.5 2.5 0 0 0 4 6.5v13z"/><path d="M4 19.5V6.5"/></svg></div><label data-i18n="step.academic">Academic</label></div>
+      <div class="st" data-step="3"><div class="line"></div><div class="circ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></div><label data-i18n="step.submit">Submit</label></div>
+    </div>
+
+    <div class="formcard">
+      <!-- STEP 1: PERSONAL -->
+      <div class="formstep" id="formstep-1">
+        <h3 class="stephead" data-i18n="p1.head">Personal Information</h3>
+        <p class="stepsub" data-i18n="p1.sub">Tell us a little about yourself.</p>
+        <div class="readonly-chip" style="margin-bottom:22px;" id="deptChip">Faculty: —</div>
+        <div class="field">
+          <label data-i18n="f.name">Full Name</label>
+          <input type="text" id="f_name" placeholder="e.g. Khadeeja Taj">
+        </div>
+        <div class="field">
+          <label data-i18n="f.email">Email Address</label>
+          <input type="email" id="f_email" placeholder="you@example.com">
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label data-i18n="f.phone">Phone Number</label>
+            <input type="tel" id="f_phone" placeholder="+92XXXXXXXXXX">
+          </div>
+          <div class="field">
+            <label data-i18n="f.nat">Nationality</label>
+            <input type="text" id="f_nationality" placeholder="e.g. Pakistani">
+          </div>
+        </div>
+        <div class="field">
+          <label data-i18n="f.reg">Registration Number</label>
+          <input type="text" id="f_regno" placeholder="e.g. 4123-FBAS/BSCS/F22">
+        </div>
+        <div class="form-actions" style="justify-content:flex-end;">
+          <button class="btn-teal" onclick="nextStep(1)" data-i18n="btn.next">Next →</button>
+        </div>
+      </div>
+
+      <!-- STEP 2: ACADEMIC -->
+      <div class="formstep" id="formstep-2" style="display:none;">
+        <h3 class="stephead" data-i18n="p2.head">Academic Information</h3>
+        <p class="stepsub" data-i18n="p2.sub">Which faculty and program are you enrolled in?</p>
+        <div class="field">
+          <label data-i18n="f.faculty">Faculty <span class="opt" data-i18n="f.autofill">(auto-filled)</span></label>
+          <input type="text" id="f_faculty" readonly>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label data-i18n="f.program">Degree Program</label>
+            <input type="text" id="f_program" placeholder="e.g. BS Computer Science">
+          </div>
+          <div class="field">
+            <label data-i18n="f.semester">Current Semester</label>
+            <input type="text" id="f_semester" placeholder="e.g. 5th Semester">
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label data-i18n="f.year">Year of Study</label>
+            <input type="text" id="f_year" placeholder="e.g. 2026">
+          </div>
+          <div class="field">
+            <label data-i18n="f.cgpa">CGPA <span class="opt" data-i18n="f.optional">(optional)</span></label>
+            <input type="text" id="f_cgpa" placeholder="e.g. 3.55">
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn-outline" onclick="prevStep(2)" data-i18n="btn.back">← Back</button>
+          <button class="btn-teal" onclick="nextStep(2)" data-i18n="btn.next">Next →</button>
+        </div>
+      </div>
+
+      <!-- STEP 3: SUBMIT -->
+      <div class="formstep" id="formstep-3" style="display:none;">
+        <div class="submit-panel">
+          <div class="checkwrap">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#219EBC" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+          </div>
+          <h3 data-i18n="p3.head">Ready to submit</h3>
+          <p data-i18n="p3.sub">Your details have been filled in. Press the button below to send your application to the Supreme Student Advisory Council.</p>
+        </div>
+        <div class="review-mini" id="reviewMini"></div>
+        <div class="note-box" data-i18n="p3.note">Note: Registration is open only to students currently enrolled at the University.</div>
+        <div class="form-actions">
+          <button class="btn-outline" onclick="prevStep(3)" data-i18n="btn.back">← Back</button>
+          <button class="btn-teal" onclick="submitForm()" data-i18n="btn.submit">Submit Registration</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SUCCESS ================= -->
+<section class="page" id="page-success">
+  <div class="success-wrap">
+    <div class="success-icon">
+      <svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+    </div>
+    <h2 data-i18n="success.title">Registration Submitted</h2>
+    <p data-i18n="success.sub">Thank you for joining the Supreme Student Advisory Council. Your application has been recorded and will be reviewed by the Council team.</p>
+    <div class="success-card" id="successCard"></div>
+    <div class="cta-row" style="justify-content:center;">
+      <button class="btn-primary" onclick="resetAndGoHome()" data-i18n="success.home">Back to Home</button>
+      <button class="btn-secondary" style="color:var(--navy); border-color:var(--line);" onclick="go('admin')" data-i18n="success.admin">Go to Admin</button>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ADMIN ================= -->
+<section class="page" id="page-admin">
+  <div class="admin-wrap">
+    <a href="#" class="back-link" onclick="go('home');return false;" data-i18n="admin.back">← Back to Home</a>
+
+    <div id="adminLoginBox" class="admin-login">
+      <h3 data-i18n="admin.title">Admin Control</h3>
+      <p style="color:#5a7480;font-size:.88rem;margin-bottom:18px;" data-i18n="admin.sub">Enter the admin password to view submitted registrations.</p>
+      <div class="field" style="text-align:left;">
+        <input type="password" id="adminPass" placeholder="Password">
+      </div>
+      <button class="btn-teal" style="width:100%;" onclick="tryAdminLogin()" data-i18n="admin.login">Log In</button>
+      <p style="color:#a8bcc4;font-size:.72rem;margin-top:14px;" data-i18n="admin.hint">Authorized council staff only.</p>
+    </div>
+
+    <div id="adminPanel" style="display:none;">
+      <div class="admin-topbar">
+        <h2 style="margin:0;color:var(--navy);" data-i18n="admin.regs">Council Registrations</h2>
+        <div style="display:flex;gap:10px;">
+          <button class="btn-outline" onclick="loadAdminData()" data-i18n="admin.refresh">Refresh</button>
+          <button class="btn-outline" onclick="clearAllRegistrations()" data-i18n="admin.clear">Clear All</button>
+          <button class="btn-outline" onclick="adminLogout()" data-i18n="admin.logout">Log Out</button>
+        </div>
+      </div>
+      <div class="admin-stats" id="adminStats"></div>
+      <div class="admin-table-wrap">
+        <table id="adminTable">
+          <thead>
+            <tr>
+              <th data-i18n="admin.th.name">Name</th><th data-i18n="admin.th.email">Email</th><th data-i18n="admin.th.phone">Phone</th><th data-i18n="admin.th.faculty">Faculty</th><th data-i18n="admin.th.category">Category</th><th data-i18n="admin.th.program">Program</th><th data-i18n="admin.th.semester">Semester</th><th data-i18n="admin.th.reg">Reg #</th><th data-i18n="admin.th.submitted">Submitted</th>
+            </tr>
+          </thead>
+          <tbody id="adminTbody"></tbody>
+        </table>
+      </div>
+      <div id="adminEmpty" class="empty-state" style="display:none;" data-i18n="admin.empty">No registrations yet.</div>
+    </div>
+  </div>
+</section>
+<script src="js/app.js"></script>
+</body>
+</html>

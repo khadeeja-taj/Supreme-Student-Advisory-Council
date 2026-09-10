@@ -1,66 +1,152 @@
 # Supreme Student Advisory Council — IIUI
 
-A single-page registration website for the **Supreme Student Advisory Council**,
+A full-stack registration website for the **Supreme Student Advisory Council**,
 International Islamic University, Islamabad (IIUI).
 
-Everything lives in **`index.html`** — no build step, no dependencies. Open it in
-any modern browser or host it as a static site.
+- **Front-end:** HTML + CSS + JavaScript (bilingual English / العربية, RTL support).
+- **Back-end:** Node.js + Express REST API with **token-based admin authentication**.
+- **Database:** SQLite (via `better-sqlite3`) — every registration is stored
+  centrally, so the admin sees submissions from **all** students on **any**
+  device.
 
-## Features
+---
 
-- **Bilingual (English / العربية).** Toggle with the 🌐 button in the navbar; the
-  whole interface, including right-to-left layout, switches instantly.
-- **Two university seals** shown together in the header.
-- **Guided registration flow**, navigated by numbered step circles:
-  1. **Choose your faculty** — the eleven faculties of IIUI.
-  2. **Select your council** — Male or Female council, shown as portrait cards
-     (no gender symbols).
-  3. **Student registration** — personal details → academic information → review
-     and submit.
-- **Success page** confirming the submission.
-- **Admin panel** to review, count, and clear submitted registrations.
-- Registrations are saved in the browser via `localStorage`, so the site is fully
-  functional as a standalone page. If the site is hosted in an environment that
-  injects a `window.storage` key/value API, that is used automatically instead.
+## Project structure
 
-## Running locally
-
-Just open the file:
-
-```bash
-# from the project folder
-open index.html        # macOS
-# or double-click index.html in your file manager
+```
+.
+├── server.js            # Express app: API + serves the front-end
+├── db.js                # SQLite database layer
+├── package.json
+├── .env.example         # copy to .env and fill in
+├── Dockerfile           # container deploy (any host)
+├── render.yaml          # one-click deploy to Render.com
+└── public/              # the front-end (static files)
+    ├── index.html
+    ├── css/styles.css
+    ├── js/app.js
+    └── assets/          # logos, hero background, president photo
 ```
 
-Or serve it (recommended, so localStorage is scoped to a stable origin):
+## API
+
+| Method | Route                  | Access | Purpose                        |
+|--------|------------------------|--------|--------------------------------|
+| POST   | `/api/register`        | public | Submit a registration          |
+| POST   | `/api/admin/login`     | public | Exchange password for a token  |
+| GET    | `/api/registrations`   | admin  | List all registrations         |
+| DELETE | `/api/registrations`   | admin  | Delete all registrations       |
+| GET    | `/api/health`          | public | Health check                   |
+
+Admin routes require an `Authorization: Bearer <token>` header. The token is
+issued by `/api/admin/login` and expires after `TOKEN_TTL` (default 8h).
+
+---
+
+## Run it locally
+
+You need [Node.js](https://nodejs.org/) 18 or newer.
 
 ```bash
-python3 -m http.server 8000
-# then visit http://localhost:8000
+# 1. install dependencies
+npm install
+
+# 2. create your config
+cp .env.example .env
+#    then edit .env and set ADMIN_PASSWORD and JWT_SECRET
+
+# 3. start the server
+npm start
 ```
 
-## Hosting on GitHub Pages
+Open **http://localhost:3000**.
 
-1. Push this repository to GitHub.
-2. In **Settings → Pages**, set the source to this branch and the root folder.
-3. Your site will be published at `https://<user>.github.io/<repo>/`.
+Generate a strong `JWT_SECRET` with:
 
-## Admin access
+```bash
+node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"
+```
 
-- Open the **Admin** link in the navbar.
-- Default password: **`sac2026`** (change it in `index.html` — search for
-  `sac2026`).
-- The admin panel lists all registrations with totals per council and per
-  faculty, and can clear all records.
+## Admin panel
+
+- Click **Admin** in the navbar.
+- Log in with the `ADMIN_PASSWORD` you set in `.env`.
+- View totals per council and per faculty, and clear all records.
+
+---
+
+## Environment variables
+
+| Variable         | Required | Default        | Notes                                             |
+|------------------|----------|----------------|---------------------------------------------------|
+| `PORT`           | no       | `3000`         | Most hosts set this automatically.                |
+| `ADMIN_PASSWORD` | **yes**  | `sac2026`      | The admin login password. **Change it.**          |
+| `JWT_SECRET`     | **yes**  | insecure dev   | Long random string used to sign tokens.           |
+| `TOKEN_TTL`      | no       | `8h`           | How long an admin stays logged in.                |
+| `DB_PATH`        | no       | `./data/council.db` | Point at a persistent disk in production.    |
+| `CORS_ORIGIN`    | no       | `*`            | Restrict which site may call the API.             |
+
+---
+
+## Deploy to a domain
+
+This app serves the front-end and the API together, so you deploy it as **one**
+Node service. Pick any host below, then point your domain at it.
+
+### Option A — Render.com (easiest, has a free tier)
+
+1. Push this repo to GitHub.
+2. On Render: **New → Blueprint**, select this repo. Render reads `render.yaml`
+   and provisions the service **plus a 1 GB persistent disk** for the database.
+3. Set `ADMIN_PASSWORD` when prompted (`JWT_SECRET` is generated for you).
+4. After it deploys, open **Settings → Custom Domains**, add your domain, and
+   create the CNAME record Render shows you at your domain registrar.
+
+### Option B — Railway / Fly.io / any Node host
+
+- Build command: `npm install`
+- Start command: `node server.js`
+- Set the environment variables from the table above.
+- Attach a **persistent volume** and set `DB_PATH` to a path on it (e.g.
+  `/data/council.db`) so registrations survive restarts and redeploys.
+
+### Option C — Docker (VPS or any container host)
+
+```bash
+docker build -t ssac .
+docker run -d -p 80:3000 \
+  -e ADMIN_PASSWORD='your-strong-password' \
+  -e JWT_SECRET='your-long-random-secret' \
+  -e DB_PATH='/data/council.db' \
+  -v ssac-data:/data \
+  ssac
+```
+
+Then point your domain's `A` record at the server's IP address.
+
+> **A note on GitHub Pages:** GitHub Pages can only host static files — it
+> cannot run this Node back-end, so registrations would not be saved centrally
+> there. Use one of the hosts above for the full app. (If you only ever want the
+> static pages, the front-end in `public/` will open on its own, but the API
+> calls will not work.)
+
+---
+
+## Security notes
+
+- Always set a strong `ADMIN_PASSWORD` and a random `JWT_SECRET` in production.
+- The login endpoint is rate-limited (20 attempts / 15 min) and registration is
+  rate-limited (10 / min) to discourage abuse.
+- Serve the site over HTTPS (Render, Railway, Fly and most hosts provide this
+  automatically once your domain is attached).
 
 ## Color palette
 
-| Token   | Value     |
-|---------|-----------|
-| Navy    | `#023047` |
-| Teal    | `#219EBC` |
-| Sky     | `#8ECAE6` |
-| Amber   | `#FFB703` |
-| Orange  | `#FB8500` |
-| Paper   | `#F5FAFC` |
+| Token  | Value     |
+|--------|-----------|
+| Navy   | `#023047` |
+| Teal   | `#219EBC` |
+| Sky    | `#8ECAE6` |
+| Amber  | `#FFB703` |
+| Orange | `#FB8500` |
+| Paper  | `#F5FAFC` |
