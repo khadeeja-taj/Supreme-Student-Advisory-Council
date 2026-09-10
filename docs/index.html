@@ -344,9 +344,14 @@
 
       <div class="atab-panel" id="apanel-overview">
         <div class="admin-stats" id="adminStats"></div>
-        <div class="chart-grid">
+        <div class="dash-grid a">
+          <div class="chart-card"><div class="cc-head"><h4>Registrations over time</h4><span class="cc-sub">last 7 days</span></div><div id="chartTrend"></div></div>
+          <div class="chart-card"><h4>Council split</h4><div id="chartCouncilDonut"></div></div>
+        </div>
+        <div class="dash-grid b">
+          <div class="chart-card"><h4>Approval status</h4><div id="chartStatusDonut"></div></div>
+          <div class="chart-card"><h4>Approval rate</h4><div id="chartGauge"></div></div>
           <div class="chart-card"><h4>Registrations by faculty</h4><div id="chartFaculty" class="bars"></div></div>
-          <div class="chart-card"><h4>Council split</h4><div id="chartCouncil" class="bars"></div></div>
         </div>
         <div class="chart-card"><h4>Approval flow</h4><div id="chartFlow"></div></div>
       </div>

@@ -446,6 +446,29 @@
 .footer-col a:hover{ color:var(--sky); }
 .footer-bottom{ max-width:1100px; margin:36px auto 0; padding:18px 0; border-top:1px solid rgba(255,255,255,.12); font-size:.78rem; color:rgba(255,255,255,.6); text-align:center; }
 
+/* ===== analytics dashboard charts ===== */
+.dash-grid{ display:grid; gap:18px; margin-bottom:18px; }
+.dash-grid.a{ grid-template-columns:1.7fr 1fr; }
+.dash-grid.b{ grid-template-columns:1fr 1fr 1.3fr; }
+@media (max-width:900px){ .dash-grid.a, .dash-grid.b{ grid-template-columns:1fr; } }
+.cc-head{ display:flex; align-items:baseline; justify-content:space-between; gap:10px; }
+.cc-sub{ font-size:.72rem; color:#8199a3; font-weight:600; }
+.chart-card .svg-chart{ width:100%; height:auto; display:block; }
+.svg-chart .ax{ font-size:9px; fill:#8199a3; font-family:'Inter',sans-serif; }
+.svg-chart .grid{ stroke:#eef3f6; stroke-width:1; }
+.donut{ display:flex; align-items:center; gap:16px; flex-wrap:wrap; }
+.donut svg{ width:130px; height:130px; flex-shrink:0; }
+.donut .dc-num{ font-size:26px; font-weight:800; fill:var(--navy); font-family:'Amiri',serif; }
+.donut .dc-sub{ font-size:9px; fill:#8199a3; letter-spacing:.5px; text-transform:uppercase; }
+.donut-legend{ display:flex; flex-direction:column; gap:8px; }
+.donut-legend .lg{ font-size:.82rem; color:#3a545f; display:flex; align-items:center; gap:8px; }
+.donut-legend .lg b{ color:var(--navy); }
+.donut-legend .dot{ width:11px; height:11px; border-radius:3px; display:inline-block; }
+.gauge{ text-align:center; }
+.gauge svg{ width:170px; height:auto; }
+.gauge .g-num{ font-size:26px; font-weight:800; fill:var(--navy); font-family:'Amiri',serif; }
+.gauge .g-cap{ font-size:.76rem; color:#7c94a0; margin-top:2px; }
+
 </style>
 </head>
 <body>
@@ -783,9 +806,14 @@
 
       <div class="atab-panel" id="apanel-overview">
         <div class="admin-stats" id="adminStats"></div>
-        <div class="chart-grid">
+        <div class="dash-grid a">
+          <div class="chart-card"><div class="cc-head"><h4>Registrations over time</h4><span class="cc-sub">last 7 days</span></div><div id="chartTrend"></div></div>
+          <div class="chart-card"><h4>Council split</h4><div id="chartCouncilDonut"></div></div>
+        </div>
+        <div class="dash-grid b">
+          <div class="chart-card"><h4>Approval status</h4><div id="chartStatusDonut"></div></div>
+          <div class="chart-card"><h4>Approval rate</h4><div id="chartGauge"></div></div>
           <div class="chart-card"><h4>Registrations by faculty</h4><div id="chartFaculty" class="bars"></div></div>
-          <div class="chart-card"><h4>Council split</h4><div id="chartCouncil" class="bars"></div></div>
         </div>
         <div class="chart-card"><h4>Approval flow</h4><div id="chartFlow"></div></div>
       </div>
@@ -1381,7 +1409,33 @@ async function tryAdminLogin(){
 
 async function getRegs(){ try{ var r=await api('/api/registrations',{headers:authHdr()}); return r.registrations||[]; }catch(e){ if(e.status===401){ adminLogout(); } return []; } }
 
-/* ---- ADMIN: analytics ---- */
+/* ---- chart helpers (inline SVG, no libraries) ---- */
+function svgArea(points){
+  var W=560,H=180,pad=30,n=points.length;
+  var max=Math.max.apply(null,[1].concat(points.map(function(p){return p.value;})));
+  function x(i){ return pad + (n<=1?(W-2*pad)/2:i*(W-2*pad)/(n-1)); }
+  function y(v){ return H-pad-(v/max)*(H-2*pad-8); }
+  var line=points.map(function(p,i){return (i?'L':'M')+x(i).toFixed(1)+' '+y(p.value).toFixed(1);}).join(' ');
+  var area=line+' L'+x(n-1).toFixed(1)+' '+(H-pad)+' L'+x(0).toFixed(1)+' '+(H-pad)+' Z';
+  var dots=points.map(function(p,i){return '<circle cx="'+x(i).toFixed(1)+'" cy="'+y(p.value).toFixed(1)+'" r="3.5" fill="#219EBC"/>';}).join('');
+  var labels=points.map(function(p,i){return '<text x="'+x(i).toFixed(1)+'" y="'+(H-9)+'" text-anchor="middle" class="ax">'+esc(p.label)+'</text>';}).join('');
+  var grid=[0,0.5,1].map(function(t){var yy=(H-pad)-t*(H-2*pad-8);return '<line x1="'+pad+'" y1="'+yy.toFixed(1)+'" x2="'+(W-pad)+'" y2="'+yy.toFixed(1)+'" class="grid"/>';}).join('');
+  return '<svg viewBox="0 0 '+W+' '+H+'" class="svg-chart" preserveAspectRatio="xMidYMid meet"><defs><linearGradient id="ag" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#219EBC" stop-opacity=".28"/><stop offset="1" stop-color="#219EBC" stop-opacity="0"/></linearGradient></defs>'+grid+'<path d="'+area+'" fill="url(#ag)"/><path d="'+line+'" fill="none" stroke="#219EBC" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>'+dots+labels+'</svg>';
+}
+function svgDonut(segs,centerNum,centerSub){
+  var total=segs.reduce(function(s,x){return s+x.value;},0)||1;
+  var r=54,cx=70,cy=70,c=2*Math.PI*r,off=0;
+  var arcs=segs.map(function(s){var len=s.value/total*c;var el='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="'+s.color+'" stroke-width="18" stroke-dasharray="'+len.toFixed(2)+' '+(c-len).toFixed(2)+'" stroke-dashoffset="'+(-off).toFixed(2)+'" transform="rotate(-90 '+cx+' '+cy+')"/>';off+=len;return el;}).join('');
+  var legend=segs.map(function(s){return '<div class="lg"><span class="dot" style="background:'+s.color+'"></span>'+esc(s.label)+' <b>'+s.value+'</b></div>';}).join('');
+  return '<div class="donut"><svg viewBox="0 0 140 140">'+arcs+'<text x="70" y="66" text-anchor="middle" class="dc-num">'+esc(String(centerNum))+'</text><text x="70" y="86" text-anchor="middle" class="dc-sub">'+esc(centerSub||'')+'</text></svg><div class="donut-legend">'+legend+'</div></div>';
+}
+function svgGauge(pct){
+  pct=Math.max(0,Math.min(100,pct));
+  var circ=Math.PI*60, fill=pct/100*circ;
+  return '<div class="gauge"><svg viewBox="0 0 160 100"><path d="M20 82 A60 60 0 0 1 140 82" fill="none" stroke="#e6eef2" stroke-width="16" stroke-linecap="round"/><path d="M20 82 A60 60 0 0 1 140 82" fill="none" stroke="#219EBC" stroke-width="16" stroke-linecap="round" stroke-dasharray="'+fill.toFixed(2)+' '+circ.toFixed(2)+'"/><text x="80" y="76" text-anchor="middle" class="g-num">'+Math.round(pct)+'%</text></svg><div class="g-cap">of applications approved</div></div>';
+}
+
+/* ---- ADMIN: analytics (Supreme Student Advisory Council data) ---- */
 async function renderAnalytics(){
   var rows=await getRegs();
   var total=rows.length;
@@ -1392,21 +1446,29 @@ async function renderAnalytics(){
   document.getElementById('adminStats').innerHTML=
     '<div class="stat"><b>'+total+'</b><span>Total registrations</span></div>'+
     '<div class="stat"><b>'+approved+'</b><span>Approved</span></div>'+
-    '<div class="stat"><b>'+pending+'</b><span>Pending</span></div>'+
-    '<div class="stat"><b>'+(new Set(rows.map(function(r){return r.faculty;})).size)+'</b><span>Faculties</span></div>';
+    '<div class="stat"><b>'+pending+'</b><span>Pending review</span></div>'+
+    '<div class="stat"><b>'+(new Set(rows.map(function(r){return r.faculty;})).size)+'</b><span>Faculties represented</span></div>';
+
+  var now=new Date(), pts=[];
+  for(var i=6;i>=0;i--){ var d=new Date(now); d.setDate(now.getDate()-i); var key=d.toDateString();
+    var cnt=rows.filter(function(r){ try{return new Date(r.submittedAt).toDateString()===key;}catch(e){return false;} }).length;
+    pts.push({label:d.toLocaleDateString(undefined,{month:'short',day:'numeric'}), value:cnt}); }
+  document.getElementById('chartTrend').innerHTML=svgArea(pts);
+
+  document.getElementById('chartCouncilDonut').innerHTML=svgDonut([{label:'Male council',value:male,color:'#219EBC'},{label:'Female council',value:female,color:'#FB8500'}], total, 'members');
+  document.getElementById('chartStatusDonut').innerHTML=svgDonut([{label:'Approved',value:approved,color:'#2a9d63'},{label:'Pending',value:pending,color:'#FFB703'}], total, 'total');
+  document.getElementById('chartGauge').innerHTML=svgGauge(total?approved/total*100:0);
+
   var byFac={}; rows.forEach(function(r){ var f=r.faculty||'—'; byFac[f]=(byFac[f]||0)+1; });
   var keys=Object.keys(byFac).sort(function(a,b){return byFac[b]-byFac[a];});
   var maxF=Math.max.apply(null,[1].concat(keys.map(function(k){return byFac[k];})));
   document.getElementById('chartFaculty').innerHTML= keys.length ? keys.map(function(f){
     return '<div class="bar-row"><span class="bar-label">'+esc(f)+'</span><span class="bar-track"><span class="bar-fill" style="width:'+Math.round(byFac[f]/maxF*100)+'%"></span></span><span class="bar-val">'+byFac[f]+'</span></div>';
   }).join('') : '<div class="empty-card">No data yet.</div>';
-  var cm=Math.max(1,male,female);
-  document.getElementById('chartCouncil').innerHTML=
-    '<div class="bar-row"><span class="bar-label">Male</span><span class="bar-track"><span class="bar-fill male" style="width:'+Math.round(male/cm*100)+'%"></span></span><span class="bar-val">'+male+'</span></div>'+
-    '<div class="bar-row"><span class="bar-label">Female</span><span class="bar-track"><span class="bar-fill female" style="width:'+Math.round(female/cm*100)+'%"></span></span><span class="bar-val">'+female+'</span></div>';
+
   document.getElementById('chartFlow').innerHTML=
-    '<div class="flow"><div class="flow-step"><b>'+total+'</b><span>Applied</span></div><div class="flow-arrow">→</div>'+
-    '<div class="flow-step pend"><b>'+pending+'</b><span>Pending review</span></div><div class="flow-arrow">→</div>'+
+    '<div class="flow"><div class="flow-step"><b>'+total+'</b><span>Applied</span></div><div class="flow-arrow">&#8594;</div>'+
+    '<div class="flow-step pend"><b>'+pending+'</b><span>Pending review</span></div><div class="flow-arrow">&#8594;</div>'+
     '<div class="flow-step ok"><b>'+approved+'</b><span>Approved</span></div></div>';
 }
 
