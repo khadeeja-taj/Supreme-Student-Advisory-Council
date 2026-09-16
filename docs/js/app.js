@@ -127,6 +127,7 @@ const I18N = {
     "success.home":"Back to Home","success.admin":"Go to Admin",
     "admin.back":"← Back to Home","admin.title":"Admin Control","admin.sub":"Enter the admin password to view submitted registrations.","admin.hint":"Authorized council staff only.","admin.login":"Log In",
     "admin.regs":"Council Registrations","admin.refresh":"Refresh","admin.clear":"Clear All","admin.logout":"Log Out","admin.empty":"No registrations yet.",
+    "reps.kicker":"FACULTY REPRESENTATIVES","reps.title":"Council Representatives","reps.sub":"Selected student representatives serving on the Supreme Student Advisory Council, listed by faculty.", "news.kicker":"UPDATES","news.title":"News & Announcements","news.sub":"Upcoming events, deadlines, and important notices from the Council.", "contact.kicker":"GET IN TOUCH","contact.title":"Contact Us","contact.sub":"We would be honored to answer your questions.", "c.phone":"PHONE","c.email":"EMAIL","c.address":"ADDRESS","c.addressv":"International Islamic University, Islamabad, Pakistan","c.map":"Open location in Google Maps →","c.name":"Your Name *","c.emaill":"Email *","c.subject":"Subject","c.message":"Message *","c.thanks":"✓ Thank you — your message has been sent to the Council.","c.send":"Send Message", "footer.about":"The Supreme Student Advisory Council — a platform for students across every faculty of the International Islamic University, Islamabad to represent, advise and shape campus life.","footer.quick":"Quick Links","footer.council":"The Council","footer.connect":"Connect","footer.news":"News & Announcements","footer.reg":"Student Registration","footer.faculties":"Eleven Faculties","footer.wings":"Male & Female Councils","footer.reps":"Faculty Representatives","footer.addr":"International Islamic University, Islamabad, Pakistan","footer.bottom":"© 2026 Supreme Student Advisory Council · International Islamic University, Islamabad", "atab.overview":"Overview","atab.regs":"Registrations","atab.reps":"Representatives","atab.news":"Announcements","atab.messages":"Messages", "chart.trend":"Registrations over time","chart.trendsub":"last 7 days","chart.council":"Council split","chart.status":"Approval status","chart.rate":"Approval rate","chart.faculty":"Registrations by faculty","chart.flow":"Approval flow", "th.name":"Name","th.email":"Email","th.faculty":"Faculty","th.council":"Council","th.reg":"Reg #","th.status":"Status","th.actions":"Actions",
     "admin.th.name":"Name","admin.th.email":"Email","admin.th.phone":"Phone","admin.th.faculty":"Faculty","admin.th.category":"Category","admin.th.program":"Program","admin.th.semester":"Semester","admin.th.reg":"Reg #","admin.th.submitted":"Submitted"
   },
   ar:{
@@ -159,6 +160,7 @@ const I18N = {
     "success.home":"العودة للرئيسية","success.admin":"الذهاب إلى الإدارة",
     "admin.back":"← العودة للرئيسية","admin.title":"لوحة تحكم الإدارة","admin.sub":"أدخل كلمة مرور الإدارة لعرض التسجيلات المقدمة.","admin.hint":"للموظفين المصرح لهم فقط.","admin.login":"تسجيل الدخول",
     "admin.regs":"تسجيلات المجلس","admin.refresh":"تحديث","admin.clear":"مسح الكل","admin.logout":"تسجيل الخروج","admin.empty":"لا توجد تسجيلات بعد.",
+    "reps.kicker":"ممثلو الكليات","reps.title":"ممثلو المجلس","reps.sub":"ممثلو الطلاب المختارون في المجلس الاستشاري الطلابي الأعلى، مرتبون حسب الكلية.", "news.kicker":"تحديثات","news.title":"الأخبار والإعلانات","news.sub":"الفعاليات القادمة والمواعيد النهائية والإشعارات المهمة من المجلس.", "contact.kicker":"تواصل معنا","contact.title":"اتصل بنا","contact.sub":"يشرفنا الإجابة عن أسئلتكم.", "c.phone":"الهاتف","c.email":"البريد الإلكتروني","c.address":"العنوان","c.addressv":"الجامعة الإسلامية العالمية، إسلام آباد، باكستان","c.map":"افتح الموقع في خرائط جوجل ←","c.name":"الاسم *","c.emaill":"البريد الإلكتروني *","c.subject":"الموضوع","c.message":"الرسالة *","c.thanks":"✓ شكرًا — تم إرسال رسالتك إلى المجلس.","c.send":"إرسال الرسالة", "footer.about":"المجلس الاستشاري الطلابي الأعلى — منصة لطلاب جميع كليات الجامعة الإسلامية العالمية بإسلام آباد لتمثيل الطلاب وتقديم المشورة وتطوير الحياة الجامعية.","footer.quick":"روابط سريعة","footer.council":"المجلس","footer.connect":"تواصل","footer.news":"الأخبار والإعلانات","footer.reg":"تسجيل الطالب","footer.faculties":"إحدى عشرة كلية","footer.wings":"مجلسا الطلاب والطالبات","footer.reps":"ممثلو الكليات","footer.addr":"الجامعة الإسلامية العالمية، إسلام آباد، باكستان","footer.bottom":"© 2026 المجلس الاستشاري الطلابي الأعلى · الجامعة الإسلامية العالمية بإسلام آباد", "atab.overview":"نظرة عامة","atab.regs":"التسجيلات","atab.reps":"الممثلون","atab.news":"الإعلانات","atab.messages":"الرسائل", "chart.trend":"التسجيلات عبر الوقت","chart.trendsub":"آخر ٧ أيام","chart.council":"توزيع المجلس","chart.status":"حالة الموافقة","chart.rate":"معدل الموافقة","chart.faculty":"التسجيلات حسب الكلية","chart.flow":"مسار الموافقة", "th.name":"الاسم","th.email":"البريد","th.faculty":"الكلية","th.council":"المجلس","th.reg":"الرقم الجامعي","th.status":"الحالة","th.actions":"إجراءات",
     "admin.th.name":"الاسم","admin.th.email":"البريد الإلكتروني","admin.th.phone":"الهاتف","admin.th.faculty":"الكلية","admin.th.category":"الفئة","admin.th.program":"البرنامج","admin.th.semester":"الفصل","admin.th.reg":"الرقم الجامعي","admin.th.submitted":"تاريخ الإرسال"
   }
 };
@@ -182,6 +184,12 @@ function applyLang(){
   if(state.department){
     document.getElementById('f_faculty').value = deptLabel(state.department);
   }
+  try{
+    var ap=document.getElementById('adminPanel');
+    if(ap && ap.style.display==='block'){ var at=document.querySelector('.atab.active'); if(at) showAdminTab(at.dataset.tab); }
+    if(document.getElementById('page-news') && document.getElementById('page-news').classList.contains('active')) renderNews();
+    if(document.getElementById('page-reps') && document.getElementById('page-reps').classList.contains('active')) renderReps();
+  }catch(e){}
 }
 
 function deptLabel(d){ return lang === 'ar' ? d.ar : d.en; }
@@ -211,6 +219,7 @@ function selectGender(g){
   document.getElementById('genderMale').classList.toggle('selected', g==='Male');
   document.getElementById('genderFemale').classList.toggle('selected', g==='Female');
   document.getElementById('genderContinue').disabled = false;
+  setTimeout(function(){ go('register'); }, 300);
 }
 
 function go(pageId){
@@ -442,6 +451,8 @@ function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){retu
 function fmtDate(d){ try{ return new Date(d).toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'}); }catch(e){ return ''; } }
 function initials(n){ return String(n||'').split(/\s+/).filter(Boolean).slice(0,2).map(function(w){return w[0].toUpperCase();}).join(''); }
 function authHdr(){ return { Authorization: 'Bearer ' + adminToken }; }
+function tr(en,ar){ return lang==='ar'?ar:en; }
+function facLabel(en){ if(lang!=='ar') return en; var d=DEPARTMENTS.filter(function(x){return x.en===en;})[0]; return d?d.ar:en; }
 
 /* ---- localStorage-backed API (static mode) ---- */
 function localApi(path, opts){
@@ -552,7 +563,7 @@ function svgDonut(segs,centerNum,centerSub){
 function svgGauge(pct){
   pct=Math.max(0,Math.min(100,pct));
   var circ=Math.PI*60, fill=pct/100*circ;
-  return '<div class="gauge"><svg viewBox="0 0 160 100"><path d="M20 82 A60 60 0 0 1 140 82" fill="none" stroke="#e6eef2" stroke-width="16" stroke-linecap="round"/><path d="M20 82 A60 60 0 0 1 140 82" fill="none" stroke="#219EBC" stroke-width="16" stroke-linecap="round" stroke-dasharray="'+fill.toFixed(2)+' '+circ.toFixed(2)+'"/><text x="80" y="76" text-anchor="middle" class="g-num">'+Math.round(pct)+'%</text></svg><div class="g-cap">of applications approved</div></div>';
+  return '<div class="gauge"><svg viewBox="0 0 160 100"><path d="M20 82 A60 60 0 0 1 140 82" fill="none" stroke="#e6eef2" stroke-width="16" stroke-linecap="round"/><path d="M20 82 A60 60 0 0 1 140 82" fill="none" stroke="#219EBC" stroke-width="16" stroke-linecap="round" stroke-dasharray="'+fill.toFixed(2)+' '+circ.toFixed(2)+'"/><text x="80" y="76" text-anchor="middle" class="g-num">'+Math.round(pct)+'%</text></svg><div class="g-cap">'+tr('of applications approved','من الطلبات تمت الموافقة عليها')+'</div></div>';
 }
 
 /* ---- ADMIN: analytics (Supreme Student Advisory Council data) ---- */
@@ -564,10 +575,10 @@ async function renderAnalytics(){
   var approved=rows.filter(function(r){return r.status==='approved';}).length;
   var pending=total-approved;
   document.getElementById('adminStats').innerHTML=
-    '<div class="stat"><b>'+total+'</b><span>Total registrations</span></div>'+
-    '<div class="stat"><b>'+approved+'</b><span>Approved</span></div>'+
-    '<div class="stat"><b>'+pending+'</b><span>Pending review</span></div>'+
-    '<div class="stat"><b>'+(new Set(rows.map(function(r){return r.faculty;})).size)+'</b><span>Faculties represented</span></div>';
+    '<div class="stat"><b>'+total+'</b><span>'+tr('Total registrations','إجمالي التسجيلات')+'</span></div>'+
+    '<div class="stat"><b>'+approved+'</b><span>'+tr('Approved','موافق عليها')+'</span></div>'+
+    '<div class="stat"><b>'+pending+'</b><span>'+tr('Pending review','قيد المراجعة')+'</span></div>'+
+    '<div class="stat"><b>'+(new Set(rows.map(function(r){return r.faculty;})).size)+'</b><span>'+tr('Faculties represented','الكليات الممثلة')+'</span></div>';
 
   var now=new Date(), pts=[];
   for(var i=6;i>=0;i--){ var d=new Date(now); d.setDate(now.getDate()-i); var key=d.toDateString();
@@ -575,41 +586,63 @@ async function renderAnalytics(){
     pts.push({label:d.toLocaleDateString(undefined,{month:'short',day:'numeric'}), value:cnt}); }
   document.getElementById('chartTrend').innerHTML=svgArea(pts);
 
-  document.getElementById('chartCouncilDonut').innerHTML=svgDonut([{label:'Male council',value:male,color:'#219EBC'},{label:'Female council',value:female,color:'#FB8500'}], total, 'members');
-  document.getElementById('chartStatusDonut').innerHTML=svgDonut([{label:'Approved',value:approved,color:'#2a9d63'},{label:'Pending',value:pending,color:'#FFB703'}], total, 'total');
+  document.getElementById('chartCouncilDonut').innerHTML=svgDonut([{label:tr('Male council','مجلس الطلاب'),value:male,color:'#219EBC'},{label:tr('Female council','مجلس الطالبات'),value:female,color:'#FB8500'}], total, tr('members','عضو'));
+  document.getElementById('chartStatusDonut').innerHTML=svgDonut([{label:tr('Approved','موافق عليها'),value:approved,color:'#2a9d63'},{label:tr('Pending','قيد الانتظار'),value:pending,color:'#FFB703'}], total, tr('total','الإجمالي'));
   document.getElementById('chartGauge').innerHTML=svgGauge(total?approved/total*100:0);
 
   var byFac={}; rows.forEach(function(r){ var f=r.faculty||'—'; byFac[f]=(byFac[f]||0)+1; });
   var keys=Object.keys(byFac).sort(function(a,b){return byFac[b]-byFac[a];});
   var maxF=Math.max.apply(null,[1].concat(keys.map(function(k){return byFac[k];})));
   document.getElementById('chartFaculty').innerHTML= keys.length ? keys.map(function(f){
-    return '<div class="bar-row"><span class="bar-label">'+esc(f)+'</span><span class="bar-track"><span class="bar-fill" style="width:'+Math.round(byFac[f]/maxF*100)+'%"></span></span><span class="bar-val">'+byFac[f]+'</span></div>';
+    return '<div class="bar-row"><span class="bar-label">'+esc(facLabel(f))+'</span><span class="bar-track"><span class="bar-fill" style="width:'+Math.round(byFac[f]/maxF*100)+'%"></span></span><span class="bar-val">'+byFac[f]+'</span></div>';
   }).join('') : '<div class="empty-card">No data yet.</div>';
 
   document.getElementById('chartFlow').innerHTML=
-    '<div class="flow"><div class="flow-step"><b>'+total+'</b><span>Applied</span></div><div class="flow-arrow">&#8594;</div>'+
-    '<div class="flow-step pend"><b>'+pending+'</b><span>Pending review</span></div><div class="flow-arrow">&#8594;</div>'+
-    '<div class="flow-step ok"><b>'+approved+'</b><span>Approved</span></div></div>';
+    '<div class="flow"><div class="flow-step"><b>'+total+'</b><span>'+tr('Applied','تقدّموا')+'</span></div><div class="flow-arrow">&#8594;</div>'+
+    '<div class="flow-step pend"><b>'+pending+'</b><span>'+tr('Pending review','قيد المراجعة')+'</span></div><div class="flow-arrow">&#8594;</div>'+
+    '<div class="flow-step ok"><b>'+approved+'</b><span>'+tr('Approved','موافق عليها')+'</span></div></div>';
 }
 
 /* ---- ADMIN: registrations table (approve / delete) ---- */
+var _adminRows=[];
 async function loadAdminData(){
   var tbody=document.getElementById('adminTbody'); if(!tbody) return; tbody.innerHTML='';
   var rows=await getRegs();
   rows.sort(function(a,b){ return new Date(b.submittedAt)-new Date(a.submittedAt); });
+  _adminRows=rows;
   document.getElementById('adminEmpty').style.display=rows.length?'none':'block';
   document.getElementById('adminTable').style.display=rows.length?'table':'none';
   rows.forEach(function(d){
-    var tr=document.createElement('tr');
-    var st = d.status==='approved' ? '<span class="tag ok">Approved</span>' : '<span class="tag pend">Pending</span>';
-    var approveBtn = d.status==='approved' ? '' : '<button class="mini ok" onclick="approveReg(\''+d.id+'\')">Approve</button>';
-    tr.innerHTML='<td>'+esc(d.name)+'</td><td>'+esc(d.email)+'</td><td>'+esc(d.faculty)+'</td>'+
+    var trEl=document.createElement('tr');
+    var st = d.status==='approved' ? '<span class="tag ok">'+tr('Approved','موافق')+'</span>' : '<span class="tag pend">'+tr('Pending','قيد الانتظار')+'</span>';
+    var approveBtn = d.status==='approved' ? '' : '<button class="mini ok" onclick="approveReg(\''+d.id+'\')">'+tr('Approve','موافقة')+'</button>';
+    trEl.innerHTML='<td>'+esc(d.name)+'</td><td>'+esc(d.email)+'</td><td>'+esc(d.faculty)+'</td>'+
       '<td><span class="tag '+(d.gender==='Female'?'female':'male')+'">'+esc(d.gender)+'</span></td>'+
       '<td>'+esc(d.regno)+'</td><td>'+st+'</td>'+
-      '<td class="row-actions">'+approveBtn+'<button class="mini danger" onclick="deleteReg(\''+d.id+'\')">Delete</button></td>';
-    tbody.appendChild(tr);
+      '<td class="row-actions"><button class="mini" onclick="viewReg(\''+d.id+'\')">'+tr('View','عرض')+'</button>'+approveBtn+'<button class="mini danger" onclick="deleteReg(\''+d.id+'\')">'+tr('Delete','حذف')+'</button></td>';
+    tbody.appendChild(trEl);
   });
 }
+function viewReg(id){
+  var d=_adminRows.filter(function(r){return String(r.id)===String(id);})[0]; if(!d) return;
+  document.getElementById('regModalName').textContent=d.name||'—';
+  var st=d.status==='approved'?'<span class="tag ok">'+tr('Approved','موافق')+'</span>':'<span class="tag pend">'+tr('Pending','قيد الانتظار')+'</span>';
+  document.getElementById('regModalStatus').innerHTML=st;
+  var ab=d.status==='approved'?'':'<button class="btn-teal" onclick="approveReg(\''+d.id+'\');closeRegModal()">'+tr('Approve','موافقة')+'</button>';
+  document.getElementById('regModalActions').innerHTML=ab+'<button class="btn-outline" style="color:#b13a63;border-color:#f3c6d3" onclick="deleteReg(\''+d.id+'\');closeRegModal()">'+tr('Delete','حذف')+'</button>';
+  function rf(label,val,full){ return '<div class="rf'+(full?' full':'')+'"><span>'+label+'</span><b>'+(esc(val)||'—')+'</b></div>'; }
+  var date=d.submittedAt?new Date(d.submittedAt).toLocaleString():'';
+  document.getElementById('regModalBody').innerHTML=
+    rf(tr('Full Name','الاسم'),d.name)+rf(tr('Email','البريد الإلكتروني'),d.email)+rf(tr('Phone','الهاتف'),d.phone)+
+    rf(tr('Nationality','الجنسية'),d.nationality)+rf(tr('Registration No.','الرقم الجامعي'),d.regno)+
+    rf(tr('Council','المجلس'),d.gender)+rf(tr('Faculty','الكلية'),d.faculty,true)+
+    rf(tr('Degree Level','مستوى الدرجة'),d.level)+rf(tr('Degree Program','البرنامج'),d.program)+
+    rf(tr('Current Semester','الفصل الدراسي'),d.semester)+rf(tr('CGPA','المعدل التراكمي'),d.cgpa)+
+    rf(tr('Skills','المهارات'),(d.skills||[]).join(', '),true)+rf(tr('Hobbies & Interests','الهوايات والاهتمامات'),(d.hobbies||[]).join(', '),true)+
+    rf(tr('Submitted','تاريخ الإرسال'),date,true);
+  document.getElementById('regModal').hidden=false;
+}
+function closeRegModal(){ var m=document.getElementById('regModal'); if(m) m.hidden=true; }
 async function approveReg(id){ try{ await api('/api/registrations/update',{method:'POST',headers:authHdr(),body:JSON.stringify({id:id,status:'approved'})}); loadAdminData(); }catch(e){ alert(e.message); } }
 async function deleteReg(id){ if(!confirm('Delete this registration?')) return; try{ await api('/api/registrations/delete',{method:'POST',headers:authHdr(),body:JSON.stringify({id:id})}); loadAdminData(); }catch(e){ alert(e.message); } }
 
