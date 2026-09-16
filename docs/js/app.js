@@ -114,7 +114,7 @@ const I18N = {
     "gender.kicker":"STEP 2 OF 3","gender.title":"Select Your Council","gender.sub":"The Supreme Student Advisory Council operates as two parallel wings.",
     "gender.male":"Male Student","gender.malep":"Register under the Male Student Advisory Council",
     "gender.female":"Female Student","gender.femalep":"Register under the Female Student Advisory Council",
-    "reg.kicker":"STEP 3 OF 3","reg.title":"Student Registration","reg.sub":"Complete the form below to join the Supreme Student Advisory Council.",
+    "reg.kicker":"STEP 3 OF 3","reg.title":"Student Registration","reg.sub":"Complete the form below to join the Supreme Student Advisory Council",
     "step.personal":"Personal","step.academic":"Academic","step.skills":"Skills","step.submit":"Submit",
     "p1.head":"Personal Information","p1.sub":"Tell us a little about yourself.",
     "p2.head":"Academic Information","p2.sub":"Which faculty and program are you enrolled in?","p3s.head":"Skills & Hobbies","p3s.sub":"Select all that apply — you can choose more than one.",
@@ -147,7 +147,7 @@ const I18N = {
     "gender.kicker":"الخطوة ٢ من ٣","gender.title":"اختر مجلسك","gender.sub":"يعمل المجلس الاستشاري الطلابي الأعلى بجناحين متوازيين.",
     "gender.male":"طالب","gender.malep":"سجل ضمن المجلس الاستشاري لقسم الطلاب",
     "gender.female":"طالبة","gender.femalep":"سجلي ضمن المجلس الاستشاري لقسم الطالبات",
-    "reg.kicker":"الخطوة ٣ من ٣","reg.title":"تسجيل الطالب","reg.sub":"أكمل النموذج أدناه للانضمام إلى المجلس الاستشاري الطلابي الأعلى.",
+    "reg.kicker":"الخطوة ٣ من ٣","reg.title":"تسجيل الطالب","reg.sub":"أكمل النموذج أدناه للانضمام إلى المجلس الاستشاري الطلابي الأعلى",
     "step.personal":"شخصي","step.academic":"أكاديمي","step.skills":"المهارات","step.submit":"إرسال",
     "p1.head":"المعلومات الشخصية","p1.sub":"أخبرنا القليل عن نفسك.",
     "p2.head":"المعلومات الأكاديمية","p2.sub":"في أي كلية وبرنامج أنت مسجل؟","p3s.head":"المهارات والهوايات","p3s.sub":"اختر كل ما ينطبق — يمكنك اختيار أكثر من واحد.",
@@ -225,6 +225,7 @@ function selectGender(g){
 function go(pageId){
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById('page-' + pageId).classList.add('active');
+  document.getElementById('htmlRoot').classList.toggle('on-admin', pageId==='admin');
   window.scrollTo({top:0, behavior:'instant'});
   if(pageId === 'gender' && state.department){
     document.getElementById('genderFacultyCrumb').textContent = ' · ' + deptLabel(state.department);

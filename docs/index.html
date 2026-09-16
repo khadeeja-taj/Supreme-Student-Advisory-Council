@@ -149,7 +149,7 @@
     <div class="breadcrumb"><button onclick="go('gender')" data-i18n="crumb.gender">← Change council</button><span id="registerCrumb"></span></div>
     <div class="kicker" data-i18n="reg.kicker">STEP 3 OF 3</div>
     <h2 data-i18n="reg.title">Student Registration</h2>
-    <p data-i18n="reg.sub">Complete the form below to join the Supreme Student Advisory Council.</p>
+    <p data-i18n="reg.sub">Complete the form below to join the Supreme Student Advisory Council</p>
   </div>
   <div class="wrap-narrow" style="padding-top:34px;">
     <div class="stepper">
@@ -187,7 +187,8 @@
           <label data-i18n="f.reg">Registration Number</label>
           <input type="text" id="f_regno" placeholder="e.g. 4123-FBAS/BSCS/F22">
         </div>
-        <div class="form-actions" style="justify-content:flex-end;">
+        <div class="form-actions">
+          <button class="btn-outline" onclick="go('gender')" data-i18n="btn.back">← Back</button>
           <button class="btn-teal" onclick="nextStep(1)" data-i18n="btn.next">Next →</button>
         </div>
       </div>
@@ -342,8 +343,6 @@
 <!-- ================= ADMIN ================= -->
 <section class="page" id="page-admin">
   <div class="admin-wrap">
-    <a href="#" class="back-link" onclick="go('home');return false;" data-i18n="admin.back">← Back to Home</a>
-
     <div id="adminLoginBox" class="admin-login">
       <h3 data-i18n="admin.title">Admin Control</h3>
       <p style="color:#5a7480;font-size:.88rem;margin-bottom:18px;" data-i18n="admin.sub">Enter the admin password to view submitted registrations.</p>
