@@ -75,6 +75,7 @@ const DEPARTMENTS = [
   {en:"Faculty of Languages & Literature", ar:"كلية اللغات والآداب", icon:"globe"},
   {en:"Faculty of Management Sciences", ar:"كلية علوم الإدارة", icon:"case"},
   {en:"Faculty of Sciences", ar:"كلية العلوم", icon:"flask"},
+  {en:"Faculty of Basic and Applied Sciences", ar:"كلية العلوم الأساسية والتطبيقية", icon:"flask"},
   {en:"Faculty of Social Sciences", ar:"كلية العلوم الاجتماعية", icon:"people"},
   {en:"Faculty of Shariah and Law", ar:"كلية الشريعة والقانون", icon:"scale"},
   {en:"Faculty of Usuluddin (Islamic Studies)", ar:"كلية أصول الدين", icon:"mosque"},
@@ -111,16 +112,16 @@ const I18N = {
     "crumb.home":"← Home","crumb.dept":"← Change faculty","crumb.gender":"← Change council",
     "dept.kicker":"STEP 1 OF 3","dept.title":"Overview of Faculties","dept.sub":"Select the faculty you are currently enrolled in to continue your registration.",
     "gender.kicker":"STEP 2 OF 3","gender.title":"Select Your Council","gender.sub":"The Supreme Student Advisory Council operates as two parallel wings.",
-    "gender.male":"Male Council","gender.malep":"Register under the Male Student Advisory Council",
-    "gender.female":"Female Council","gender.femalep":"Register under the Female Student Advisory Council",
+    "gender.male":"Male Student","gender.malep":"Register under the Male Student Advisory Council",
+    "gender.female":"Female Student","gender.femalep":"Register under the Female Student Advisory Council",
     "reg.kicker":"STEP 3 OF 3","reg.title":"Student Registration","reg.sub":"Complete the form below to join the Supreme Student Advisory Council.",
-    "step.personal":"Personal","step.academic":"Academic","step.submit":"Submit",
+    "step.personal":"Personal","step.academic":"Academic","step.skills":"Skills","step.submit":"Submit",
     "p1.head":"Personal Information","p1.sub":"Tell us a little about yourself.",
-    "p2.head":"Academic Information","p2.sub":"Which faculty and program are you enrolled in?",
-    "p3.head":"Ready to submit","p3.sub":"Your details have been filled in. Press the button below to send your application to the Supreme Student Advisory Council.",
+    "p2.head":"Academic Information","p2.sub":"Which faculty and program are you enrolled in?","p3s.head":"Skills & Hobbies","p3s.sub":"Select all that apply — you can choose more than one.",
+    "p3.head":"Review & submit","p3.sub":"Please review your details below, then send your application to the Council.",
     "p3.note":"Note: Registration is open only to students currently enrolled at the University.",
     "f.name":"Full Name","f.email":"Email Address","f.phone":"Phone Number","f.nat":"Nationality","f.reg":"Registration Number",
-    "f.faculty":"Faculty","f.autofill":"(auto-filled)","f.program":"Degree Program","f.semester":"Current Semester","f.year":"Year of Study","f.cgpa":"CGPA","f.optional":"(optional)",
+    "f.faculty":"Faculty","f.autofill":"(auto-filled)","f.program":"Degree Program","f.semester":"Current Semester","f.year":"Year of Study","f.cgpa":"CGPA","f.optional":"(optional)","f.level":"Degree Level","f.levelph":"Select your degree level","f.skills":"Skills","f.hobbies":"Hobbies & Interests",
     "btn.continue":"Next →","btn.next":"Next →","btn.back":"← Back","btn.submit":"Submit Registration",
     "success.title":"Registration Submitted","success.sub":"Thank you for joining the Supreme Student Advisory Council. Your application has been recorded and will be reviewed by the Council team.",
     "success.home":"Back to Home","success.admin":"Go to Admin",
@@ -143,16 +144,16 @@ const I18N = {
     "crumb.home":"← الرئيسية","crumb.dept":"← تغيير الكلية","crumb.gender":"← تغيير المجلس",
     "dept.kicker":"الخطوة ١ من ٣","dept.title":"نظرة عامة على الكليات","dept.sub":"اختر الكلية التي تدرس فيها حاليًا لمتابعة التسجيل.",
     "gender.kicker":"الخطوة ٢ من ٣","gender.title":"اختر مجلسك","gender.sub":"يعمل المجلس الاستشاري الطلابي الأعلى بجناحين متوازيين.",
-    "gender.male":"المجلس الطلابي (طلاب)","gender.malep":"سجل ضمن المجلس الاستشاري لقسم الطلاب",
-    "gender.female":"المجلس الطلابي (طالبات)","gender.femalep":"سجلي ضمن المجلس الاستشاري لقسم الطالبات",
+    "gender.male":"طالب","gender.malep":"سجل ضمن المجلس الاستشاري لقسم الطلاب",
+    "gender.female":"طالبة","gender.femalep":"سجلي ضمن المجلس الاستشاري لقسم الطالبات",
     "reg.kicker":"الخطوة ٣ من ٣","reg.title":"تسجيل الطالب","reg.sub":"أكمل النموذج أدناه للانضمام إلى المجلس الاستشاري الطلابي الأعلى.",
-    "step.personal":"شخصي","step.academic":"أكاديمي","step.submit":"إرسال",
+    "step.personal":"شخصي","step.academic":"أكاديمي","step.skills":"المهارات","step.submit":"إرسال",
     "p1.head":"المعلومات الشخصية","p1.sub":"أخبرنا القليل عن نفسك.",
-    "p2.head":"المعلومات الأكاديمية","p2.sub":"في أي كلية وبرنامج أنت مسجل؟",
-    "p3.head":"جاهز للإرسال","p3.sub":"تم تعبئة بياناتك. اضغط الزر أدناه لإرسال طلبك إلى المجلس الاستشاري الطلابي الأعلى.",
+    "p2.head":"المعلومات الأكاديمية","p2.sub":"في أي كلية وبرنامج أنت مسجل؟","p3s.head":"المهارات والهوايات","p3s.sub":"اختر كل ما ينطبق — يمكنك اختيار أكثر من واحد.",
+    "p3.head":"مراجعة وإرسال","p3.sub":"يرجى مراجعة بياناتك أدناه ثم إرسال طلبك إلى المجلس.",
     "p3.note":"ملاحظة: التسجيل متاح فقط للطلاب المسجلين حاليًا في الجامعة.",
     "f.name":"الاسم الكامل","f.email":"البريد الإلكتروني","f.phone":"رقم الهاتف","f.nat":"الجنسية","f.reg":"الرقم الجامعي",
-    "f.faculty":"الكلية","f.autofill":"(معبأ تلقائيًا)","f.program":"البرنامج الدراسي","f.semester":"الفصل الدراسي الحالي","f.year":"سنة الدراسة","f.cgpa":"المعدل التراكمي","f.optional":"(اختياري)",
+    "f.faculty":"الكلية","f.autofill":"(معبأ تلقائيًا)","f.program":"البرنامج الدراسي","f.semester":"الفصل الدراسي الحالي","f.year":"سنة الدراسة","f.cgpa":"المعدل التراكمي","f.optional":"(اختياري)","f.level":"مستوى الدرجة","f.levelph":"اختر مستوى الدرجة","f.skills":"المهارات","f.hobbies":"الهوايات والاهتمامات",
     "btn.continue":"التالي ←","btn.next":"التالي ←","btn.back":"→ رجوع","btn.submit":"إرسال التسجيل",
     "success.title":"تم إرسال التسجيل","success.sub":"شكرًا لانضمامك إلى المجلس الاستشاري الطلابي الأعلى. تم تسجيل طلبك وسيتم مراجعته من قبل فريق المجلس.",
     "success.home":"العودة للرئيسية","success.admin":"الذهاب إلى الإدارة",
@@ -197,9 +198,9 @@ function renderDepartments(){
     const btn = document.createElement('button');
     btn.className = 'dept-card' + (state.department === d ? ' selected' : '');
     btn.innerHTML = `<span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${ICONS[d.icon]}</svg></span>
-      <span class="txt"><span class="name">${lang==='ar'?d.ar:d.en}</span><span class="namear">${lang==='ar'?d.en:d.ar}</span></span>
+      <span class="txt"><span class="name">${lang==='ar'?d.ar:d.en}</span></span>
       <span class="chk"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span>`;
-    btn.onclick = () => { state.department = d; renderDepartments(); document.getElementById('deptContinue').disabled = false; };
+    btn.onclick = () => { state.department = d; renderDepartments(); document.getElementById('deptContinue').disabled = false; setTimeout(function(){ go('gender'); }, 280); };
     grid.appendChild(btn);
   });
 }
@@ -232,15 +233,15 @@ function closeDrawer(){ document.getElementById('drawer').classList.remove('open
 
 /* ---------- FORM STEPPER ---------- */
 function goToStep(n){
-  [1,2,3].forEach(i => {
-    document.getElementById('formstep-'+i).style.display = (i===n) ? 'block' : 'none';
+  [1,2,3,4].forEach(i => {
+    const _el=document.getElementById('formstep-'+i); if(_el) _el.style.display = (i===n) ? 'block' : 'none';
   });
   document.querySelectorAll('.stepper .st').forEach(el => {
     const s = parseInt(el.dataset.step);
     el.classList.toggle('active', s===n);
     el.classList.toggle('done', s<n);
   });
-  if(n === 3){ buildReview(); }
+  if(n === 4){ buildReview(); }
 }
 function nextStep(current){
   if(current === 1){
@@ -251,42 +252,54 @@ function nextStep(current){
     const reg = document.getElementById('f_regno').value.trim();
     if(!name || !email || !phone || !nat || !reg){ alert(lang==='ar' ? 'يرجى تعبئة جميع الحقول المطلوبة.' : 'Please fill in all required fields.'); return; }
   }
+  if(current === 2){
+    const level = document.getElementById('f_level').value;
+    const program = document.getElementById('f_program').value.trim();
+    const semester = document.getElementById('f_semester').value.trim();
+    if(!level || !program || !semester){ alert(lang==='ar' ? 'يرجى تعبئة المعلومات الأكاديمية.' : 'Please complete your academic information.'); return; }
+  }
   goToStep(current+1);
 }
 function prevStep(current){ goToStep(current-1); }
 
+function _fv(id){ const el=document.getElementById(id); return el?el.value.trim():''; }
+function collectChecked(sel){ return Array.prototype.slice.call(document.querySelectorAll(sel)).map(function(i){return i.value;}); }
+function gatherSkills(){ var a=collectChecked('#skillsChips input:checked'); var o=_fv('f_skills_other'); if(o) a.push(o); return a; }
+function gatherHobbies(){ var a=collectChecked('#hobbiesChips input:checked'); var o=_fv('f_hobbies_other'); if(o) a.push(o); return a; }
 function buildReview(){
   const box = document.getElementById('reviewMini');
-  const name = document.getElementById('f_name').value.trim();
-  const program = document.getElementById('f_program').value.trim();
-  box.innerHTML = `
-    <div><span>${lang==='ar'?'الاسم':'Name'}</span><b>${name||'—'}</b></div>
-    <div><span>${lang==='ar'?'المجلس':'Council'}</span><b>${state.gender||'—'}</b></div>
-    <div><span>${lang==='ar'?'الكلية':'Faculty'}</span><b>${state.department?deptLabel(state.department):'—'}</b></div>
-    <div><span>${lang==='ar'?'البرنامج':'Program'}</span><b>${program||'—'}</b></div>
-  `;
+  const L=(en,ar)=>lang==='ar'?ar:en;
+  function rf(label,val,full){ return '<div class="rf'+(full?' full':'')+'"><span>'+label+'</span><b>'+(esc(val)||'—')+'</b></div>'; }
+  box.innerHTML =
+    rf(L('Full Name','الاسم'), _fv('f_name')) +
+    rf(L('Email','البريد الإلكتروني'), _fv('f_email')) +
+    rf(L('Phone','الهاتف'), _fv('f_phone')) +
+    rf(L('Nationality','الجنسية'), _fv('f_nationality')) +
+    rf(L('Registration No.','الرقم الجامعي'), _fv('f_regno')) +
+    rf(L('Council','المجلس'), state.gender) +
+    rf(L('Faculty','الكلية'), state.department?deptLabel(state.department):'', true) +
+    rf(L('Degree Level','مستوى الدرجة'), _fv('f_level')) +
+    rf(L('Degree Program','البرنامج'), _fv('f_program')) +
+    rf(L('Current Semester','الفصل الدراسي'), _fv('f_semester')) +
+    rf(L('CGPA','المعدل التراكمي'), _fv('f_cgpa')) +
+    rf(L('Skills','المهارات'), gatherSkills().join(', '), true) +
+    rf(L('Hobbies & Interests','الهوايات والاهتمامات'), gatherHobbies().join(', '), true);
 }
 
 async function submitForm(){
   const data = {
-    name: document.getElementById('f_name').value.trim(),
-    email: document.getElementById('f_email').value.trim(),
-    phone: document.getElementById('f_phone').value.trim(),
-    nationality: document.getElementById('f_nationality').value.trim(),
-    regno: document.getElementById('f_regno').value.trim(),
-    faculty: state.department ? state.department.en : null,
-    gender: state.gender,
-    program: document.getElementById('f_program').value.trim(),
-    semester: document.getElementById('f_semester').value.trim(),
-    year: document.getElementById('f_year').value.trim(),
-    cgpa: document.getElementById('f_cgpa').value.trim(),
+    name: _fv('f_name'), email: _fv('f_email'), phone: _fv('f_phone'),
+    nationality: _fv('f_nationality'), regno: _fv('f_regno'),
+    faculty: state.department ? state.department.en : null, gender: state.gender,
+    level: _fv('f_level'), program: _fv('f_program'), semester: _fv('f_semester'),
+    cgpa: _fv('f_cgpa'), skills: gatherSkills(), hobbies: gatherHobbies(),
     submittedAt: new Date().toISOString()
   };
   if(!data.name || !data.email || !data.phone || !data.regno){
     alert(lang==='ar' ? 'يرجى تعبئة جميع الحقول المطلوبة.' : 'Please fill in all required fields.');
     return;
   }
-  const btn = document.querySelector('#formstep-3 .btn-teal');
+  const btn = document.querySelector('#formstep-4 .btn-teal');
   if(btn){ btn.disabled = true; }
   try{
     await api('/api/register', { method:'POST', body: JSON.stringify(data) });
@@ -297,18 +310,25 @@ async function submitForm(){
   }
   if(btn){ btn.disabled = false; }
 
-  document.getElementById('successCard').innerHTML = `
-    <div class="row"><span>${lang==='ar'?'الاسم':'Name'}</span><span>${data.name}</span></div>
-    <div class="row"><span>${lang==='ar'?'الكلية':'Faculty'}</span><span>${data.faculty || '—'}</span></div>
-    <div class="row"><span>${lang==='ar'?'الفئة':'Category'}</span><span>${data.gender || '—'}</span></div>
-    <div class="row"><span>${lang==='ar'?'الرقم الجامعي':'Registration No.'}</span><span>${data.regno}</span></div>
-  `;
+  document.getElementById('successCard').innerHTML = successRows(data);
   go('success');
+}
+function successRows(d){
+  const L=(en,ar)=>lang==='ar'?ar:en;
+  function r(label,val){ return '<div class="row"><span>'+label+'</span><span>'+(esc(val)||'—')+'</span></div>'; }
+  return r(L('Full Name','الاسم'),d.name)+r(L('Email','البريد الإلكتروني'),d.email)+r(L('Phone','الهاتف'),d.phone)+
+    r(L('Nationality','الجنسية'),d.nationality)+r(L('Registration No.','الرقم الجامعي'),d.regno)+
+    r(L('Council','المجلس'),d.gender)+r(L('Faculty','الكلية'),d.faculty)+
+    r(L('Degree Level','مستوى الدرجة'),d.level)+r(L('Degree Program','البرنامج'),d.program)+
+    r(L('Current Semester','الفصل الدراسي'),d.semester)+r(L('CGPA','المعدل التراكمي'),d.cgpa)+
+    r(L('Skills','المهارات'),(d.skills||[]).join(', '))+r(L('Hobbies & Interests','الهوايات والاهتمامات'),(d.hobbies||[]).join(', '));
 }
 
 function resetAndGoHome(){
   state = {department:null, gender:null};
-  ['f_name','f_email','f_phone','f_nationality','f_regno','f_program','f_semester','f_year','f_cgpa'].forEach(id => document.getElementById(id).value = '');
+  ['f_name','f_email','f_phone','f_nationality','f_regno','f_program','f_semester','f_cgpa','f_skills_other','f_hobbies_other','f_level'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
+  document.querySelectorAll('#skillsChips input:checked, #hobbiesChips input:checked').forEach(function(i){ i.checked=false; var c=i.closest('.chip'); if(c) c.classList.remove('checked'); });
+  goToStep(1);
   document.getElementById('deptContinue').disabled = true;
   document.getElementById('genderContinue').disabled = true;
   document.getElementById('genderMale').classList.remove('selected');
@@ -630,3 +650,34 @@ async function deleteRep(id){ if(!confirm('Delete this representative?')) return
     if(pageId==='reps') renderReps();
   };
 })();
+
+
+/* ---- skills & hobbies chips ---- */
+var SKILLS=[
+ 'Communication skills (Arabic & English, spoken & written)',
+ 'Leadership and team management',
+ 'Public speaking and presentation',
+ 'Event planning and coordination',
+ 'Basic report writing and documentation',
+ 'Programming',
+ 'Web development',
+ 'Graphic designing',
+ 'Social media management',
+ 'Content creation',
+ 'Video editing',
+ 'Photography',
+ 'Event Management (Protocol, Refreshment)',
+ 'Logistics (Decoration)',
+ 'Graphics',
+ 'Social media / Photography',
+ 'Stage Performer (Tilawat, Naat, Comparing, Speech, etc.)'
+];
+var HOBBIES=['Driving','Drawing','Book reading','Arts & crafts','Calligraphy','Sports','Writing / Poetry','Travelling','Cooking','Volunteering','Gardening'];
+function _chip(name,label){ return '<label class="chip"><input type="checkbox" name="'+name+'" value="'+esc(label)+'"><span>'+esc(label)+'</span></label>'; }
+function _bindChips(box){ box.querySelectorAll('input').forEach(function(inp){ inp.addEventListener('change',function(){ var c=inp.closest('.chip'); if(c) c.classList.toggle('checked', inp.checked); }); }); }
+function renderChips(){
+  var sc=document.getElementById('skillsChips'), hc=document.getElementById('hobbiesChips');
+  if(sc && !sc.dataset.filled){ sc.innerHTML=SKILLS.map(function(x){return _chip('skill',x);}).join(''); sc.dataset.filled='1'; _bindChips(sc); }
+  if(hc && !hc.dataset.filled){ hc.innerHTML=HOBBIES.map(function(x){return _chip('hobby',x);}).join(''); hc.dataset.filled='1'; _bindChips(hc); }
+}
+renderChips();

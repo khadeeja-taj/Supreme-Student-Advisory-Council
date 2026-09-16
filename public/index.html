@@ -64,7 +64,6 @@
         <span class="iiu-tag" data-i18n="hero.tag">ISLAMIC · INTERNATIONAL ISLAMIC UNIVERSITY, ISLAMABAD</span>
       </div>
       <h1 data-i18n="hero.title">Supreme Student Advisory Council</h1>
-      <div class="arabic-title arabic">المجلس الاستشاري الطلابي الأعلى</div>
       <p class="lead" data-i18n="hero.lead">Under the direction of the Worthy President of the International Islamic University Islamabad, the University is pleased to announce the establishment of the Supreme Student Advisory Council — a platform for students across every faculty to represent, advise and shape campus life.</p>
       <div class="cta-row">
         <button class="btn-primary" onclick="go('departments')"><span data-i18n="hero.cta">Get Started</span> →</button>
@@ -95,6 +94,7 @@
   <div class="wrap-narrow">
     <div class="dept-grid" id="deptGrid"></div>
     <div class="continue-bar">
+      <button class="btn-outline" onclick="go('home')" data-i18n="btn.back">← Back</button>
       <button class="btn-teal" id="deptContinue" disabled onclick="go('gender')" data-i18n="btn.continue">Next →</button>
     </div>
   </div>
@@ -121,8 +121,7 @@
           <path d="M40 74h20l-2 6a8 8 0 0 1-16 0z" fill="#F5FAFC" opacity=".85"/>
         </svg></div>
         <div class="selbadge"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></div>
-        <h3 data-i18n="gender.male">Male Council</h3>
-        <p data-i18n="gender.malep">Register under the Male Student Advisory Council</p>
+        <h3 data-i18n="gender.male">Male Student</h3>
       </button>
       <button class="gender-card" id="genderFemale" onclick="selectGender('Female')">
         <div class="icon"><svg class="avatar" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -133,11 +132,11 @@
           <path d="M50 61c-9 0-16 8-19 21 6 3 12 4 19 4s13-1 19-4c-3-13-10-21-19-21z" fill="#8E5079"/>
         </svg></div>
         <div class="selbadge"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></div>
-        <h3 data-i18n="gender.female">Female Council</h3>
-        <p data-i18n="gender.femalep">Register under the Female Student Advisory Council</p>
+        <h3 data-i18n="gender.female">Female Student</h3>
       </button>
     </div>
     <div class="continue-bar">
+      <button class="btn-outline" onclick="go('departments')" data-i18n="btn.back">← Back</button>
       <button class="btn-teal" id="genderContinue" disabled onclick="go('register')" data-i18n="btn.continue">Next →</button>
     </div>
   </div>
@@ -156,7 +155,8 @@
     <div class="stepper">
       <div class="st active" data-step="1"><div class="line"></div><div class="circ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg></div><label data-i18n="step.personal">Personal</label></div>
       <div class="st" data-step="2"><div class="line"></div><div class="circ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V4H6.5A2.5 2.5 0 0 0 4 6.5v13z"/><path d="M4 19.5V6.5"/></svg></div><label data-i18n="step.academic">Academic</label></div>
-      <div class="st" data-step="3"><div class="line"></div><div class="circ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></div><label data-i18n="step.submit">Submit</label></div>
+      <div class="st" data-step="3"><div class="line"></div><div class="circ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 5.4L20 8l-4 4 1 6-5-3-5 3 1-6-4-4 5.6-.6z"/></svg></div><label data-i18n="step.skills">Skills</label></div>
+      <div class="st" data-step="4"><div class="line"></div><div class="circ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></div><label data-i18n="step.submit">Submit</label></div>
     </div>
 
     <div class="formcard">
@@ -202,18 +202,24 @@
         </div>
         <div class="field-row">
           <div class="field">
-            <label data-i18n="f.program">Degree Program</label>
-            <input type="text" id="f_program" placeholder="e.g. BS Computer Science">
+            <label data-i18n="f.level">Degree Level</label>
+            <select id="f_level">
+              <option value="" disabled selected data-i18n="f.levelph">Select your degree level</option>
+              <option value="BS">BS (Bachelor's)</option>
+              <option value="MS">MS / MPhil (Master's)</option>
+              <option value="PhD">PhD (Doctorate)</option>
+              <option value="Diploma">Diploma</option>
+            </select>
           </div>
           <div class="field">
-            <label data-i18n="f.semester">Current Semester</label>
-            <input type="text" id="f_semester" placeholder="e.g. 5th Semester">
+            <label data-i18n="f.program">Degree Program</label>
+            <input type="text" id="f_program" placeholder="e.g. Computer Science, IT, Software Engineering">
           </div>
         </div>
         <div class="field-row">
           <div class="field">
-            <label data-i18n="f.year">Year of Study</label>
-            <input type="text" id="f_year" placeholder="e.g. 2026">
+            <label data-i18n="f.semester">Current Semester</label>
+            <input type="text" id="f_semester" placeholder="e.g. 5th Semester">
           </div>
           <div class="field">
             <label data-i18n="f.cgpa">CGPA <span class="opt" data-i18n="f.optional">(optional)</span></label>
@@ -226,19 +232,39 @@
         </div>
       </div>
 
-      <!-- STEP 3: SUBMIT -->
+      <!-- STEP 3: SKILLS & HOBBIES -->
       <div class="formstep" id="formstep-3" style="display:none;">
+        <h3 class="stephead" data-i18n="p3s.head">Skills &amp; Hobbies</h3>
+        <p class="stepsub" data-i18n="p3s.sub">Select all that apply — you can choose more than one.</p>
+        <div class="field">
+          <label class="group-label" data-i18n="f.skills">Skills</label>
+          <div class="chips" id="skillsChips"></div>
+          <input type="text" id="f_skills_other" class="other-input" placeholder="Other skills — type here (optional)">
+        </div>
+        <div class="field">
+          <label class="group-label" data-i18n="f.hobbies">Hobbies &amp; Interests</label>
+          <div class="chips" id="hobbiesChips"></div>
+          <input type="text" id="f_hobbies_other" class="other-input" placeholder="Other hobbies — type here (optional)">
+        </div>
+        <div class="form-actions">
+          <button class="btn-outline" onclick="prevStep(3)" data-i18n="btn.back">← Back</button>
+          <button class="btn-teal" onclick="nextStep(3)" data-i18n="btn.next">Next →</button>
+        </div>
+      </div>
+
+      <!-- STEP 4: SUBMIT -->
+      <div class="formstep" id="formstep-4" style="display:none;">
         <div class="submit-panel">
           <div class="checkwrap">
             <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#219EBC" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
           </div>
-          <h3 data-i18n="p3.head">Ready to submit</h3>
-          <p data-i18n="p3.sub">Your details have been filled in. Press the button below to send your application to the Supreme Student Advisory Council.</p>
+          <h3 data-i18n="p3.head">Review &amp; submit</h3>
+          <p data-i18n="p3.sub">Please review your details below, then send your application to the Supreme Student Advisory Council.</p>
         </div>
-        <div class="review-mini" id="reviewMini"></div>
+        <div class="review-full" id="reviewMini"></div>
         <div class="note-box" data-i18n="p3.note">Note: Registration is open only to students currently enrolled at the University.</div>
         <div class="form-actions">
-          <button class="btn-outline" onclick="prevStep(3)" data-i18n="btn.back">← Back</button>
+          <button class="btn-outline" onclick="prevStep(4)" data-i18n="btn.back">← Back</button>
           <button class="btn-teal" onclick="submitForm()" data-i18n="btn.submit">Submit Registration</button>
         </div>
       </div>
