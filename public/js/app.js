@@ -158,7 +158,7 @@ const I18N = {
     "p3.note":"ملاحظة: التسجيل متاح فقط للطلاب المسجلين حاليًا في الجامعة.",
     "f.name":"الاسم الكامل","f.email":"البريد الإلكتروني","f.phone":"رقم الهاتف","f.nat":"الجنسية","f.reg":"الرقم الجامعي",
     "f.faculty":"الكلية","f.autofill":"(معبأ تلقائيًا)","f.program":"البرنامج الدراسي","f.semester":"الفصل الدراسي الحالي","f.year":"سنة الدراسة","f.cgpa":"المعدل التراكمي","f.optional":"(اختياري)","f.level":"المستوى الأكاديمي","f.levelph":"اختر المستوى الأكاديمي","f.skills":"المهارات","f.hobbies":"الهوايات والاهتمامات",
-    "lvl.bs":"بكالوريوس (BS)","lvl.ms":"ماجستير (MS / MPhil)","lvl.phd":"دكتوراه (PhD)","lvl.diploma":"دبلوم",
+    "lvl.bs":"بكالوريوس","lvl.ms":"ماجستير","lvl.phd":"دكتوراه","lvl.diploma":"دبلوم",
     "val.male":"طالب","val.female":"طالبة",
     "ph.other":"أخرى (اختياري)","ph.cname":"اسمك","ph.cemail":"you@example.com","ph.csubject":"الموضوع","ph.cmessage":"رسالتك","ph.pass":"كلمة المرور","ph.repname":"اسم الطالب","ph.reprole":"الدور (مثال: الرئيس)","ph.antitle":"عنوان الإعلان","ph.anbody":"التفاصيل",
     "btn.continue":"التالي ←","btn.next":"التالي ←","btn.back":"→ رجوع","btn.submit":"إرسال التسجيل",
@@ -189,6 +189,7 @@ function applyLang(){
   document.getElementById('htmlRoot').setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr');
   document.getElementById('htmlRoot').setAttribute('lang', lang);
   document.getElementById('langBtn').textContent = lang === 'ar' ? '🌐 English' : '🌐 العربية';
+  var lba=document.getElementById('langBtnAdmin'); if(lba) lba.textContent = lang === 'ar' ? '🌐 English' : '🌐 العربية';
   document.getElementById('langBtnMobile').textContent = lang === 'ar' ? 'English' : 'العربية';
   renderDepartments();
   if(state.department){

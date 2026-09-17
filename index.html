@@ -524,7 +524,11 @@ html[dir="rtl"] .modal-close{ right:auto; left:16px; }
 
 /* Admin page: hide the main nav links + Get Started (admin has its own Home/Log Out) */
 html.on-admin .navlinks a{ display:none; }
-html.on-admin .pill-btn{ display:none; }
+html.on-admin .navlinks .pill-btn{ display:none; }
+html.on-admin #langBtn{ display:none; }
+.admin-only{ display:none; }
+html.on-admin .admin-only{ display:flex; }
+.admin-topnav{ display:flex; align-items:center; gap:10px; }
 
 </style>
 </head>
@@ -568,6 +572,11 @@ html.on-admin .pill-btn{ display:none; }
       <a href="#" onclick="go('admin');return false;" data-i18n="nav.admin">Admin</a>
       <button class="lang-pill" onclick="toggleLang()" id="langBtn">🌐 العربية</button>
       <button class="pill-btn" onclick="go('departments')" data-i18n="nav.getstarted">Get Started</button>
+    </div>
+    <div class="admin-topnav admin-only">
+      <button class="lang-pill" onclick="toggleLang()" id="langBtnAdmin">🌐 العربية</button>
+      <button class="lang-pill" onclick="go('home')" data-i18n="nav.home">Home</button>
+      <button class="pill-btn" onclick="adminLogout()" data-i18n="admin.logout">Log Out</button>
     </div>
     <button class="burger" onclick="openDrawer()"><span></span><span></span><span></span></button>
   </div>
@@ -875,10 +884,6 @@ html.on-admin .pill-btn{ display:none; }
     <div id="adminPanel" style="display:none;">
       <div class="admin-topbar">
         <h2 style="margin:0;color:var(--navy);" data-i18n="brand.title">Supreme Student Advisory Council</h2>
-        <div style="display:flex;gap:10px;">
-          <button class="btn-outline" onclick="go('home')" data-i18n="nav.home">Home</button>
-          <button class="btn-outline" onclick="adminLogout()" data-i18n="admin.logout">Log Out</button>
-        </div>
       </div>
       <div class="admin-tabs">
         <button class="atab active" data-tab="overview" onclick="showAdminTab('overview')" data-i18n="atab.overview">Overview</button>
@@ -1153,7 +1158,7 @@ const I18N = {
     "p3.note":"ملاحظة: التسجيل متاح فقط للطلاب المسجلين حاليًا في الجامعة.",
     "f.name":"الاسم الكامل","f.email":"البريد الإلكتروني","f.phone":"رقم الهاتف","f.nat":"الجنسية","f.reg":"الرقم الجامعي",
     "f.faculty":"الكلية","f.autofill":"(معبأ تلقائيًا)","f.program":"البرنامج الدراسي","f.semester":"الفصل الدراسي الحالي","f.year":"سنة الدراسة","f.cgpa":"المعدل التراكمي","f.optional":"(اختياري)","f.level":"المستوى الأكاديمي","f.levelph":"اختر المستوى الأكاديمي","f.skills":"المهارات","f.hobbies":"الهوايات والاهتمامات",
-    "lvl.bs":"بكالوريوس (BS)","lvl.ms":"ماجستير (MS / MPhil)","lvl.phd":"دكتوراه (PhD)","lvl.diploma":"دبلوم",
+    "lvl.bs":"بكالوريوس","lvl.ms":"ماجستير","lvl.phd":"دكتوراه","lvl.diploma":"دبلوم",
     "val.male":"طالب","val.female":"طالبة",
     "ph.other":"أخرى (اختياري)","ph.cname":"اسمك","ph.cemail":"you@example.com","ph.csubject":"الموضوع","ph.cmessage":"رسالتك","ph.pass":"كلمة المرور","ph.repname":"اسم الطالب","ph.reprole":"الدور (مثال: الرئيس)","ph.antitle":"عنوان الإعلان","ph.anbody":"التفاصيل",
     "btn.continue":"التالي ←","btn.next":"التالي ←","btn.back":"→ رجوع","btn.submit":"إرسال التسجيل",
@@ -1184,6 +1189,7 @@ function applyLang(){
   document.getElementById('htmlRoot').setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr');
   document.getElementById('htmlRoot').setAttribute('lang', lang);
   document.getElementById('langBtn').textContent = lang === 'ar' ? '🌐 English' : '🌐 العربية';
+  var lba=document.getElementById('langBtnAdmin'); if(lba) lba.textContent = lang === 'ar' ? '🌐 English' : '🌐 العربية';
   document.getElementById('langBtnMobile').textContent = lang === 'ar' ? 'English' : 'العربية';
   renderDepartments();
   if(state.department){

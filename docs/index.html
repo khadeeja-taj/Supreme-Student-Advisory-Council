@@ -50,6 +50,11 @@
       <button class="lang-pill" onclick="toggleLang()" id="langBtn">🌐 العربية</button>
       <button class="pill-btn" onclick="go('departments')" data-i18n="nav.getstarted">Get Started</button>
     </div>
+    <div class="admin-topnav admin-only">
+      <button class="lang-pill" onclick="toggleLang()" id="langBtnAdmin">🌐 العربية</button>
+      <button class="lang-pill" onclick="go('home')" data-i18n="nav.home">Home</button>
+      <button class="pill-btn" onclick="adminLogout()" data-i18n="admin.logout">Log Out</button>
+    </div>
     <button class="burger" onclick="openDrawer()"><span></span><span></span><span></span></button>
   </div>
 </nav>
@@ -356,10 +361,6 @@
     <div id="adminPanel" style="display:none;">
       <div class="admin-topbar">
         <h2 style="margin:0;color:var(--navy);" data-i18n="brand.title">Supreme Student Advisory Council</h2>
-        <div style="display:flex;gap:10px;">
-          <button class="btn-outline" onclick="go('home')" data-i18n="nav.home">Home</button>
-          <button class="btn-outline" onclick="adminLogout()" data-i18n="admin.logout">Log Out</button>
-        </div>
       </div>
       <div class="admin-tabs">
         <button class="atab active" data-tab="overview" onclick="showAdminTab('overview')" data-i18n="atab.overview">Overview</button>
