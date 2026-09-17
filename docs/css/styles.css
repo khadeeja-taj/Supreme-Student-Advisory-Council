@@ -516,6 +516,6 @@ html[dir="rtl"] .modal-close{ right:auto; left:16px; }
 html.on-admin .navlinks a{ display:none; }
 html.on-admin .navlinks .pill-btn{ display:none; }
 html.on-admin #langBtn{ display:none; }
-.admin-only{ display:none; }
-html.on-admin .admin-only{ display:flex; }
-.admin-topnav{ display:flex; align-items:center; gap:10px; }
+.admin-only{ display:none !important; }
+html.on-admin .admin-only{ display:flex !important; }
+.admin-topnav{ align-items:center; gap:10px; }

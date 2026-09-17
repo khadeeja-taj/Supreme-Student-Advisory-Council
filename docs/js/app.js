@@ -728,3 +728,7 @@ function renderChips(){
   if(hc && !hc.dataset.filled){ hc.innerHTML=HOBBIES.map(function(x){return _chip('hobby',x);}).join(''); hc.dataset.filled='1'; _bindChips(hc); }
 }
 renderChips();
+
+/* apply the active-language dictionary on first paint so renamed labels
+   (Members, Academic Level, …) show in English too, not just after a toggle */
+try{ applyLang(); }catch(e){}

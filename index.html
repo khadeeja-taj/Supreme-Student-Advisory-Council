@@ -526,9 +526,9 @@ html[dir="rtl"] .modal-close{ right:auto; left:16px; }
 html.on-admin .navlinks a{ display:none; }
 html.on-admin .navlinks .pill-btn{ display:none; }
 html.on-admin #langBtn{ display:none; }
-.admin-only{ display:none; }
-html.on-admin .admin-only{ display:flex; }
-.admin-topnav{ display:flex; align-items:center; gap:10px; }
+.admin-only{ display:none !important; }
+html.on-admin .admin-only{ display:flex !important; }
+.admin-topnav{ align-items:center; gap:10px; }
 
 </style>
 </head>
@@ -1728,6 +1728,10 @@ function renderChips(){
   if(hc && !hc.dataset.filled){ hc.innerHTML=HOBBIES.map(function(x){return _chip('hobby',x);}).join(''); hc.dataset.filled='1'; _bindChips(hc); }
 }
 renderChips();
+
+/* apply the active-language dictionary on first paint so renamed labels
+   (Members, Academic Level, …) show in English too, not just after a toggle */
+try{ applyLang(); }catch(e){}
 
 </script>
 </body>
