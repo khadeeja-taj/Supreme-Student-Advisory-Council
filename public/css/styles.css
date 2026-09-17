@@ -127,8 +127,11 @@
 
   /* HOME / HERO */
   #page-home{ position:relative; }
-  .hero-banner{ width:100%; background:#e9f5fc; line-height:0; margin-top:78px; }
-  .hero-banner img{ width:100%; height:auto; display:block; }
+  .hero-banner{ position:relative; width:100%; background:#e9f5fc; line-height:0; margin-top:78px; }
+  .hero-banner img.bg{ width:100%; height:auto; display:block; }
+  .hero-banner .banner-logo{ position:absolute; top:8%; height:23%; width:auto; }
+  .hero-banner .banner-logo.l{ left:3.5%; }
+  .hero-banner .banner-logo.r{ right:3.5%; }
   .hero{
     position:relative; text-align:center; color:#fff;
     background:linear-gradient(180deg, #023047 0%, #05445e 100%);
