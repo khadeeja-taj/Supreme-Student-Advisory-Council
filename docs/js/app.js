@@ -192,6 +192,7 @@ function applyLang(){
   var lba=document.getElementById('langBtnAdmin'); if(lba) lba.textContent = lang === 'ar' ? '🌐 English' : '🌐 العربية';
   document.getElementById('langBtnMobile').textContent = lang === 'ar' ? 'English' : 'العربية';
   renderDepartments();
+  try{ renderChips(); }catch(e){}
   if(state.department){
     document.getElementById('f_faculty').value = deptLabel(state.department);
   }
@@ -701,31 +702,48 @@ async function deleteRep(id){ if(!confirm('Delete this representative?')) return
 
 /* ---- skills & hobbies chips ---- */
 var SKILLS=[
- 'Communication skills (Arabic & English, spoken & written)',
- 'Leadership and team management',
- 'Public speaking and presentation',
- 'Event planning and coordination',
- 'Basic report writing and documentation',
- 'Programming',
- 'Web development',
- 'Graphic designing',
- 'Social media management',
- 'Content creation',
- 'Video editing',
- 'Photography',
- 'Event Management (Protocol, Refreshment)',
- 'Logistics (Decoration)',
- 'Graphics',
- 'Social media / Photography',
- 'Stage Performer (Tilawat, Naat, Comparing, Speech, etc.)'
+ {en:'Leadership & Team Management', ar:'القيادة وإدارة الفريق'},
+ {en:'Communication', ar:'التواصل'},
+ {en:'Public Speaking & Presentation', ar:'التحدث أمام الجمهور والعروض التقديمية'},
+ {en:'Event Planning & Coordination', ar:'تخطيط وتنظيم الفعاليات'},
+ {en:'Report Writing & Documentation', ar:'كتابة التقارير والتوثيق'},
+ {en:'Social Media Management', ar:'إدارة وسائل التواصل الاجتماعي'},
+ {en:'Graphic Design', ar:'التصميم الجرافيكي'},
+ {en:'Photography', ar:'التصوير الفوتوغرافي'},
+ {en:'Video Editing', ar:'تحرير الفيديو'},
+ {en:'Programming', ar:'البرمجة'},
+ {en:'Web Development', ar:'تطوير المواقع'},
+ {en:'Stage Performance', ar:'الأداء المسرحي'}
 ];
-var HOBBIES=['Driving','Drawing','Book reading','Arts & crafts','Calligraphy','Sports','Writing / Poetry','Travelling','Cooking','Volunteering','Gardening'];
-function _chip(name,label){ return '<label class="chip"><input type="checkbox" name="'+name+'" value="'+esc(label)+'"><span>'+esc(label)+'</span></label>'; }
+var HOBBIES=[
+ {en:'Volunteering', ar:'التطوع'},
+ {en:'Book Reading', ar:'القراءة'},
+ {en:'Writing / Poetry', ar:'الكتابة والشعر'},
+ {en:'Sports', ar:'الرياضة'},
+ {en:'Drawing', ar:'الرسم'},
+ {en:'Arts & Crafts', ar:'الفنون والحرف اليدوية'},
+ {en:'Cooking', ar:'الطبخ'},
+ {en:'Gardening', ar:'البستنة والزراعة المنزلية'},
+ {en:'Calligraphy', ar:'الخط'},
+ {en:'Research & Learning', ar:'البحث والتعلّم'},
+ {en:'Entrepreneurship', ar:'ريادة الأعمال'},
+ {en:'Technology & Innovation', ar:'التقنية والابتكار'},
+ {en:'Community Service', ar:'خدمة المجتمع'},
+ {en:'Cultural Activities', ar:'الأنشطة الثقافية'},
+ {en:'Languages & Translation', ar:'اللغات والترجمة'}
+];
+function _chip(name,item){ var label=(lang==='ar'?item.ar:item.en); return '<label class="chip"><input type="checkbox" name="'+name+'" value="'+esc(item.en)+'"><span class="chip-check" aria-hidden="true"></span><span class="chip-label">'+esc(label)+'</span></label>'; }
 function _bindChips(box){ box.querySelectorAll('input').forEach(function(inp){ inp.addEventListener('change',function(){ var c=inp.closest('.chip'); if(c) c.classList.toggle('checked', inp.checked); }); }); }
+function _renderChipBox(box,items,name){
+  if(!box) return;
+  var checked={}; box.querySelectorAll('input:checked').forEach(function(i){ checked[i.value]=1; });
+  box.innerHTML=items.map(function(it){ return _chip(name,it); }).join('');
+  box.querySelectorAll('input').forEach(function(inp){ if(checked[inp.value]){ inp.checked=true; var c=inp.closest('.chip'); if(c) c.classList.add('checked'); } });
+  _bindChips(box);
+}
 function renderChips(){
-  var sc=document.getElementById('skillsChips'), hc=document.getElementById('hobbiesChips');
-  if(sc && !sc.dataset.filled){ sc.innerHTML=SKILLS.map(function(x){return _chip('skill',x);}).join(''); sc.dataset.filled='1'; _bindChips(sc); }
-  if(hc && !hc.dataset.filled){ hc.innerHTML=HOBBIES.map(function(x){return _chip('hobby',x);}).join(''); hc.dataset.filled='1'; _bindChips(hc); }
+  _renderChipBox(document.getElementById('skillsChips'), SKILLS, 'skill');
+  _renderChipBox(document.getElementById('hobbiesChips'), HOBBIES, 'hobby');
 }
 renderChips();
 
