@@ -489,12 +489,13 @@ html[dir="rtl"] .ci-item b[dir="ltr"], html[dir="rtl"] .footer-col span[dir="ltr
 .other-input:focus{ outline:none; border-color:var(--teal); background:#fff; }
 
 /* ===== full review on submit step ===== */
-.review-full{ display:grid; grid-template-columns:1fr 1fr; gap:2px 18px; text-align:left; background:var(--paper); border-radius:12px; padding:16px 20px; margin-bottom:20px; }
-@media (max-width:520px){ .review-full{ grid-template-columns:1fr; } }
-.review-full .rf{ padding:8px 0; border-bottom:1px dashed var(--line); }
+.review-full{ display:grid; grid-template-columns:1fr 1fr; gap:4px 28px; text-align:left; background:var(--paper); border-radius:14px; padding:20px 24px; margin-bottom:20px; }
+@media (max-width:640px){ .review-full{ grid-template-columns:1fr; } }
+.review-full .rf{ padding:10px 2px; border-bottom:1px dashed var(--line); }
 .review-full .rf.full{ grid-column:1 / -1; }
-.review-full .rf span{ display:block; color:#7c94a0; font-size:.7rem; text-transform:uppercase; letter-spacing:.4px; margin-bottom:2px; }
-.review-full .rf b{ color:var(--navy); font-weight:700; font-size:.9rem; }
+.review-full .rf span{ display:block; color:#5b7683; font-size:.72rem; font-weight:600; text-transform:uppercase; letter-spacing:.5px; margin-bottom:4px; }
+.review-full .rf b{ color:var(--navy); font-weight:700; font-size:1rem; line-height:1.4; word-break:break-word; }
+html[dir="rtl"] .review-full{ text-align:right; }
 
 /* RTL: flip flow arrows to point the correct way in Arabic */
 html[dir="rtl"] .flow-arrow{ transform:scaleX(-1); display:inline-block; }
@@ -504,7 +505,7 @@ html[dir="rtl"] .admin-tabs{ direction:rtl; }
 .mini{ background:#eef4f7; color:var(--navy); }
 .modal{ position:fixed; inset:0; z-index:400; background:rgba(2,48,71,.55); display:flex; align-items:flex-start; justify-content:center; padding:40px 16px; overflow:auto; }
 .modal[hidden]{ display:none; }
-.modal-card{ background:#fff; border-radius:18px; padding:30px 28px 24px; max-width:640px; width:100%; box-shadow:var(--shadow); position:relative; }
+.modal-card{ background:#fff; border-radius:18px; padding:30px 28px 24px; max-width:760px; width:100%; box-shadow:var(--shadow); position:relative; }
 .modal-close{ position:absolute; top:12px; right:16px; background:none; border:none; font-size:1.7rem; color:#7c94a0; line-height:1; cursor:pointer; }
 html[dir="rtl"] .modal-close{ right:auto; left:16px; }
 .modal-card h3{ margin:0 0 8px; color:var(--navy); font-size:1.35rem; }

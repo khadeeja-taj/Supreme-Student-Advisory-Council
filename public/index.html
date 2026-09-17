@@ -167,25 +167,25 @@
         <div class="readonly-chip" style="margin-bottom:22px;" id="deptChip">Faculty: —</div>
         <div class="field">
           <label data-i18n="f.name">Full Name</label>
-          <input type="text" id="f_name" placeholder="e.g. Khadeeja Taj">
+          <input type="text" id="f_name">
         </div>
         <div class="field">
           <label data-i18n="f.email">Email Address</label>
-          <input type="email" id="f_email" placeholder="you@example.com">
+          <input type="email" id="f_email">
         </div>
         <div class="field-row">
           <div class="field">
             <label data-i18n="f.phone">Phone Number</label>
-            <input type="tel" id="f_phone" placeholder="+92XXXXXXXXXX">
+            <input type="tel" id="f_phone">
           </div>
           <div class="field">
             <label data-i18n="f.nat">Nationality</label>
-            <input type="text" id="f_nationality" placeholder="e.g. Pakistani">
+            <input type="text" id="f_nationality">
           </div>
         </div>
         <div class="field">
           <label data-i18n="f.reg">Registration Number</label>
-          <input type="text" id="f_regno" placeholder="e.g. 4123-FBAS/BSCS/F22">
+          <input type="text" id="f_regno">
         </div>
         <div class="form-actions">
           <button class="btn-outline" onclick="go('gender')" data-i18n="btn.back">← Back</button>
@@ -206,25 +206,25 @@
             <label data-i18n="f.level">Degree Level</label>
             <select id="f_level">
               <option value="" disabled selected data-i18n="f.levelph">Select your degree level</option>
-              <option value="BS">BS (Bachelor's)</option>
-              <option value="MS">MS / MPhil (Master's)</option>
-              <option value="PhD">PhD (Doctorate)</option>
-              <option value="Diploma">Diploma</option>
+              <option value="BS" data-i18n="lvl.bs">BS (Bachelor's)</option>
+              <option value="MS" data-i18n="lvl.ms">MS / MPhil (Master's)</option>
+              <option value="PhD" data-i18n="lvl.phd">PhD (Doctorate)</option>
+              <option value="Diploma" data-i18n="lvl.diploma">Diploma</option>
             </select>
           </div>
           <div class="field">
             <label data-i18n="f.program">Degree Program</label>
-            <input type="text" id="f_program" placeholder="e.g. Computer Science, IT, Software Engineering">
+            <input type="text" id="f_program">
           </div>
         </div>
         <div class="field-row">
           <div class="field">
             <label data-i18n="f.semester">Current Semester</label>
-            <input type="text" id="f_semester" placeholder="e.g. 5th Semester">
+            <input type="text" id="f_semester">
           </div>
           <div class="field">
             <label data-i18n="f.cgpa">CGPA <span class="opt" data-i18n="f.optional">(optional)</span></label>
-            <input type="text" id="f_cgpa" placeholder="e.g. 3.55">
+            <input type="text" id="f_cgpa">
           </div>
         </div>
         <div class="form-actions">
@@ -240,12 +240,12 @@
         <div class="field">
           <label class="group-label" data-i18n="f.skills">Skills</label>
           <div class="chips" id="skillsChips"></div>
-          <input type="text" id="f_skills_other" class="other-input" placeholder="Other skills — type here (optional)">
+          <input type="text" id="f_skills_other" class="other-input" data-i18n-ph="ph.other" placeholder="Other (optional)">
         </div>
         <div class="field">
           <label class="group-label" data-i18n="f.hobbies">Hobbies &amp; Interests</label>
           <div class="chips" id="hobbiesChips"></div>
-          <input type="text" id="f_hobbies_other" class="other-input" placeholder="Other hobbies — type here (optional)">
+          <input type="text" id="f_hobbies_other" class="other-input" data-i18n-ph="ph.other" placeholder="Other (optional)">
         </div>
         <div class="form-actions">
           <button class="btn-outline" onclick="prevStep(3)" data-i18n="btn.back">← Back</button>
@@ -328,11 +328,11 @@
       </div>
       <form class="contact-form" onsubmit="submitMessage(event)">
         <div class="field-row">
-          <div class="field"><label data-i18n="c.name">Your Name *</label><input id="c_name" type="text" placeholder="Your name"></div>
-          <div class="field"><label data-i18n="c.emaill">Email *</label><input id="c_email" type="email" placeholder="you@example.com"></div>
+          <div class="field"><label data-i18n="c.name">Your Name *</label><input id="c_name" type="text" data-i18n-ph="ph.cname" placeholder="Your name"></div>
+          <div class="field"><label data-i18n="c.emaill">Email *</label><input id="c_email" type="email" data-i18n-ph="ph.cemail" placeholder="you@example.com"></div>
         </div>
-        <div class="field"><label data-i18n="c.subject">Subject</label><input id="c_subject" type="text" placeholder="Subject"></div>
-        <div class="field"><label data-i18n="c.message">Message *</label><textarea id="c_message" rows="5" placeholder="Your message"></textarea></div>
+        <div class="field"><label data-i18n="c.subject">Subject</label><input id="c_subject" type="text" data-i18n-ph="ph.csubject" placeholder="Subject"></div>
+        <div class="field"><label data-i18n="c.message">Message *</label><textarea id="c_message" rows="5" data-i18n-ph="ph.cmessage" placeholder="Your message"></textarea></div>
         <div id="contactThanks" class="thanks-note" hidden data-i18n="c.thanks">✓ Thank you — your message has been sent to the Council.</div>
         <button class="btn-teal" type="submit" data-i18n="c.send">Send Message</button>
       </form>
@@ -347,7 +347,7 @@
       <h3 data-i18n="admin.title">Admin Control</h3>
       <p style="color:#5a7480;font-size:.88rem;margin-bottom:18px;" data-i18n="admin.sub">Enter the admin password to view submitted registrations.</p>
       <div class="field" style="text-align:left;">
-        <input type="password" id="adminPass" placeholder="Password">
+        <input type="password" id="adminPass" data-i18n-ph="ph.pass" placeholder="Password">
       </div>
       <button class="btn-teal" style="width:100%;" onclick="tryAdminLogin()" data-i18n="admin.login">Log In</button>
       <p style="color:#a8bcc4;font-size:.72rem;margin-top:14px;" data-i18n="admin.hint">Authorized council staff only.</p>
@@ -399,8 +399,8 @@
 
       <div class="atab-panel" id="apanel-reps" hidden>
         <form class="mng-form" onsubmit="addRep(event)">
-          <input id="rep_name" placeholder="Student name">
-          <input id="rep_role" placeholder="Role (e.g. President)">
+          <input id="rep_name" data-i18n-ph="ph.repname" placeholder="Student name">
+          <input id="rep_role" data-i18n-ph="ph.reprole" placeholder="Role (e.g. President)">
           <select id="rep_faculty"></select>
           <button class="btn-teal" type="submit">Add</button>
         </form>
@@ -409,8 +409,8 @@
 
       <div class="atab-panel" id="apanel-news" hidden>
         <form class="mng-form col" onsubmit="addAnnouncement(event)">
-          <input id="an_title" placeholder="Announcement title">
-          <textarea id="an_body" rows="3" placeholder="Details"></textarea>
+          <input id="an_title" data-i18n-ph="ph.antitle" placeholder="Announcement title">
+          <textarea id="an_body" rows="3" data-i18n-ph="ph.anbody" placeholder="Details"></textarea>
           <button class="btn-teal" type="submit">Publish</button>
         </form>
         <div id="adminNewsList" class="mng-list"></div>

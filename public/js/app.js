@@ -98,7 +98,7 @@ const ICONS = {
 
 const I18N = {
   en:{
-    "nav.home":"Home","nav.departments":"Departments","nav.reps":"Representatives","nav.news":"News","nav.contact":"Contact","nav.admin":"Admin","nav.getstarted":"Get Started",
+    "nav.home":"Home","nav.departments":"Departments","nav.reps":"Members","nav.news":"News","nav.contact":"Contact","nav.admin":"Admin","nav.getstarted":"Get Started",
     "brand.title":"Supreme Student Advisory Council","brand.sub":"INTERNATIONAL ISLAMIC UNIVERSITY, ISLAMABAD",
     "hero.tag":"ISLAMIC · INTERNATIONAL ISLAMIC UNIVERSITY, ISLAMABAD",
     "hero.title":"Supreme Student Advisory Council",
@@ -121,17 +121,20 @@ const I18N = {
     "p3.head":"Review & submit","p3.sub":"Please review your details below, then send your application to the Council.",
     "p3.note":"Note: Registration is open only to students currently enrolled at the University.",
     "f.name":"Full Name","f.email":"Email Address","f.phone":"Phone Number","f.nat":"Nationality","f.reg":"Registration Number",
-    "f.faculty":"Faculty","f.autofill":"(auto-filled)","f.program":"Degree Program","f.semester":"Current Semester","f.year":"Year of Study","f.cgpa":"CGPA","f.optional":"(optional)","f.level":"Degree Level","f.levelph":"Select your degree level","f.skills":"Skills","f.hobbies":"Hobbies & Interests",
+    "f.faculty":"Faculty","f.autofill":"(auto-filled)","f.program":"Degree Program","f.semester":"Current Semester","f.year":"Year of Study","f.cgpa":"CGPA","f.optional":"(optional)","f.level":"Academic Level","f.levelph":"Select your academic level","f.skills":"Skills","f.hobbies":"Hobbies & Interests",
+    "lvl.bs":"BS (Bachelor's)","lvl.ms":"MS / MPhil (Master's)","lvl.phd":"PhD (Doctorate)","lvl.diploma":"Diploma",
+    "val.male":"Male Student","val.female":"Female Student",
+    "ph.other":"Other (optional)","ph.cname":"Your name","ph.cemail":"you@example.com","ph.csubject":"Subject","ph.cmessage":"Your message","ph.pass":"Password","ph.repname":"Student name","ph.reprole":"Role (e.g. President)","ph.antitle":"Announcement title","ph.anbody":"Details",
     "btn.continue":"Next →","btn.next":"Next →","btn.back":"← Back","btn.submit":"Submit Registration",
     "success.title":"Registration Submitted","success.sub":"Thank you for joining the Supreme Student Advisory Council. Your application has been recorded and will be reviewed by the Council team.",
     "success.home":"Back to Home","success.admin":"Go to Admin",
     "admin.back":"← Back to Home","admin.title":"Admin Control","admin.sub":"Enter the admin password to view submitted registrations.","admin.hint":"Authorized council staff only.","admin.login":"Log In",
     "admin.regs":"Council Registrations","admin.refresh":"Refresh","admin.clear":"Clear All","admin.logout":"Log Out","admin.empty":"No registrations yet.",
-    "reps.kicker":"FACULTY REPRESENTATIVES","reps.title":"Council Representatives","reps.sub":"Selected student representatives serving on the Supreme Student Advisory Council, listed by faculty", "news.kicker":"UPDATES","news.title":"News & Announcements","news.sub":"Upcoming events, deadlines, and important notices from the Council", "contact.kicker":"GET IN TOUCH","contact.title":"Contact Us","contact.sub":"We would be honored to answer your questions", "c.phone":"PHONE","c.email":"EMAIL","c.address":"ADDRESS","c.addressv":"International Islamic University, Islamabad, Pakistan","c.map":"Open location in Google Maps →","c.name":"Your Name *","c.emaill":"Email *","c.subject":"Subject","c.message":"Message *","c.thanks":"✓ Thank you — your message has been sent to the Council.","c.send":"Send Message", "footer.about":"The Supreme Student Advisory Council — a platform for students across every faculty of the International Islamic University, Islamabad to represent, advise and shape campus life.","footer.quick":"Quick Links","footer.council":"The Council","footer.connect":"Connect","footer.news":"News & Announcements","footer.reg":"Student Registration","footer.faculties":"Eleven Faculties","footer.wings":"Male & Female Councils","footer.reps":"Faculty Representatives","footer.addr":"International Islamic University, Islamabad, Pakistan","footer.bottom":"© 2026 Supreme Student Advisory Council · International Islamic University, Islamabad", "atab.overview":"Overview","atab.regs":"Registrations","atab.reps":"Representatives","atab.news":"Announcements","atab.messages":"Messages", "chart.trend":"Registrations over time","chart.trendsub":"last 7 days","chart.council":"Council split","chart.status":"Approval status","chart.rate":"Approval rate","chart.faculty":"Registrations by faculty","chart.flow":"Approval flow", "th.name":"Name","th.email":"Email","th.faculty":"Faculty","th.council":"Council","th.reg":"Reg #","th.status":"Status","th.actions":"Actions",
+    "reps.kicker":"COUNCIL MEMBERS","reps.title":"Council Members","reps.sub":"The selected student members serving on the Supreme Student Advisory Council, organized by faculty", "news.kicker":"UPDATES","news.title":"News & Announcements","news.sub":"Upcoming events, deadlines, and important notices from the Council", "contact.kicker":"GET IN TOUCH","contact.title":"Contact Us","contact.sub":"We would be honored to answer your questions", "c.phone":"PHONE","c.email":"EMAIL","c.address":"ADDRESS","c.addressv":"International Islamic University, Islamabad, Pakistan","c.map":"Open location in Google Maps →","c.name":"Your Name *","c.emaill":"Email *","c.subject":"Subject","c.message":"Message *","c.thanks":"✓ Thank you — your message has been sent to the Council.","c.send":"Send Message", "footer.about":"The Supreme Student Advisory Council — a platform for students across every faculty of the International Islamic University, Islamabad to represent, advise and shape campus life.","footer.quick":"Quick Links","footer.council":"The Council","footer.connect":"Connect","footer.news":"News & Announcements","footer.reg":"Student Registration","footer.faculties":"Eleven Faculties","footer.wings":"Male & Female Councils","footer.reps":"Faculty Members","footer.addr":"International Islamic University, Islamabad, Pakistan","footer.bottom":"© 2026 Supreme Student Advisory Council · International Islamic University, Islamabad", "atab.overview":"Overview","atab.regs":"Registrations","atab.reps":"Members","atab.news":"Announcements","atab.messages":"Messages", "chart.trend":"Registrations over time","chart.trendsub":"last 7 days","chart.council":"Council split","chart.status":"Approval status","chart.rate":"Approval rate","chart.faculty":"Registrations by faculty","chart.flow":"Approval flow", "th.name":"Name","th.email":"Email","th.faculty":"Faculty","th.council":"Council","th.reg":"Reg #","th.status":"Status","th.actions":"Actions",
     "admin.th.name":"Name","admin.th.email":"Email","admin.th.phone":"Phone","admin.th.faculty":"Faculty","admin.th.category":"Category","admin.th.program":"Program","admin.th.semester":"Semester","admin.th.reg":"Reg #","admin.th.submitted":"Submitted"
   },
   ar:{
-    "nav.home":"الرئيسية","nav.departments":"الكليات","nav.reps":"الممثلون","nav.news":"الأخبار","nav.contact":"اتصل بنا","nav.admin":"الإدارة","nav.getstarted":"ابدأ الآن",
+    "nav.home":"الرئيسية","nav.departments":"الكليات","nav.reps":"الأعضاء","nav.news":"الأخبار","nav.contact":"اتصل بنا","nav.admin":"الإدارة","nav.getstarted":"ابدأ الآن",
     "brand.title":"المجلس الاستشاري الطلابي الأعلى","brand.sub":"الجامعة الإسلامية العالمية بإسلام آباد",
     "hero.tag":"الجامعة الإسلامية العالمية بإسلام آباد",
     "hero.title":"المجلس الاستشاري الطلابي الأعلى",
@@ -154,13 +157,16 @@ const I18N = {
     "p3.head":"مراجعة وإرسال","p3.sub":"يرجى مراجعة بياناتك أدناه ثم إرسال طلبك إلى المجلس.",
     "p3.note":"ملاحظة: التسجيل متاح فقط للطلاب المسجلين حاليًا في الجامعة.",
     "f.name":"الاسم الكامل","f.email":"البريد الإلكتروني","f.phone":"رقم الهاتف","f.nat":"الجنسية","f.reg":"الرقم الجامعي",
-    "f.faculty":"الكلية","f.autofill":"(معبأ تلقائيًا)","f.program":"البرنامج الدراسي","f.semester":"الفصل الدراسي الحالي","f.year":"سنة الدراسة","f.cgpa":"المعدل التراكمي","f.optional":"(اختياري)","f.level":"مستوى الدرجة","f.levelph":"اختر مستوى الدرجة","f.skills":"المهارات","f.hobbies":"الهوايات والاهتمامات",
+    "f.faculty":"الكلية","f.autofill":"(معبأ تلقائيًا)","f.program":"البرنامج الدراسي","f.semester":"الفصل الدراسي الحالي","f.year":"سنة الدراسة","f.cgpa":"المعدل التراكمي","f.optional":"(اختياري)","f.level":"المستوى الأكاديمي","f.levelph":"اختر المستوى الأكاديمي","f.skills":"المهارات","f.hobbies":"الهوايات والاهتمامات",
+    "lvl.bs":"بكالوريوس (BS)","lvl.ms":"ماجستير (MS / MPhil)","lvl.phd":"دكتوراه (PhD)","lvl.diploma":"دبلوم",
+    "val.male":"طالب","val.female":"طالبة",
+    "ph.other":"أخرى (اختياري)","ph.cname":"اسمك","ph.cemail":"you@example.com","ph.csubject":"الموضوع","ph.cmessage":"رسالتك","ph.pass":"كلمة المرور","ph.repname":"اسم الطالب","ph.reprole":"الدور (مثال: الرئيس)","ph.antitle":"عنوان الإعلان","ph.anbody":"التفاصيل",
     "btn.continue":"التالي ←","btn.next":"التالي ←","btn.back":"→ رجوع","btn.submit":"إرسال التسجيل",
     "success.title":"تم إرسال التسجيل","success.sub":"شكرًا لانضمامك إلى المجلس الاستشاري الطلابي الأعلى. تم تسجيل طلبك وسيتم مراجعته من قبل فريق المجلس.",
     "success.home":"العودة للرئيسية","success.admin":"الذهاب إلى الإدارة",
     "admin.back":"← العودة للرئيسية","admin.title":"لوحة تحكم الإدارة","admin.sub":"أدخل كلمة مرور الإدارة لعرض التسجيلات المقدمة.","admin.hint":"للموظفين المصرح لهم فقط.","admin.login":"تسجيل الدخول",
     "admin.regs":"تسجيلات المجلس","admin.refresh":"تحديث","admin.clear":"مسح الكل","admin.logout":"تسجيل الخروج","admin.empty":"لا توجد تسجيلات بعد.",
-    "reps.kicker":"ممثلو الكليات","reps.title":"ممثلو المجلس","reps.sub":"ممثلو الطلاب المختارون في المجلس الاستشاري الطلابي الأعلى، مرتبون حسب الكلية", "news.kicker":"تحديثات","news.title":"الأخبار والإعلانات","news.sub":"الفعاليات القادمة والمواعيد النهائية والإشعارات المهمة من المجلس", "contact.kicker":"تواصل معنا","contact.title":"اتصل بنا","contact.sub":"يشرفنا الإجابة عن أسئلتكم", "c.phone":"الهاتف","c.email":"البريد الإلكتروني","c.address":"العنوان","c.addressv":"الجامعة الإسلامية العالمية، إسلام آباد، باكستان","c.map":"افتح الموقع في خرائط جوجل ←","c.name":"الاسم *","c.emaill":"البريد الإلكتروني *","c.subject":"الموضوع","c.message":"الرسالة *","c.thanks":"✓ شكرًا — تم إرسال رسالتك إلى المجلس.","c.send":"إرسال الرسالة", "footer.about":"المجلس الاستشاري الطلابي الأعلى — منصة لطلاب جميع كليات الجامعة الإسلامية العالمية بإسلام آباد لتمثيل الطلاب وتقديم المشورة وتطوير الحياة الجامعية.","footer.quick":"روابط سريعة","footer.council":"المجلس","footer.connect":"تواصل","footer.news":"الأخبار والإعلانات","footer.reg":"تسجيل الطالب","footer.faculties":"إحدى عشرة كلية","footer.wings":"مجلسا الطلاب والطالبات","footer.reps":"ممثلو الكليات","footer.addr":"الجامعة الإسلامية العالمية، إسلام آباد، باكستان","footer.bottom":"© 2026 المجلس الاستشاري الطلابي الأعلى · الجامعة الإسلامية العالمية بإسلام آباد", "atab.overview":"نظرة عامة","atab.regs":"التسجيلات","atab.reps":"الممثلون","atab.news":"الإعلانات","atab.messages":"الرسائل", "chart.trend":"التسجيلات عبر الوقت","chart.trendsub":"آخر ٧ أيام","chart.council":"توزيع المجلس","chart.status":"حالة الموافقة","chart.rate":"معدل الموافقة","chart.faculty":"التسجيلات حسب الكلية","chart.flow":"مسار الموافقة", "th.name":"الاسم","th.email":"البريد","th.faculty":"الكلية","th.council":"المجلس","th.reg":"الرقم الجامعي","th.status":"الحالة","th.actions":"إجراءات",
+    "reps.kicker":"أعضاء المجلس","reps.title":"أعضاء المجلس","reps.sub":"الطلاب الأعضاء المختارون في المجلس الاستشاري الطلابي الأعلى، مرتبون حسب الكلية", "news.kicker":"تحديثات","news.title":"الأخبار والإعلانات","news.sub":"الفعاليات القادمة والمواعيد النهائية والإشعارات المهمة من المجلس", "contact.kicker":"تواصل معنا","contact.title":"اتصل بنا","contact.sub":"يشرفنا الإجابة عن أسئلتكم", "c.phone":"الهاتف","c.email":"البريد الإلكتروني","c.address":"العنوان","c.addressv":"الجامعة الإسلامية العالمية، إسلام آباد، باكستان","c.map":"افتح الموقع في خرائط جوجل ←","c.name":"الاسم *","c.emaill":"البريد الإلكتروني *","c.subject":"الموضوع","c.message":"الرسالة *","c.thanks":"✓ شكرًا — تم إرسال رسالتك إلى المجلس.","c.send":"إرسال الرسالة", "footer.about":"المجلس الاستشاري الطلابي الأعلى — منصة لطلاب جميع كليات الجامعة الإسلامية العالمية بإسلام آباد لتمثيل الطلاب وتقديم المشورة وتطوير الحياة الجامعية.","footer.quick":"روابط سريعة","footer.council":"المجلس","footer.connect":"تواصل","footer.news":"الأخبار والإعلانات","footer.reg":"تسجيل الطالب","footer.faculties":"إحدى عشرة كلية","footer.wings":"مجلسا الطلاب والطالبات","footer.reps":"أعضاء الكليات","footer.addr":"الجامعة الإسلامية العالمية، إسلام آباد، باكستان","footer.bottom":"© 2026 المجلس الاستشاري الطلابي الأعلى · الجامعة الإسلامية العالمية بإسلام آباد", "atab.overview":"نظرة عامة","atab.regs":"التسجيلات","atab.reps":"الأعضاء","atab.news":"الإعلانات","atab.messages":"الرسائل", "chart.trend":"التسجيلات عبر الوقت","chart.trendsub":"آخر ٧ أيام","chart.council":"توزيع المجلس","chart.status":"حالة الموافقة","chart.rate":"معدل الموافقة","chart.faculty":"التسجيلات حسب الكلية","chart.flow":"مسار الموافقة", "th.name":"الاسم","th.email":"البريد","th.faculty":"الكلية","th.council":"المجلس","th.reg":"الرقم الجامعي","th.status":"الحالة","th.actions":"إجراءات",
     "admin.th.name":"الاسم","admin.th.email":"البريد الإلكتروني","admin.th.phone":"الهاتف","admin.th.faculty":"الكلية","admin.th.category":"الفئة","admin.th.program":"البرنامج","admin.th.semester":"الفصل","admin.th.reg":"الرقم الجامعي","admin.th.submitted":"تاريخ الإرسال"
   }
 };
@@ -175,6 +181,10 @@ function applyLang(){
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const key = el.getAttribute('data-i18n');
     if(dict[key] !== undefined){ el.textContent = dict[key]; }
+  });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+    const key = el.getAttribute('data-i18n-ph');
+    if(dict[key] !== undefined){ el.setAttribute('placeholder', dict[key]); }
   });
   document.getElementById('htmlRoot').setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr');
   document.getElementById('htmlRoot').setAttribute('lang', lang);
@@ -286,9 +296,9 @@ function buildReview(){
     rf(L('Phone','الهاتف'), _fv('f_phone')) +
     rf(L('Nationality','الجنسية'), _fv('f_nationality')) +
     rf(L('Registration No.','الرقم الجامعي'), _fv('f_regno')) +
-    rf(L('Council','المجلس'), state.gender) +
+    rf(L('Council','المجلس'), councilLabel(state.gender)) +
     rf(L('Faculty','الكلية'), state.department?deptLabel(state.department):'', true) +
-    rf(L('Degree Level','مستوى الدرجة'), _fv('f_level')) +
+    rf(L('Academic Level','المستوى الأكاديمي'), levelLabel(_fv('f_level'))) +
     rf(L('Degree Program','البرنامج'), _fv('f_program')) +
     rf(L('Current Semester','الفصل الدراسي'), _fv('f_semester')) +
     rf(L('CGPA','المعدل التراكمي'), _fv('f_cgpa')) +
@@ -328,8 +338,8 @@ function successRows(d){
   function r(label,val){ return '<div class="row"><span>'+label+'</span><span>'+(esc(val)||'—')+'</span></div>'; }
   return r(L('Full Name','الاسم'),d.name)+r(L('Email','البريد الإلكتروني'),d.email)+r(L('Phone','الهاتف'),d.phone)+
     r(L('Nationality','الجنسية'),d.nationality)+r(L('Registration No.','الرقم الجامعي'),d.regno)+
-    r(L('Council','المجلس'),d.gender)+r(L('Faculty','الكلية'),d.faculty)+
-    r(L('Degree Level','مستوى الدرجة'),d.level)+r(L('Degree Program','البرنامج'),d.program)+
+    r(L('Council','المجلس'),councilLabel(d.gender))+r(L('Faculty','الكلية'),facLabel(d.faculty))+
+    r(L('Academic Level','المستوى الأكاديمي'),levelLabel(d.level))+r(L('Degree Program','البرنامج'),d.program)+
     r(L('Current Semester','الفصل الدراسي'),d.semester)+r(L('CGPA','المعدل التراكمي'),d.cgpa)+
     r(L('Skills','المهارات'),(d.skills||[]).join(', '))+r(L('Hobbies & Interests','الهوايات والاهتمامات'),(d.hobbies||[]).join(', '));
 }
@@ -453,7 +463,9 @@ function fmtDate(d){ try{ return new Date(d).toLocaleDateString(undefined,{year:
 function initials(n){ return String(n||'').split(/\s+/).filter(Boolean).slice(0,2).map(function(w){return w[0].toUpperCase();}).join(''); }
 function authHdr(){ return { Authorization: 'Bearer ' + adminToken }; }
 function tr(en,ar){ return lang==='ar'?ar:en; }
-function facLabel(en){ if(lang!=='ar') return en; var d=DEPARTMENTS.filter(function(x){return x.en===en;})[0]; return d?d.ar:en; }
+function facLabel(en){ var d=DEPARTMENTS.filter(function(x){return x.en===en||x.ar===en;})[0]; return d?(lang==='ar'?d.ar:d.en):en; }
+function councilLabel(g){ return I18N[lang][g==='Female'?'val.female':'val.male']; }
+function levelLabel(v){ if(!v) return ''; var k='lvl.'+String(v).toLowerCase(); return (I18N[lang][k]!==undefined)?I18N[lang][k]:v; }
 
 /* ---- localStorage-backed API (static mode) ---- */
 function localApi(path, opts){
@@ -508,11 +520,11 @@ async function submitMessage(ev){
 async function renderReps(){
   var box=document.getElementById('repsList'); if(!box) return;
   var items=[]; try{ var r=await api('/api/reps'); items=r.items||[]; }catch(e){}
-  if(!items.length){ box.innerHTML='<div class="empty-card">'+(lang==='ar'?'سيتم الإعلان عن الممثلين قريبًا.':'Representatives will be announced soon.')+'</div>'; return; }
+  if(!items.length){ box.innerHTML='<div class="empty-card">'+(lang==='ar'?'سيتم الإعلان عن الأعضاء قريبًا.':'Members will be announced soon.')+'</div>'; return; }
   var groups={}; items.forEach(function(r){ (groups[r.faculty]=groups[r.faculty]||[]).push(r); });
   box.innerHTML=Object.keys(groups).map(function(fac){
     return '<div class="rep-group"><h3>'+esc(fac)+'</h3><div class="rep-cards">'+groups[fac].map(function(r){
-      return '<div class="rep-card"><div class="rep-avatar">'+initials(r.name)+'</div><div class="rep-meta"><b>'+esc(r.name)+'</b><span>'+esc(r.role||'Representative')+'</span></div></div>';
+      return '<div class="rep-card"><div class="rep-avatar">'+initials(r.name)+'</div><div class="rep-meta"><b>'+esc(r.name)+'</b><span>'+esc(r.role||tr('Member','عضو'))+'</span></div></div>';
     }).join('')+'</div></div>';
   }).join('');
 }
@@ -617,8 +629,8 @@ async function loadAdminData(){
     var trEl=document.createElement('tr');
     var st = d.status==='approved' ? '<span class="tag ok">'+tr('Approved','موافق')+'</span>' : '<span class="tag pend">'+tr('Pending','قيد الانتظار')+'</span>';
     var approveBtn = d.status==='approved' ? '' : '<button class="mini ok" onclick="approveReg(\''+d.id+'\')">'+tr('Approve','موافقة')+'</button>';
-    trEl.innerHTML='<td>'+esc(d.name)+'</td><td>'+esc(d.email)+'</td><td>'+esc(d.faculty)+'</td>'+
-      '<td><span class="tag '+(d.gender==='Female'?'female':'male')+'">'+esc(d.gender)+'</span></td>'+
+    trEl.innerHTML='<td>'+esc(d.name)+'</td><td>'+esc(d.email)+'</td><td>'+esc(facLabel(d.faculty))+'</td>'+
+      '<td><span class="tag '+(d.gender==='Female'?'female':'male')+'">'+esc(councilLabel(d.gender))+'</span></td>'+
       '<td>'+esc(d.regno)+'</td><td>'+st+'</td>'+
       '<td class="row-actions"><button class="mini" onclick="viewReg(\''+d.id+'\')">'+tr('View','عرض')+'</button>'+approveBtn+'<button class="mini danger" onclick="deleteReg(\''+d.id+'\')">'+tr('Delete','حذف')+'</button></td>';
     tbody.appendChild(trEl);
@@ -630,14 +642,14 @@ function viewReg(id){
   var st=d.status==='approved'?'<span class="tag ok">'+tr('Approved','موافق')+'</span>':'<span class="tag pend">'+tr('Pending','قيد الانتظار')+'</span>';
   document.getElementById('regModalStatus').innerHTML=st;
   var ab=d.status==='approved'?'':'<button class="btn-teal" onclick="approveReg(\''+d.id+'\');closeRegModal()">'+tr('Approve','موافقة')+'</button>';
-  document.getElementById('regModalActions').innerHTML=ab+'<button class="btn-outline" style="color:#b13a63;border-color:#f3c6d3" onclick="deleteReg(\''+d.id+'\');closeRegModal()">'+tr('Delete','حذف')+'</button>';
+  document.getElementById('regModalActions').innerHTML=ab+'<button class="btn-outline" style="color:#b13a63;border-color:#f3c6d3" onclick="deleteReg(\''+d.id+'\');closeRegModal()">'+tr('Delete','حذف')+'</button>'+'<button class="btn-outline" onclick="closeRegModal();go(\'home\')">'+tr('Home','الرئيسية')+'</button>';
   function rf(label,val,full){ return '<div class="rf'+(full?' full':'')+'"><span>'+label+'</span><b>'+(esc(val)||'—')+'</b></div>'; }
   var date=d.submittedAt?new Date(d.submittedAt).toLocaleString():'';
   document.getElementById('regModalBody').innerHTML=
     rf(tr('Full Name','الاسم'),d.name)+rf(tr('Email','البريد الإلكتروني'),d.email)+rf(tr('Phone','الهاتف'),d.phone)+
     rf(tr('Nationality','الجنسية'),d.nationality)+rf(tr('Registration No.','الرقم الجامعي'),d.regno)+
-    rf(tr('Council','المجلس'),d.gender)+rf(tr('Faculty','الكلية'),d.faculty,true)+
-    rf(tr('Degree Level','مستوى الدرجة'),d.level)+rf(tr('Degree Program','البرنامج'),d.program)+
+    rf(tr('Council','المجلس'),councilLabel(d.gender))+rf(tr('Faculty','الكلية'),facLabel(d.faculty),true)+
+    rf(tr('Academic Level','المستوى الأكاديمي'),levelLabel(d.level))+rf(tr('Degree Program','البرنامج'),d.program)+
     rf(tr('Current Semester','الفصل الدراسي'),d.semester)+rf(tr('CGPA','المعدل التراكمي'),d.cgpa)+
     rf(tr('Skills','المهارات'),(d.skills||[]).join(', '),true)+rf(tr('Hobbies & Interests','الهوايات والاهتمامات'),(d.hobbies||[]).join(', '),true)+
     rf(tr('Submitted','تاريخ الإرسال'),date,true);
@@ -670,7 +682,7 @@ async function renderAdminReps(){
   var sel=document.getElementById('rep_faculty');
   if(sel && !sel.dataset.filled){ sel.innerHTML=DEPARTMENTS.map(function(d){ return '<option value="'+esc(d.en)+'">'+esc(d.en)+'</option>'; }).join(''); sel.dataset.filled='1'; }
   var items=[]; try{ var r=await api('/api/reps'); items=r.items||[]; }catch(e){}
-  box.innerHTML=items.length?items.map(function(r){ return '<div class="mng-row"><div class="mng-body"><b>'+esc(r.name)+'</b><span class="muted"> · '+esc(r.role||'Representative')+'</span><div class="muted">'+esc(r.faculty)+'</div></div><button class="mini danger" onclick="deleteRep(\''+r.id+'\')">Delete</button></div>'; }).join(''):'<div class="empty-card">No representatives added.</div>';
+  box.innerHTML=items.length?items.map(function(r){ return '<div class="mng-row"><div class="mng-body"><b>'+esc(r.name)+'</b><span class="muted"> · '+esc(r.role||'Member')+'</span><div class="muted">'+esc(r.faculty)+'</div></div><button class="mini danger" onclick="deleteRep(\''+r.id+'\')">Delete</button></div>'; }).join(''):'<div class="empty-card">No representatives added.</div>';
 }
 async function addRep(ev){ if(ev) ev.preventDefault(); var name=val('rep_name'), role=val('rep_role'), faculty=val('rep_faculty'); if(!name||!faculty){ alert('Enter a name and choose a faculty.'); return; } try{ await api('/api/reps',{method:'POST',headers:authHdr(),body:JSON.stringify({name:name,role:role,faculty:faculty})}); document.getElementById('rep_name').value=''; document.getElementById('rep_role').value=''; renderAdminReps(); }catch(e){ alert(e.message); } }
 async function deleteRep(id){ if(!confirm('Delete this representative?')) return; try{ await api('/api/reps/delete',{method:'POST',headers:authHdr(),body:JSON.stringify({id:id})}); renderAdminReps(); }catch(e){ alert(e.message); } }
