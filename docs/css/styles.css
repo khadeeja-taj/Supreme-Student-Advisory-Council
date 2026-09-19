@@ -107,7 +107,7 @@
     .hero .arabic-title{ font-size:1.28rem; }
     .hero p.lead{ font-size:1.04rem; line-height:1.7; }
     .hero .iiu-tag{ font-size:.64rem; padding:6px 12px; line-height:1.3; }
-    .stepheader{ padding:96px 5vw 26px; min-height:300px; }
+    .stepheader{ padding:30px 5vw 22px; min-height:150px; margin-top:60px; }
     .stepheader h2{ font-size:1.5rem; }
     .success-wrap, .admin-wrap{ padding-top:130px; }
   }
@@ -176,16 +176,24 @@
 
   /* ---------- STEP HEADER (brand banner motif) ---------- */
   .stepheader{
-    position:relative; overflow:hidden; min-height:400px;
+    position:relative; overflow:hidden;
+    aspect-ratio: 1600 / 891; min-height:200px; margin-top:78px;
     display:flex; flex-direction:column; justify-content:flex-end;
     background:
-      linear-gradient(0deg, rgba(2,48,71,0.66) 0%, rgba(2,48,71,0.22) 46%, rgba(2,48,71,0.10) 100%),
+      linear-gradient(0deg, rgba(2,48,71,0.66) 0%, rgba(2,48,71,0.20) 45%, rgba(2,48,71,0.06) 100%),
       url("../assets/section-collage.jpg") center / cover no-repeat,
       linear-gradient(120deg, var(--navy) 0%, #05445e 55%, var(--teal) 130%);
-    color:#fff; padding:130px 6vw 40px; text-align:left;
+    color:#fff; padding:40px 6vw 34px; text-align:left;
   }
   .stepheader > *{ position:relative; z-index:2; }
   .stepheader .kicker, .stepheader h2, .stepheader p, .stepheader .breadcrumb{ text-shadow:0 2px 6px rgba(0,0,0,0.75); }
+  /* Arabic: clearer font + right alignment everywhere */
+  html[dir="rtl"] body, html[dir="rtl"] h1, html[dir="rtl"] h2, html[dir="rtl"] h3, html[dir="rtl"] .serif, html[dir="rtl"] .arabic{ font-family:'Cairo','Amiri',sans-serif; }
+  html[dir="rtl"] .stepheader{ text-align:right; }
+  html[dir="rtl"] .stepheader .breadcrumb{ flex-direction:row-reverse; }
+  /* Log Out only appears once signed in */
+  .admin-logout{ display:none !important; }
+  html.admin-authed .admin-logout{ display:inline-flex !important; }
   .stepheader .breadcrumb{ display:flex; align-items:center; gap:10px; font-size:.85rem; color:var(--sky); margin-bottom:18px; position:relative; z-index:2; flex-wrap:wrap; }
   .stepheader .breadcrumb button{ background:none;border:none;color:var(--sky); font-weight:600; font-size:.85rem; padding:0; }
   .stepheader .breadcrumb button:hover{ color:#fff; text-decoration:underline; }

@@ -238,6 +238,13 @@ function go(pageId){
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById('page-' + pageId).classList.add('active');
   document.getElementById('htmlRoot').classList.toggle('on-admin', pageId==='admin');
+  if(pageId==='admin'){
+    var authed=!!adminToken;
+    document.getElementById('htmlRoot').classList.toggle('admin-authed', authed);
+    var lb=document.getElementById('adminLoginBox'); if(lb) lb.style.display = authed?'none':'block';
+    var ap=document.getElementById('adminPanel'); if(ap) ap.style.display = authed?'block':'none';
+    if(authed) showAdminTab('overview');
+  }
   window.scrollTo({top:0, behavior:'instant'});
   if(pageId === 'gender' && state.department){
     document.getElementById('genderFacultyCrumb').textContent = ' · ' + deptLabel(state.department);
@@ -380,6 +387,7 @@ function adminLogout(){
   sessionStorage.removeItem('ssac_admin_token');
   document.getElementById('adminPanel').style.display = 'none';
   document.getElementById('adminLoginBox').style.display = 'block';
+  document.getElementById('htmlRoot').classList.remove('admin-authed');
 }
 
 async function loadAdminData(){
@@ -549,6 +557,7 @@ async function tryAdminLogin(){
     document.getElementById('adminPass').value='';
     document.getElementById('adminLoginBox').style.display='none';
     document.getElementById('adminPanel').style.display='block';
+    document.getElementById('htmlRoot').classList.add('admin-authed');
     showAdminTab('overview');
   }catch(e){ alert(lang==='ar'?'كلمة مرور غير صحيحة.':'Incorrect password.'); }
 }
