@@ -177,7 +177,7 @@
   /* ---------- STEP HEADER (brand banner motif) ---------- */
   .stepheader{
     position:relative; overflow:hidden;
-    aspect-ratio: 1836 / 513; min-height:300px; margin-top:78px;
+    aspect-ratio: 612 / 341; min-height:300px; margin-top:78px;
     display:flex; flex-direction:column; justify-content:flex-end;
     background:
       linear-gradient(0deg, rgba(2,48,71,0.60) 0%, rgba(2,48,71,0.12) 48%, rgba(2,48,71,0.02) 100%),
