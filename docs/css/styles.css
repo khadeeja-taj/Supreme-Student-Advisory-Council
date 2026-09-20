@@ -178,13 +178,22 @@
   .stepheader{
     position:relative; overflow:hidden;
     background:
-      linear-gradient(0deg, rgba(2,48,71,0.66) 0%, rgba(2,48,71,0.22) 46%, rgba(2,48,71,0.10) 100%),
+      linear-gradient(0deg, rgba(2,48,71,0.34) 0%, rgba(2,48,71,0.14) 55%, rgba(2,48,71,0.06) 100%),
       url("../assets/section-collage.jpg") center / cover no-repeat,
       linear-gradient(120deg, var(--navy) 0%, #05445e 55%, var(--teal) 130%);
     color:#fff; padding:150px 6vw 46px; text-align:left;
   }
   .stepheader > *{ position:relative; z-index:2; }
-  .stepheader .kicker, .stepheader h2, .stepheader p, .stepheader .breadcrumb{ text-shadow:0 2px 6px rgba(0,0,0,0.75); }
+  /* translucent panel so every heading stays clearly readable over the photo */
+  .stepheader .sh-panel{ display:inline-block; max-width:min(660px,100%);
+    background:linear-gradient(135deg, rgba(3,34,49,0.78), rgba(3,34,49,0.60));
+    -webkit-backdrop-filter:blur(3px); backdrop-filter:blur(3px);
+    padding:22px 28px; border-radius:16px; border:1px solid rgba(255,255,255,0.14);
+    box-shadow:0 16px 44px rgba(2,48,71,0.38); }
+  .stepheader .sh-panel .kicker{ margin-bottom:8px; }
+  .stepheader .sh-panel h2{ margin:0 0 8px; }
+  .stepheader .sh-panel p{ margin:0; }
+  html[dir="rtl"] .stepheader .sh-panel{ text-align:right; }
   /* Arabic: clearer font + right alignment everywhere */
   html[dir="rtl"] body, html[dir="rtl"] h1, html[dir="rtl"] h2, html[dir="rtl"] h3, html[dir="rtl"] .serif, html[dir="rtl"] .arabic{ font-family:'Cairo','Amiri',sans-serif; }
   html[dir="rtl"] .stepheader{ text-align:right; }
