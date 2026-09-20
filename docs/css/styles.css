@@ -188,7 +188,9 @@
   html[dir="rtl"] .stepheader{ text-align:right; }
   @media (max-width: 640px){ .stepheader{ --collage:url("../assets/section-collage-m.jpg"); min-height:240px; margin-top:60px; padding:0 5vw 22px; } }
   .stepheader > *{ position:relative; z-index:2; }
-  .stepheader .sh-panel{ display:block; max-width:min(660px,100%); }
+  .stepheader .kicker{ display:none; }
+  .stepheader .sh-panel{ display:block; max-width:min(680px,100%); }
+  .stepheader .sh-panel p, .stepheader > p{ color:var(--amber); font-weight:700; }
   .stepheader .sh-panel .kicker{ margin-bottom:8px; }
   .stepheader .sh-panel h2{ margin:0 0 8px; }
   .stepheader .sh-panel p{ margin:0; }
