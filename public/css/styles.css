@@ -102,7 +102,10 @@
     .topnav .brand span{ font-size:.92rem; line-height:1.1; }
     .topnav .brand small{ font-size:.5rem; }
     .hero{ padding:0 5vw 44px; }
-    .hero-banner{ margin-top:60px; }
+    .hero-banner{ margin-top:60px; height:210px; }
+    .hero-banner img.bg{ height:100%; width:100%; object-fit:cover; object-position:center 42%; }
+    .hero-banner .banner-logo.l{ height:30%; top:10%; left:2%; }
+    .hero-banner .banner-logo.r{ height:34%; top:8%; right:2%; }
     .hero h1{ font-size:1.72rem; }
     .hero .arabic-title{ font-size:1.28rem; }
     .hero p.lead{ font-size:1.04rem; line-height:1.7; }
