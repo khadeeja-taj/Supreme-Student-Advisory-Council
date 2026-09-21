@@ -759,3 +759,21 @@ renderChips();
 /* apply the active-language dictionary on first paint so renamed labels
    (Members, Academic Level, …) show in English too, not just after a toggle */
 try{ applyLang(); }catch(e){}
+
+/* soft glow that follows the cursor across the home hero */
+(function(){
+  try{
+    if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var hero=document.querySelector('#page-home .hero');
+    if(!hero) return;
+    var glow=document.createElement('div');
+    glow.className='hero-glow';
+    hero.appendChild(glow);
+    hero.addEventListener('mousemove', function(e){
+      var r=hero.getBoundingClientRect();
+      glow.style.transform='translate('+(e.clientX-r.left)+'px,'+(e.clientY-r.top)+'px)';
+      glow.classList.add('on');
+    });
+    hero.addEventListener('mouseleave', function(){ glow.classList.remove('on'); });
+  }catch(e){}
+})();
