@@ -187,10 +187,12 @@
       linear-gradient(120deg, var(--navy) 0%, #05445e 55%, var(--teal) 130%);
     color:#fff; padding:0 6vw 34px; text-align:left;
   }
-  /* light navy (#023047) cover only — no blur */
+  /* light cover only (no blur) — brightens the image; slim bottom fade just for text legibility */
   .stepheader::after{
     content:""; position:absolute; inset:0; z-index:1; pointer-events:none;
-    background:linear-gradient(0deg, rgba(2,48,71,0.34) 0%, rgba(2,48,71,0.16) 55%, rgba(2,48,71,0.12) 100%);
+    background:
+      linear-gradient(0deg, rgba(2,48,71,0.30) 0%, rgba(2,48,71,0.00) 24%),
+      linear-gradient(180deg, rgba(255,255,255,0.16) 0%, rgba(255,255,255,0.08) 100%);
   }
   html[dir="rtl"] .stepheader{ text-align:right; }
   @media (max-width: 640px){ .stepheader{ --collage:url("../assets/section-collage-m.jpg"); min-height:240px; margin-top:60px; padding:0 5vw 22px; } }
