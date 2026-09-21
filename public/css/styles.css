@@ -187,15 +187,12 @@
       linear-gradient(120deg, var(--navy) 0%, #05445e 55%, var(--teal) 130%);
     color:#fff; padding:0 6vw 34px; text-align:left;
   }
-  /* glassy navy (#023047) cover: light frosted tint + glass sheen, image stays clear */
+  /* very light glass sheen; image stays bright & clear, only bottom slightly darkened for text */
   .stepheader::after{
     content:""; position:absolute; inset:0; z-index:1; pointer-events:none;
     background:
-      linear-gradient(135deg, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0) 34%),
-      linear-gradient(0deg, rgba(2,48,71,0.46) 0%, rgba(2,48,71,0.20) 40%, rgba(2,48,71,0.14) 100%);
-    backdrop-filter: blur(2px) saturate(1.05);
-    -webkit-backdrop-filter: blur(2px) saturate(1.05);
-    border-bottom:1px solid rgba(255,255,255,0.14);
+      linear-gradient(135deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0) 30%),
+      linear-gradient(0deg, rgba(2,48,71,0.30) 0%, rgba(2,48,71,0.06) 26%, transparent 46%);
   }
   html[dir="rtl"] .stepheader{ text-align:right; }
   @media (max-width: 640px){ .stepheader{ --collage:url("../assets/section-collage-m.jpg"); min-height:240px; margin-top:60px; padding:0 5vw 22px; } }
