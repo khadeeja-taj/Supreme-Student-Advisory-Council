@@ -162,14 +162,6 @@
     100%{ transform:translateY(540px) translateX(-8px) rotate(22deg); opacity:0; }
   }
   @media (prefers-reduced-motion: reduce){ .hero-icons{ display:none; } }
-  /* white glow that follows the cursor anywhere on the site */
-  .cursor-glow{
-    position:fixed; left:0; top:0; width:320px; height:320px; margin:-160px 0 0 -160px;
-    border-radius:50%; pointer-events:none; z-index:9998; opacity:0;
-    background:radial-gradient(circle, rgba(255,255,255,0.50) 0%, rgba(255,255,255,0.16) 40%, transparent 70%);
-    filter:blur(16px); mix-blend-mode:screen; transition:opacity .3s ease; will-change:transform;
-  }
-  .cursor-glow.on{ opacity:1; }
   .hero-inner{ max-width:900px; margin:0 auto; text-align:center; width:100%; position:relative; z-index:2; }
   .hero-photo{
     width:150px; height:150px; border-radius:50%; margin:-78px auto 18px;
@@ -1833,22 +1825,6 @@ renderChips();
 /* apply the active-language dictionary on first paint so renamed labels
    (Members, Academic Level, …) show in English too, not just after a toggle */
 try{ applyLang(); }catch(e){}
-
-/* soft white glow that follows the cursor anywhere on the site */
-(function(){
-  try{
-    if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    if('ontouchstart' in window) return;
-    var glow=document.createElement('div');
-    glow.className='cursor-glow';
-    document.body.appendChild(glow);
-    window.addEventListener('mousemove', function(e){
-      glow.style.transform='translate('+e.clientX+'px,'+e.clientY+'px)';
-      glow.classList.add('on');
-    });
-    document.addEventListener('mouseleave', function(){ glow.classList.remove('on'); });
-  }catch(e){}
-})();
 
 </script>
 </body>
