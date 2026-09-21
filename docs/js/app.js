@@ -760,20 +760,18 @@ renderChips();
    (Members, Academic Level, …) show in English too, not just after a toggle */
 try{ applyLang(); }catch(e){}
 
-/* soft glow that follows the cursor across the home hero */
+/* soft white glow that follows the cursor anywhere on the site */
 (function(){
   try{
     if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    var hero=document.querySelector('#page-home .hero');
-    if(!hero) return;
+    if('ontouchstart' in window) return;
     var glow=document.createElement('div');
-    glow.className='hero-glow';
-    hero.appendChild(glow);
-    hero.addEventListener('mousemove', function(e){
-      var r=hero.getBoundingClientRect();
-      glow.style.transform='translate('+(e.clientX-r.left)+'px,'+(e.clientY-r.top)+'px)';
+    glow.className='cursor-glow';
+    document.body.appendChild(glow);
+    window.addEventListener('mousemove', function(e){
+      glow.style.transform='translate('+e.clientX+'px,'+e.clientY+'px)';
       glow.classList.add('on');
     });
-    hero.addEventListener('mouseleave', function(){ glow.classList.remove('on'); });
+    document.addEventListener('mouseleave', function(){ glow.classList.remove('on'); });
   }catch(e){}
 })();

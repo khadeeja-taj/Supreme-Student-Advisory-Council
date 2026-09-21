@@ -162,14 +162,14 @@
     100%{ transform:translateY(540px) translateX(-8px) rotate(22deg); opacity:0; }
   }
   @media (prefers-reduced-motion: reduce){ .hero-icons{ display:none; } }
-  /* glow that follows the cursor over the hero */
-  .hero-glow{
-    position:absolute; left:0; top:0; width:340px; height:340px; margin:-170px 0 0 -170px;
-    border-radius:50%; pointer-events:none; z-index:1; opacity:0;
-    background:radial-gradient(circle, rgba(142,202,230,0.35) 0%, rgba(255,183,3,0.16) 42%, transparent 70%);
-    filter:blur(18px); transition:opacity .35s ease; will-change:transform,opacity;
+  /* white glow that follows the cursor anywhere on the site */
+  .cursor-glow{
+    position:fixed; left:0; top:0; width:320px; height:320px; margin:-160px 0 0 -160px;
+    border-radius:50%; pointer-events:none; z-index:9998; opacity:0;
+    background:radial-gradient(circle, rgba(255,255,255,0.50) 0%, rgba(255,255,255,0.16) 40%, transparent 70%);
+    filter:blur(16px); mix-blend-mode:screen; transition:opacity .3s ease; will-change:transform;
   }
-  .hero-glow.on{ opacity:1; }
+  .cursor-glow.on{ opacity:1; }
   .hero-inner{ max-width:900px; margin:0 auto; text-align:center; width:100%; position:relative; z-index:2; }
   .hero-photo{
     width:150px; height:150px; border-radius:50%; margin:-78px auto 18px;
@@ -1834,21 +1834,19 @@ renderChips();
    (Members, Academic Level, …) show in English too, not just after a toggle */
 try{ applyLang(); }catch(e){}
 
-/* soft glow that follows the cursor across the home hero */
+/* soft white glow that follows the cursor anywhere on the site */
 (function(){
   try{
     if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    var hero=document.querySelector('#page-home .hero');
-    if(!hero) return;
+    if('ontouchstart' in window) return;
     var glow=document.createElement('div');
-    glow.className='hero-glow';
-    hero.appendChild(glow);
-    hero.addEventListener('mousemove', function(e){
-      var r=hero.getBoundingClientRect();
-      glow.style.transform='translate('+(e.clientX-r.left)+'px,'+(e.clientY-r.top)+'px)';
+    glow.className='cursor-glow';
+    document.body.appendChild(glow);
+    window.addEventListener('mousemove', function(e){
+      glow.style.transform='translate('+e.clientX+'px,'+e.clientY+'px)';
       glow.classList.add('on');
     });
-    hero.addEventListener('mouseleave', function(){ glow.classList.remove('on'); });
+    document.addEventListener('mouseleave', function(){ glow.classList.remove('on'); });
   }catch(e){}
 })();
 
