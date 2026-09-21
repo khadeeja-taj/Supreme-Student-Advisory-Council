@@ -139,6 +139,19 @@
     background:linear-gradient(180deg, #023047 0%, #05445e 100%);
     padding: 0 6vw 66px;
   }
+  /* floating academic icons drifting down behind the hero content */
+  .hero-icons{ position:absolute; inset:0; z-index:1; overflow:hidden; pointer-events:none; }
+  .hero-icons i{ position:absolute; top:0; display:block; opacity:0;
+    animation-name:heroFloat; animation-timing-function:linear; animation-iteration-count:infinite; will-change:transform,opacity; }
+  .hero-icons i svg{ width:100%; height:100%; display:block; fill:currentColor; }
+  @keyframes heroFloat{
+    0%{ transform:translateY(-40px) translateX(0) rotate(0deg); opacity:0; }
+    12%{ opacity:.16; }
+    50%{ transform:translateY(250px) translateX(16px) rotate(11deg); }
+    88%{ opacity:.16; }
+    100%{ transform:translateY(540px) translateX(-8px) rotate(22deg); opacity:0; }
+  }
+  @media (prefers-reduced-motion: reduce){ .hero-icons{ display:none; } }
   .hero-inner{ max-width:900px; margin:0 auto; text-align:center; width:100%; position:relative; z-index:2; }
   .hero-photo{
     width:150px; height:150px; border-radius:50%; margin:-78px auto 18px;
