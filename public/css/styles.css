@@ -40,12 +40,12 @@
     position:fixed; top:0; left:0; right:0; z-index:200;
     display:flex; align-items:center; justify-content:space-between;
     padding:12px 28px;
-    background:rgba(255,255,255,0.97);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    background:rgba(255,255,255,0.55);
+    backdrop-filter: blur(18px) saturate(180%);
+    -webkit-backdrop-filter: blur(18px) saturate(180%);
     color:var(--navy);
-    border-bottom:1px solid rgba(2,48,71,0.10);
-    box-shadow:0 2px 12px rgba(2,48,71,0.06);
+    border-bottom:1px solid rgba(255,255,255,0.40);
+    box-shadow:0 4px 22px rgba(2,48,71,0.12);
   }
   .topnav .brand{ display:flex; align-items:center; gap:12px; cursor:pointer; }
   .brand-logos{ display:flex; align-items:center; gap:14px; }
@@ -57,7 +57,7 @@
   .topnav .brand small{ display:block; font-family:'Inter'; font-weight:600; font-size:0.62rem; color:#5a7d8c; letter-spacing:.4px; }
   .topnav-right{ display:flex; align-items:center; gap:14px; }
   .navlinks{ display:flex; gap:22px; align-items:center; }
-  .navlinks a, .navlinks button.linklike{ background:none;border:none;color:var(--navy);font-size:0.95rem;font-weight:600;padding:0;opacity:.9; }
+  .navlinks a, .navlinks button.linklike{ background:none;border:none;color:var(--navy);font-size:0.95rem;font-weight:700;padding:0;opacity:1; }
   .navlinks a:hover, .navlinks button.linklike:hover{ opacity:1; color:var(--teal); }
   .lang-pill{
     display:flex; align-items:center; gap:6px; border:1px solid rgba(2,48,71,0.25); color:var(--navy); background:rgba(2,48,71,0.03);
@@ -180,16 +180,16 @@
   .stepheader{
     --collage:url("../assets/section-collage.jpg");
     position:relative; overflow:hidden;
-    min-height:360px; margin-top:78px;
+    min-height:460px; margin-top:78px;
     display:flex; flex-direction:column; justify-content:flex-end;
     background:
-      linear-gradient(0deg, rgba(2,48,71,0.80) 0%, rgba(2,48,71,0.36) 28%, rgba(2,48,71,0.06) 58%, transparent 100%),
+      linear-gradient(0deg, rgba(2,48,71,0.72) 0%, rgba(2,48,71,0.30) 20%, rgba(2,48,71,0.05) 42%, transparent 62%),
       var(--collage) center / cover no-repeat,
       linear-gradient(120deg, var(--navy) 0%, #05445e 55%, var(--teal) 130%);
     color:#fff; padding:0 6vw 34px; text-align:left;
   }
   html[dir="rtl"] .stepheader{ text-align:right; }
-  @media (max-width: 640px){ .stepheader{ --collage:url("../assets/section-collage-m.jpg"); min-height:240px; margin-top:60px; padding:0 5vw 22px; } }
+  @media (max-width: 640px){ .stepheader{ --collage:url("../assets/section-collage-m.jpg"); min-height:300px; margin-top:60px; padding:0 5vw 22px; } }
   .stepheader > *{ position:relative; z-index:2; }
   .stepheader .kicker{ display:none; }
   .stepheader .sh-panel{ display:block; max-width:min(680px,100%); }
