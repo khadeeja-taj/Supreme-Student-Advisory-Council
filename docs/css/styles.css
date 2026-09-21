@@ -183,10 +183,19 @@
     min-height:360px; margin-top:78px;
     display:flex; flex-direction:column; justify-content:flex-end;
     background:
-      linear-gradient(0deg, rgba(2,48,71,0.34) 0%, rgba(2,48,71,0.10) 24%, transparent 50%),
       var(--collage) center center / 100% 100% no-repeat,
       linear-gradient(120deg, var(--navy) 0%, #05445e 55%, var(--teal) 130%);
     color:#fff; padding:0 6vw 34px; text-align:left;
+  }
+  /* glassy navy (#023047) cover: light frosted tint + glass sheen, image stays clear */
+  .stepheader::after{
+    content:""; position:absolute; inset:0; z-index:1; pointer-events:none;
+    background:
+      linear-gradient(135deg, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0) 34%),
+      linear-gradient(0deg, rgba(2,48,71,0.46) 0%, rgba(2,48,71,0.20) 40%, rgba(2,48,71,0.14) 100%);
+    backdrop-filter: blur(2px) saturate(1.05);
+    -webkit-backdrop-filter: blur(2px) saturate(1.05);
+    border-bottom:1px solid rgba(255,255,255,0.14);
   }
   html[dir="rtl"] .stepheader{ text-align:right; }
   @media (max-width: 640px){ .stepheader{ --collage:url("../assets/section-collage-m.jpg"); min-height:240px; margin-top:60px; padding:0 5vw 22px; } }
