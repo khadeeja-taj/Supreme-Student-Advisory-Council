@@ -111,7 +111,7 @@
     .topnav .brand{ gap:9px; }
     .topnav .brand span{ font-size:.92rem; line-height:1.1; }
     .topnav .brand small{ font-size:.5rem; }
-    .hero{ padding:0 5vw 44px; }
+    .hero{ padding:1px 5vw 44px; }
     .hero-banner{ margin-top:60px; height:210px; }
     .hero-banner img.bg{ height:100%; width:100%; object-fit:cover; object-position:center 42%; }
     .hero-banner .banner-logo.l{ height:30%; top:10%; left:2%; }
@@ -148,7 +148,7 @@
   .hero{
     position:relative; text-align:center; color:#fff;
     background:linear-gradient(180deg, #023047 0%, #05445e 100%);
-    padding: 0 6vw 66px;
+    padding: 1px 6vw 66px;   /* 1px stops margin-collapse so the dark bg starts at the banner bottom, not over the building */
   }
   /* floating academic icons drifting down behind the hero content */
   .hero-icons{ position:absolute; inset:0; z-index:1; overflow:hidden; pointer-events:none; }
