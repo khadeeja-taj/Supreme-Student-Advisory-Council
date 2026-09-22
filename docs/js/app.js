@@ -721,8 +721,7 @@ var SKILLS=[
  {en:'Photography', ar:'التصوير الفوتوغرافي'},
  {en:'Video Editing', ar:'تحرير الفيديو'},
  {en:'Programming', ar:'البرمجة'},
- {en:'Web Development', ar:'تطوير المواقع'},
- {en:'Stage Performance', ar:'الأداء المسرحي'}
+ {en:'Web Development', ar:'تطوير المواقع'}
 ];
 var HOBBIES=[
  {en:'Volunteering', ar:'التطوع'},
@@ -732,7 +731,7 @@ var HOBBIES=[
  {en:'Drawing', ar:'الرسم'},
  {en:'Arts & Crafts', ar:'الفنون والحرف اليدوية'},
  {en:'Cooking', ar:'الطبخ'},
- {en:'Gardening', ar:'البستنة والزراعة المنزلية'},
+ {en:'Landscaping', ar:'التزيين بالزراعة'},
  {en:'Calligraphy', ar:'الخط'},
  {en:'Research & Learning', ar:'البحث والتعلّم'},
  {en:'Entrepreneurship', ar:'ريادة الأعمال'},
