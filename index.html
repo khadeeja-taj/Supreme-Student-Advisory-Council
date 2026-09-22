@@ -576,6 +576,59 @@ html.on-admin #langBtn{ display:none; }
 html.on-admin .admin-only{ display:flex !important; }
 .admin-topnav{ align-items:center; gap:10px; }
 
+/* ================= RBAC: auth, competitions, management ================= */
+.auth-wrap{ min-height:70vh; display:flex; align-items:center; justify-content:center; padding:120px 20px 60px; }
+.auth-card{ width:100%; max-width:420px; background:#fff; border:1px solid rgba(2,48,71,.10); border-radius:18px; padding:34px 30px; box-shadow:0 18px 50px rgba(2,48,71,.10); text-align:left; }
+html[dir="rtl"] .auth-card{ text-align:right; }
+.auth-card h2{ margin:0 0 6px; color:var(--navy); }
+.auth-sub{ color:#5a7480; font-size:.9rem; margin:0 0 22px; }
+.auth-card .field{ margin-bottom:16px; }
+.auth-card .field label{ display:block; font-size:.82rem; font-weight:700; color:var(--navy); margin-bottom:6px; }
+.auth-card .field input{ width:100%; padding:12px 14px; border:1px solid rgba(2,48,71,.18); border-radius:10px; font-size:.95rem; }
+.auth-card .field input:focus{ outline:none; border-color:var(--sky); box-shadow:0 0 0 3px rgba(142,202,230,.35); }
+.auth-err{ color:#c0392b; font-size:.85rem; min-height:18px; margin-bottom:8px; }
+
+.portal-wrap{ max-width:1040px; margin:0 auto; padding:120px 6vw 70px; }
+.portal-head{ margin-bottom:26px; }
+.portal-head h2{ margin:0 0 6px; color:var(--navy); font-size:1.9rem; }
+.portal-sub{ color:#5a7480; margin:0; font-weight:600; }
+html[dir="rtl"] .portal-wrap{ text-align:right; }
+
+.comp-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:18px; }
+.comp-card{ background:#fff; border:1px solid rgba(2,48,71,.10); border-radius:16px; padding:22px; display:flex; flex-direction:column; gap:12px; box-shadow:0 8px 26px rgba(2,48,71,.06); }
+.comp-card h3{ margin:0; color:var(--navy); font-size:1.15rem; }
+.comp-card p{ margin:0; color:#4a6270; font-size:.9rem; line-height:1.6; }
+.comp-cat{ align-self:flex-start; background:#e7dcc4; color:#4a3f2a; font-size:.68rem; font-weight:800; letter-spacing:.4px; padding:4px 10px; border-radius:999px; text-transform:uppercase; }
+.comp-body{ flex:1; display:flex; flex-direction:column; gap:10px; }
+.comp-foot{ display:flex; }
+.comp-done{ color:#1c7c4a; font-weight:800; font-size:.92rem; }
+
+.council-cards{ display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:18px; }
+.council-card{ background:#fff; border:1px solid rgba(2,48,71,.10); border-radius:16px; padding:24px; box-shadow:0 8px 26px rgba(2,48,71,.06); }
+.council-card h3{ margin:0 0 8px; color:var(--navy); }
+.council-card p{ margin:0 0 16px; color:#4a6270; font-size:.9rem; line-height:1.6; }
+
+/* management lists (admin: competitions + users) */
+.rbac-manage{ display:flex; flex-direction:column; gap:18px; }
+.rbac-list{ display:flex; flex-direction:column; gap:10px; }
+.rbac-row{ display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap; background:#fff; border:1px solid rgba(2,48,71,.10); border-radius:12px; padding:12px 16px; }
+.rbac-info{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; color:var(--navy); }
+.rbac-sub{ color:#708995; font-size:.82rem; width:100%; }
+.rbac-actions{ display:flex; gap:8px; flex-wrap:wrap; }
+.rbac-badge{ font-size:.66rem; font-weight:800; letter-spacing:.3px; padding:3px 9px; border-radius:999px; text-transform:uppercase; }
+.rbac-badge.s-open{ background:#d8f2e2; color:#1c7c4a; }
+.rbac-badge.s-draft{ background:#e7ebef; color:#5a7480; }
+.rbac-badge.s-closed{ background:#f6dcdc; color:#b33b3b; }
+.rbac-badge.r-admin{ background:#023047; color:#fff; }
+.rbac-badge.r-council{ background:#036666; color:#fff; }
+.rbac-badge.r-student{ background:#ffb703; color:#3a2e0a; }
+.btn-outline.sm{ padding:6px 12px; font-size:.8rem; border-radius:8px; }
+.btn-outline.sm.danger{ border-color:#e0b4b4; color:#b33b3b; }
+.btn-outline.sm.danger:hover{ background:#b33b3b; color:#fff; border-color:#b33b3b; }
+.chk-line{ display:flex; align-items:center; gap:8px; font-size:.88rem; color:var(--navy); }
+.mng-form.col{ flex-direction:column; align-items:stretch; }
+@media (max-width:640px){ .portal-wrap{ padding:96px 5vw 50px; } .auth-wrap{ padding:96px 16px 40px; } }
+
 </style>
 </head>
 <body>
@@ -584,11 +637,15 @@ html.on-admin .admin-only{ display:flex !important; }
   <button class="drawer-close" onclick="closeDrawer()">&times;</button>
   <nav>
     <a href="#" onclick="go('home');closeDrawer();return false;" data-i18n="nav.home">Home</a>
-    <a href="#" onclick="go('reps');closeDrawer();return false;" data-i18n="nav.reps">Representatives</a>
+    <a href="#" onclick="go('reps');closeDrawer();return false;" data-i18n="nav.reps">Members</a>
     <a href="#" onclick="go('news');closeDrawer();return false;" data-i18n="nav.news">News</a>
     <a href="#" onclick="go('contact');closeDrawer();return false;" data-i18n="nav.contact">Contact</a>
-    <a href="#" onclick="go('admin');closeDrawer();return false;" data-i18n="nav.admin">Admin</a>
+    <a href="#" id="m_navCouncil" style="display:none" onclick="go('council');closeDrawer();return false;" data-i18n="nav.council">Advisory Council</a>
+    <a href="#" id="m_navCompetitions" style="display:none" onclick="go('competitions');closeDrawer();return false;" data-i18n="nav.competitions">Competitions</a>
+    <a href="#" id="m_navAdmin" style="display:none" onclick="go('admin');closeDrawer();return false;" data-i18n="nav.admin">Admin</a>
     <button class="linklike" onclick="go('departments');closeDrawer();" data-i18n="nav.getstarted">Get Started</button>
+    <button class="linklike" id="m_navLogin" onclick="go('login');closeDrawer();" data-i18n="nav.login">Login</button>
+    <button class="linklike" id="m_navLogout" style="display:none" onclick="doLogout();closeDrawer();" data-i18n="nav.logout">Log Out</button>
     <button class="linklike" onclick="toggleLang();" id="langBtnMobile">العربية</button>
   </nav>
   <div class="socials">
@@ -612,12 +669,16 @@ html.on-admin .admin-only{ display:flex !important; }
   <div class="topnav-right">
     <div class="navlinks">
       <a href="#" onclick="go('home');return false;" data-i18n="nav.home">Home</a>
-      <a href="#" onclick="go('reps');return false;" data-i18n="nav.reps">Representatives</a>
+      <a href="#" onclick="go('reps');return false;" data-i18n="nav.reps">Members</a>
       <a href="#" onclick="go('news');return false;" data-i18n="nav.news">News</a>
       <a href="#" onclick="go('contact');return false;" data-i18n="nav.contact">Contact</a>
-      <a href="#" onclick="go('admin');return false;" data-i18n="nav.admin">Admin</a>
+      <a href="#" id="navCouncil" style="display:none" onclick="go('council');return false;" data-i18n="nav.council">Advisory Council</a>
+      <a href="#" id="navCompetitions" style="display:none" onclick="go('competitions');return false;" data-i18n="nav.competitions">Competitions</a>
+      <a href="#" id="navAdmin" style="display:none" onclick="go('admin');return false;" data-i18n="nav.admin">Admin</a>
       <button class="lang-pill" onclick="toggleLang()" id="langBtn">🌐 العربية</button>
       <button class="pill-btn" onclick="go('departments')" data-i18n="nav.getstarted">Get Started</button>
+      <button class="pill-btn" id="navLogin" onclick="go('login')" data-i18n="nav.login">Login</button>
+      <button class="pill-btn" id="navLogout" style="display:none" onclick="doLogout()" data-i18n="nav.logout">Log Out</button>
     </div>
     <div class="admin-topnav admin-only">
       <button class="lang-pill" onclick="toggleLang()" id="langBtnAdmin">🌐 العربية</button>
@@ -936,6 +997,55 @@ html.on-admin .admin-only{ display:flex !important; }
 </section>
 
 <!-- ================= ADMIN ================= -->
+<!-- ================= LOGIN ================= -->
+<section class="page" id="page-login">
+  <div class="auth-wrap">
+    <div class="auth-card">
+      <h2 data-i18n="login.title">Sign in</h2>
+      <p class="auth-sub" data-i18n="login.sub">Sign in to reach your portal. Accounts are created by the Administrator.</p>
+      <form onsubmit="doLogin(event)">
+        <div class="field"><label data-i18n="login.email">Email</label><input type="email" id="login_email" autocomplete="username"></div>
+        <div class="field"><label data-i18n="login.pass">Password</label><input type="password" id="login_pass" autocomplete="current-password"></div>
+        <div id="loginErr" class="auth-err" role="alert"></div>
+        <button class="btn-teal" style="width:100%" type="submit" data-i18n="login.btn">Log In</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- ================= COMPETITIONS ================= -->
+<section class="page" id="page-competitions">
+  <div class="portal-wrap">
+    <div class="portal-head">
+      <h2 data-i18n="comp.title">Competitions</h2>
+      <p class="portal-sub" data-i18n="comp.sub">View available competitions and register to take part.</p>
+    </div>
+    <div id="competitionsBody" class="comp-grid"></div>
+  </div>
+</section>
+
+<!-- ================= ADVISORY COUNCIL (council role) ================= -->
+<section class="page" id="page-council">
+  <div class="portal-wrap">
+    <div class="portal-head">
+      <h2 data-i18n="council.title">Advisory Council</h2>
+      <p class="portal-sub" data-i18n="council.sub">Your council area and available competitions.</p>
+    </div>
+    <div class="council-cards">
+      <div class="council-card">
+        <h3 data-i18n="council.c1t">Competitions</h3>
+        <p data-i18n="council.c1p">Browse the competitions the Administration has opened and register to participate.</p>
+        <button class="btn-teal" onclick="go('competitions')" data-i18n="nav.competitions">Competitions</button>
+      </div>
+      <div class="council-card">
+        <h3 data-i18n="council.c2t">Council Members</h3>
+        <p data-i18n="council.c2p">View the current members serving on the Supreme Student Advisory Council.</p>
+        <button class="btn-outline" onclick="go('reps')" data-i18n="nav.reps">Members</button>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section class="page" id="page-admin">
   <div class="admin-wrap">
     <div id="adminLoginBox" class="admin-login">
@@ -958,6 +1068,8 @@ html.on-admin .admin-only{ display:flex !important; }
         <button class="atab" data-tab="reps" onclick="showAdminTab('reps')" data-i18n="atab.reps">Representatives</button>
         <button class="atab" data-tab="news" onclick="showAdminTab('news')" data-i18n="atab.news">Announcements</button>
         <button class="atab" data-tab="messages" onclick="showAdminTab('messages')" data-i18n="atab.messages">Messages</button>
+        <button class="atab" data-tab="competitions" onclick="showAdminTab('competitions')" data-i18n="atab.competitions">Competitions</button>
+        <button class="atab" data-tab="users" onclick="showAdminTab('users')" data-i18n="atab.users">Users</button>
       </div>
 
       <div class="atab-panel" id="apanel-overview">
@@ -1009,6 +1121,14 @@ html.on-admin .admin-only{ display:flex !important; }
 
       <div class="atab-panel" id="apanel-messages" hidden>
         <div id="adminMsgList" class="mng-list"></div>
+      </div>
+
+      <div class="atab-panel" id="apanel-competitions" hidden>
+        <div id="adminCompBody"></div>
+      </div>
+
+      <div class="atab-panel" id="apanel-users" hidden>
+        <div id="adminUsersBody"></div>
       </div>
     </div>
   </div>
@@ -1268,6 +1388,7 @@ function applyLang(){
     if(ap && ap.style.display==='block'){ var at=document.querySelector('.atab.active'); if(at) showAdminTab(at.dataset.tab); }
     if(document.getElementById('page-news') && document.getElementById('page-news').classList.contains('active')) renderNews();
     if(document.getElementById('page-reps') && document.getElementById('page-reps').classList.contains('active')) renderReps();
+    if(document.getElementById('page-competitions') && document.getElementById('page-competitions').classList.contains('active')) renderCompetitions();
   }catch(e){}
 }
 
@@ -1301,17 +1422,232 @@ function selectGender(g){
   setTimeout(function(){ go('register'); }, 300);
 }
 
+/* =========================================================================
+   ROLE-BASED ACCESS CONTROL (frontend layer)
+   The backend/API is the source of truth; this only shapes the UI and blocks
+   obvious navigation. Every protected API call still carries the JWT and is
+   re-checked server-side.
+   ========================================================================= */
+var authToken = sessionStorage.getItem('ssac_token') || null;
+var authUser = null;
+try{ authUser = JSON.parse(sessionStorage.getItem('ssac_user') || 'null'); }catch(e){ authUser = null; }
+
+function currentRole(){ return authUser ? authUser.role : null; }
+function isLoggedIn(){ return !!authToken; }
+function authHeaders(){ return authToken ? { Authorization: 'Bearer ' + authToken } : {}; }
+function landingFor(role){ return role==='admin' ? 'admin' : (role==='council' ? 'council' : 'competitions'); }
+function cap(s){ return String(s||'').charAt(0).toUpperCase() + String(s||'').slice(1); }
+function roleLabel(r){ return tr(cap(r), {admin:'مشرف', council:'عضو مجلس', student:'طالب'}[r] || r); }
+
+function setNav(baseId, on){
+  ['', 'm_'].forEach(function(pfx){ var e=document.getElementById(pfx+baseId); if(e) e.style.display = on ? '' : 'none'; });
+}
+function applyRoleUI(){
+  var role = currentRole(), loggedIn = isLoggedIn();
+  setNav('navLogin', !loggedIn);
+  setNav('navLogout', loggedIn);
+  setNav('navCompetitions', loggedIn);                       // every signed-in role has Competitions
+  setNav('navCouncil', role==='admin' || role==='council');  // Advisory Council: admin + council
+  setNav('navAdmin', role==='admin');                        // Admin panel: admin only
+  // keep the legacy admin bearer in sync so existing admin-panel calls work
+  adminToken = (role==='admin') ? authToken : null;
+  var h = document.getElementById('htmlRoot');
+  if(h){ h.className = h.className.replace(/\brole-\w+\b/g,'').replace(/\s+/g,' ').trim();
+         if(role) h.classList.add('role-' + role);
+         h.classList.toggle('logged-in', loggedIn); }
+}
+
+async function doLogin(ev){
+  if(ev) ev.preventDefault();
+  var email = val('login_email');
+  var passEl = document.getElementById('login_pass'); var password = passEl ? passEl.value : '';
+  var errEl = document.getElementById('loginErr'); if(errEl) errEl.textContent='';
+  if(!email || !password){ if(errEl) errEl.textContent = tr('Please enter your email and password.','يرجى إدخال البريد وكلمة المرور.'); return; }
+  try{
+    var r = await api('/api/auth/login', { method:'POST', body: JSON.stringify({ email:email, password:password }) });
+    authToken = r.token; authUser = r.user;
+    sessionStorage.setItem('ssac_token', authToken);
+    sessionStorage.setItem('ssac_user', JSON.stringify(authUser));
+    if(passEl) passEl.value='';
+    applyRoleUI();
+    go(landingFor(authUser.role));
+  }catch(e){
+    if(errEl) errEl.textContent = (e && e.status===401)
+      ? tr('Invalid email or password.','بريد إلكتروني أو كلمة مرور غير صحيحة.')
+      : tr('Sign-in is unavailable right now. Please try again later.','تعذّر تسجيل الدخول حاليًا. حاول لاحقًا.');
+  }
+}
+function doLogout(){
+  authToken = null; authUser = null; adminToken = null;
+  sessionStorage.removeItem('ssac_token');
+  sessionStorage.removeItem('ssac_user');
+  sessionStorage.removeItem('ssac_admin_token');
+  document.getElementById('htmlRoot').classList.remove('admin-authed');
+  applyRoleUI();
+  go('home');
+}
+
+/* ---- Competitions (all roles) ---- */
+async function renderCompetitions(targetEl){
+  var box = targetEl || document.getElementById('competitionsBody');
+  if(!box) return;
+  box.innerHTML = '<div class="empty-card">'+tr('Loading…','جارٍ التحميل…')+'</div>';
+  var comps = [];
+  try{ var r = await api('/api/competitions', { headers: authHeaders() }); comps = r.competitions || []; }
+  catch(e){
+    if(e && e.status===401){ doLogout(); return; }
+    box.innerHTML = '<div class="empty-card">'+tr('Could not load competitions.','تعذّر تحميل المسابقات.')+'</div>'; return;
+  }
+  if(currentRole()==='admin'){ renderAdminCompetitions(box, comps); return; }
+  if(!comps.length){ box.innerHTML = '<div class="empty-card">'+tr('No competitions are open right now. Please check back soon.','لا توجد مسابقات متاحة حاليًا. تابعنا قريبًا بإذن الله.')+'</div>'; return; }
+  box.innerHTML = comps.map(function(c){
+    var title = (lang==='ar' && c.title_ar) ? c.title_ar : c.title;
+    var desc  = (lang==='ar' && c.description_ar) ? c.description_ar : (c.description||'');
+    return '<article class="comp-card"><div class="comp-body">'
+      + (c.category ? '<span class="comp-cat">'+esc(c.category)+'</span>' : '')
+      + '<h3>'+esc(title)+'</h3>'
+      + (desc ? '<p>'+esc(desc)+'</p>' : '')
+      + '</div><div class="comp-foot">'
+      + (c.registered
+          ? '<span class="comp-done">✓ '+tr('Registered','تم التسجيل')+'</span>'
+          : '<button class="btn-teal" onclick="registerCompetition('+c.id+',this)">'+tr('Register','سجّل الآن')+'</button>')
+      + '</div></article>';
+  }).join('');
+}
+async function registerCompetition(id, btn){
+  if(btn){ btn.disabled=true; btn.textContent = tr('Registering…','جارٍ التسجيل…'); }
+  try{ await api('/api/competitions/'+id+'/register', { method:'POST', headers: authHeaders(), body:'{}' }); renderCompetitions(); }
+  catch(e){
+    if(e && e.status===401){ doLogout(); return; }
+    alert(tr('Could not register: ','تعذّر التسجيل: ')+(e && e.message || ''));
+    if(btn){ btn.disabled=false; btn.textContent = tr('Register','سجّل الآن'); }
+  }
+}
+
+/* ---- Competitions management (admin) ---- */
+function renderAdminCompetitions(box, comps){
+  var st = {draft:tr('Draft','مسودة'), open:tr('Open','مفتوحة'), closed:tr('Closed','مغلقة')};
+  var form = '<form class="mng-form col" onsubmit="createCompetition(event)">'
+    + '<input id="cmp_title" placeholder="'+tr('Title (English)','العنوان (إنجليزي)')+'">'
+    + '<input id="cmp_title_ar" placeholder="'+tr('Title (Arabic)','العنوان (عربي)')+'">'
+    + '<input id="cmp_category" placeholder="'+tr('Category (optional)','التصنيف (اختياري)')+'">'
+    + '<textarea id="cmp_desc" rows="2" placeholder="'+tr('Description','الوصف')+'"></textarea>'
+    + '<label class="chk-line"><input type="checkbox" id="cmp_open"> '+tr('Open to students & council right away','متاحة للطلاب والمجلس فورًا')+'</label>'
+    + '<button class="btn-teal" type="submit">'+tr('Add competition','إضافة مسابقة')+'</button></form>';
+  var list = comps.length ? comps.map(function(c){
+    return '<div class="rbac-row"><div class="rbac-info"><b>'+esc(c.title)+'</b>'
+      + ' <span class="rbac-badge s-'+c.status+'">'+esc(st[c.status]||c.status)+'</span>'
+      + (c.active ? '' : ' <span class="rbac-badge s-closed">'+tr('Inactive','معطّلة')+'</span>')
+      + '<span class="rbac-sub">'+(c.registrations||0)+' '+tr('registered','مسجّل')+'</span></div>'
+      + '<div class="rbac-actions">'
+      + (c.status!=='open'   ? '<button class="btn-outline sm" onclick="setCompStatus('+c.id+',\'open\')">'+tr('Open','فتح')+'</button>' : '')
+      + (c.status!=='closed' ? '<button class="btn-outline sm" onclick="setCompStatus('+c.id+',\'closed\')">'+tr('Close','إغلاق')+'</button>' : '')
+      + '<button class="btn-outline sm" onclick="setCompActive('+c.id+','+(c.active?'false':'true')+')">'+(c.active?tr('Deactivate','تعطيل'):tr('Activate','تفعيل'))+'</button>'
+      + '<button class="btn-outline sm danger" onclick="deleteCompetition('+c.id+')">'+tr('Delete','حذف')+'</button>'
+      + '</div></div>';
+  }).join('') : '<div class="empty-card">'+tr('No competitions yet. Add one above.','لا توجد مسابقات بعد. أضِف واحدة بالأعلى.')+'</div>';
+  box.innerHTML = '<div class="rbac-manage">'+form+'<div class="rbac-list">'+list+'</div></div>';
+}
+async function createCompetition(ev){
+  if(ev) ev.preventDefault();
+  var title = val('cmp_title');
+  if(!title){ alert(tr('Title is required.','العنوان مطلوب.')); return; }
+  var body = { title:title, title_ar:val('cmp_title_ar'), category:val('cmp_category'), description:val('cmp_desc'),
+               status: document.getElementById('cmp_open').checked ? 'open' : 'draft' };
+  try{ await api('/api/competitions', { method:'POST', headers: authHeaders(), body: JSON.stringify(body) }); refreshComps(); }
+  catch(e){ alert(tr('Could not save: ','تعذّر الحفظ: ')+(e && e.message || '')); }
+}
+async function setCompStatus(id, status){
+  try{ await api('/api/competitions/'+id, { method:'PATCH', headers: authHeaders(), body: JSON.stringify({ status:status }) }); refreshComps(); }
+  catch(e){ alert(e && e.message || 'Error'); }
+}
+async function setCompActive(id, active){
+  try{ await api('/api/competitions/'+id, { method:'PATCH', headers: authHeaders(), body: JSON.stringify({ active:active }) }); refreshComps(); }
+  catch(e){ alert(e && e.message || 'Error'); }
+}
+async function deleteCompetition(id){
+  if(!confirm(tr('Delete this competition? This cannot be undone.','حذف هذه المسابقة؟ لا يمكن التراجع.'))) return;
+  try{ await api('/api/competitions/'+id, { method:'DELETE', headers: authHeaders() }); refreshComps(); }
+  catch(e){ alert(e && e.message || 'Error'); }
+}
+function refreshComps(){
+  // re-render whichever competitions view is on screen
+  var adminBox = document.getElementById('adminCompBody');
+  if(adminBox && document.getElementById('page-admin').classList.contains('active')) renderCompetitions(adminBox);
+  else renderCompetitions();
+}
+
+/* ---- User management (admin only) ---- */
+async function renderAdminUsers(){
+  var box = document.getElementById('adminUsersBody'); if(!box) return;
+  box.innerHTML = '<div class="empty-card">'+tr('Loading…','جارٍ التحميل…')+'</div>';
+  var users = [];
+  try{ var r = await api('/api/users', { headers: authHeaders() }); users = r.users || []; }
+  catch(e){
+    if(e && e.status===401){ doLogout(); return; }
+    box.innerHTML = '<div class="empty-card">'+tr('Could not load users.','تعذّر تحميل المستخدمين.')+'</div>'; return;
+  }
+  var form = '<form class="mng-form" onsubmit="createUser(event)">'
+    + '<input id="usr_name" placeholder="'+tr('Full name','الاسم الكامل')+'">'
+    + '<input id="usr_email" type="email" placeholder="'+tr('Email','البريد الإلكتروني')+'">'
+    + '<input id="usr_pass" type="password" placeholder="'+tr('Password','كلمة المرور')+'">'
+    + '<select id="usr_role"><option value="student">'+tr('Student','طالب')+'</option>'
+    + '<option value="council">'+tr('Council','عضو مجلس')+'</option>'
+    + '<option value="admin">'+tr('Admin','مشرف')+'</option></select>'
+    + '<button class="btn-teal" type="submit">'+tr('Add user','إضافة مستخدم')+'</button></form>';
+  var rows = users.map(function(u){
+    return '<div class="rbac-row"><div class="rbac-info"><b>'+esc(u.name)+'</b>'
+      + ' <span class="rbac-badge r-'+u.role+'">'+esc(roleLabel(u.role))+'</span>'
+      + (u.active ? '' : ' <span class="rbac-badge s-closed">'+tr('Inactive','معطّل')+'</span>')
+      + '<span class="rbac-sub">'+esc(u.email)+'</span></div>'
+      + '<div class="rbac-actions">'
+      + '<button class="btn-outline sm" onclick="toggleUser('+u.id+','+(u.active?'false':'true')+')">'+(u.active?tr('Deactivate','تعطيل'):tr('Activate','تفعيل'))+'</button>'
+      + '<button class="btn-outline sm danger" onclick="deleteUser('+u.id+')">'+tr('Delete','حذف')+'</button>'
+      + '</div></div>';
+  }).join('');
+  box.innerHTML = '<div class="rbac-manage">'+form+'<div class="rbac-list">'+(rows||('<div class="empty-card">'+tr('No users yet.','لا يوجد مستخدمون بعد.')+'</div>'))+'</div></div>';
+}
+async function createUser(ev){
+  if(ev) ev.preventDefault();
+  var name=val('usr_name'), email=val('usr_email'), pass=document.getElementById('usr_pass').value, role=val('usr_role');
+  if(!name||!email||!pass){ alert(tr('Name, email and password are required.','الاسم والبريد وكلمة المرور مطلوبة.')); return; }
+  try{ await api('/api/users', { method:'POST', headers: authHeaders(), body: JSON.stringify({ name:name, email:email, password:pass, role:role }) }); renderAdminUsers(); }
+  catch(e){ alert(tr('Could not create user: ','تعذّر إنشاء المستخدم: ')+(e && e.message || '')); }
+}
+async function toggleUser(id, active){
+  try{ await api('/api/users/'+id, { method:'PATCH', headers: authHeaders(), body: JSON.stringify({ active:active }) }); renderAdminUsers(); }
+  catch(e){ alert(e && e.message || 'Error'); }
+}
+async function deleteUser(id){
+  if(!confirm(tr('Delete this user?','حذف هذا المستخدم؟'))) return;
+  try{ await api('/api/users/'+id, { method:'DELETE', headers: authHeaders() }); renderAdminUsers(); }
+  catch(e){ alert(e && e.message || 'Error'); }
+}
+
+/* Pages that require a login, and which roles may open them.
+   The backend re-checks every request — this is the UX layer only. */
+var PAGE_ROLES = { competitions:['admin','council','student'], council:['admin','council'], admin:['admin'] };
 function go(pageId){
+  var need = PAGE_ROLES[pageId];
+  if(need){
+    if(!isLoggedIn()){ go('login'); return; }
+    if(need.indexOf(currentRole()) < 0){
+      alert(tr('You do not have permission to view this page.','ليس لديك صلاحية لعرض هذه الصفحة.'));
+      go(landingFor(currentRole())); return;
+    }
+  }
+  var target = document.getElementById('page-' + pageId);
+  if(!target){ pageId='home'; target=document.getElementById('page-home'); }
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.getElementById('page-' + pageId).classList.add('active');
+  target.classList.add('active');
   document.getElementById('htmlRoot').classList.toggle('on-admin', pageId==='admin');
   if(pageId==='admin'){
-    var authed=!!adminToken;
-    document.getElementById('htmlRoot').classList.toggle('admin-authed', authed);
-    var lb=document.getElementById('adminLoginBox'); if(lb) lb.style.display = authed?'none':'block';
-    var ap=document.getElementById('adminPanel'); if(ap) ap.style.display = authed?'block':'none';
-    if(authed) showAdminTab('overview');
+    document.getElementById('htmlRoot').classList.add('admin-authed');
+    var lb=document.getElementById('adminLoginBox'); if(lb) lb.style.display='none';
+    var ap=document.getElementById('adminPanel'); if(ap) ap.style.display='block';
+    showAdminTab('overview');
   }
+  if(pageId==='competitions'){ renderCompetitions(); }
   window.scrollTo({top:0, behavior:'instant'});
   if(pageId === 'gender' && state.department){
     document.getElementById('genderFacultyCrumb').textContent = ' · ' + deptLabel(state.department);
@@ -1449,13 +1785,7 @@ async function tryAdminLogin(){
   }
 }
 
-function adminLogout(){
-  adminToken = null;
-  sessionStorage.removeItem('ssac_admin_token');
-  document.getElementById('adminPanel').style.display = 'none';
-  document.getElementById('adminLoginBox').style.display = 'block';
-  document.getElementById('htmlRoot').classList.remove('admin-authed');
-}
+function adminLogout(){ doLogout(); }
 
 async function loadAdminData(){
   const tbody = document.getElementById('adminTbody');
@@ -1609,12 +1939,14 @@ async function renderReps(){
 /* ---- ADMIN: tabs ---- */
 function showAdminTab(name){
   document.querySelectorAll('.atab').forEach(function(b){ b.classList.toggle('active', b.dataset.tab===name); });
-  ['overview','regs','reps','news','messages'].forEach(function(t){ var p=document.getElementById('apanel-'+t); if(p) p.hidden=(t!==name); });
+  ['overview','regs','reps','news','messages','competitions','users'].forEach(function(t){ var p=document.getElementById('apanel-'+t); if(p) p.hidden=(t!==name); });
   if(name==='overview') renderAnalytics();
   if(name==='regs') loadAdminData();
   if(name==='reps') renderAdminReps();
   if(name==='news') renderAdminNews();
   if(name==='messages') renderAdminMessages();
+  if(name==='competitions') renderCompetitions(document.getElementById('adminCompBody'));
+  if(name==='users') renderAdminUsers();
 }
 async function tryAdminLogin(){
   var pass=document.getElementById('adminPass').value;
@@ -1822,9 +2154,39 @@ function renderChips(){
 }
 renderChips();
 
-/* apply the active-language dictionary on first paint so renamed labels
-   (Members, Academic Level, …) show in English too, not just after a toggle */
+/* ---- RBAC i18n strings (added on top of the base dictionary) ---- */
+try{
+  Object.assign(I18N.en, {
+    "nav.council":"Advisory Council","nav.competitions":"Competitions","nav.login":"Login","nav.logout":"Log Out",
+    "atab.competitions":"Competitions","atab.users":"Users",
+    "login.title":"Sign in","login.sub":"Sign in to reach your portal. Accounts are created by the Administrator.","login.email":"Email","login.pass":"Password","login.btn":"Log In",
+    "comp.title":"Competitions","comp.sub":"View available competitions and register to take part.",
+    "council.title":"Advisory Council","council.sub":"Your council area and available competitions.",
+    "council.c1t":"Competitions","council.c1p":"Browse the competitions the Administration has opened and register to participate.",
+    "council.c2t":"Council Members","council.c2p":"View the current members serving on the Supreme Student Advisory Council."
+  });
+  Object.assign(I18N.ar, {
+    "nav.council":"المجلس الاستشاري","nav.competitions":"المسابقات","nav.login":"تسجيل الدخول","nav.logout":"تسجيل الخروج",
+    "atab.competitions":"المسابقات","atab.users":"المستخدمون",
+    "login.title":"تسجيل الدخول","login.sub":"سجّل الدخول للوصول إلى لوحتك. الحسابات يُنشئها المشرف.","login.email":"البريد الإلكتروني","login.pass":"كلمة المرور","login.btn":"دخول",
+    "comp.title":"المسابقات","comp.sub":"اطّلع على المسابقات المتاحة وسجّل للمشاركة.",
+    "council.title":"المجلس الاستشاري","council.sub":"منطقة المجلس والمسابقات المتاحة.",
+    "council.c1t":"المسابقات","council.c1p":"تصفّح المسابقات التي فتحتها الإدارة وسجّل للمشاركة.",
+    "council.c2t":"أعضاء المجلس","council.c2p":"اطّلع على الأعضاء الحاليين في المجلس الاستشاري الطلابي الأعلى."
+  });
+}catch(e){}
+
+/* apply the active-language dictionary + role-based UI on first paint */
+try{ applyRoleUI(); }catch(e){}
 try{ applyLang(); }catch(e){}
+
+/* If a token is stored, confirm it with the backend; drop it if it's expired/invalid. */
+(function(){
+  if(!authToken) return;
+  api('/api/auth/me', { headers: authHeaders() })
+    .then(function(r){ authUser = r.user; sessionStorage.setItem('ssac_user', JSON.stringify(authUser)); applyRoleUI(); })
+    .catch(function(e){ if(e && e.status===401) doLogout(); });
+})();
 
 </script>
 </body>

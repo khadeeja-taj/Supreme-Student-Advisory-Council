@@ -565,3 +565,56 @@ html.on-admin #langBtn{ display:none; }
 .admin-only{ display:none !important; }
 html.on-admin .admin-only{ display:flex !important; }
 .admin-topnav{ align-items:center; gap:10px; }
+
+/* ================= RBAC: auth, competitions, management ================= */
+.auth-wrap{ min-height:70vh; display:flex; align-items:center; justify-content:center; padding:120px 20px 60px; }
+.auth-card{ width:100%; max-width:420px; background:#fff; border:1px solid rgba(2,48,71,.10); border-radius:18px; padding:34px 30px; box-shadow:0 18px 50px rgba(2,48,71,.10); text-align:left; }
+html[dir="rtl"] .auth-card{ text-align:right; }
+.auth-card h2{ margin:0 0 6px; color:var(--navy); }
+.auth-sub{ color:#5a7480; font-size:.9rem; margin:0 0 22px; }
+.auth-card .field{ margin-bottom:16px; }
+.auth-card .field label{ display:block; font-size:.82rem; font-weight:700; color:var(--navy); margin-bottom:6px; }
+.auth-card .field input{ width:100%; padding:12px 14px; border:1px solid rgba(2,48,71,.18); border-radius:10px; font-size:.95rem; }
+.auth-card .field input:focus{ outline:none; border-color:var(--sky); box-shadow:0 0 0 3px rgba(142,202,230,.35); }
+.auth-err{ color:#c0392b; font-size:.85rem; min-height:18px; margin-bottom:8px; }
+
+.portal-wrap{ max-width:1040px; margin:0 auto; padding:120px 6vw 70px; }
+.portal-head{ margin-bottom:26px; }
+.portal-head h2{ margin:0 0 6px; color:var(--navy); font-size:1.9rem; }
+.portal-sub{ color:#5a7480; margin:0; font-weight:600; }
+html[dir="rtl"] .portal-wrap{ text-align:right; }
+
+.comp-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:18px; }
+.comp-card{ background:#fff; border:1px solid rgba(2,48,71,.10); border-radius:16px; padding:22px; display:flex; flex-direction:column; gap:12px; box-shadow:0 8px 26px rgba(2,48,71,.06); }
+.comp-card h3{ margin:0; color:var(--navy); font-size:1.15rem; }
+.comp-card p{ margin:0; color:#4a6270; font-size:.9rem; line-height:1.6; }
+.comp-cat{ align-self:flex-start; background:#e7dcc4; color:#4a3f2a; font-size:.68rem; font-weight:800; letter-spacing:.4px; padding:4px 10px; border-radius:999px; text-transform:uppercase; }
+.comp-body{ flex:1; display:flex; flex-direction:column; gap:10px; }
+.comp-foot{ display:flex; }
+.comp-done{ color:#1c7c4a; font-weight:800; font-size:.92rem; }
+
+.council-cards{ display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:18px; }
+.council-card{ background:#fff; border:1px solid rgba(2,48,71,.10); border-radius:16px; padding:24px; box-shadow:0 8px 26px rgba(2,48,71,.06); }
+.council-card h3{ margin:0 0 8px; color:var(--navy); }
+.council-card p{ margin:0 0 16px; color:#4a6270; font-size:.9rem; line-height:1.6; }
+
+/* management lists (admin: competitions + users) */
+.rbac-manage{ display:flex; flex-direction:column; gap:18px; }
+.rbac-list{ display:flex; flex-direction:column; gap:10px; }
+.rbac-row{ display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap; background:#fff; border:1px solid rgba(2,48,71,.10); border-radius:12px; padding:12px 16px; }
+.rbac-info{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; color:var(--navy); }
+.rbac-sub{ color:#708995; font-size:.82rem; width:100%; }
+.rbac-actions{ display:flex; gap:8px; flex-wrap:wrap; }
+.rbac-badge{ font-size:.66rem; font-weight:800; letter-spacing:.3px; padding:3px 9px; border-radius:999px; text-transform:uppercase; }
+.rbac-badge.s-open{ background:#d8f2e2; color:#1c7c4a; }
+.rbac-badge.s-draft{ background:#e7ebef; color:#5a7480; }
+.rbac-badge.s-closed{ background:#f6dcdc; color:#b33b3b; }
+.rbac-badge.r-admin{ background:#023047; color:#fff; }
+.rbac-badge.r-council{ background:#036666; color:#fff; }
+.rbac-badge.r-student{ background:#ffb703; color:#3a2e0a; }
+.btn-outline.sm{ padding:6px 12px; font-size:.8rem; border-radius:8px; }
+.btn-outline.sm.danger{ border-color:#e0b4b4; color:#b33b3b; }
+.btn-outline.sm.danger:hover{ background:#b33b3b; color:#fff; border-color:#b33b3b; }
+.chk-line{ display:flex; align-items:center; gap:8px; font-size:.88rem; color:var(--navy); }
+.mng-form.col{ flex-direction:column; align-items:stretch; }
+@media (max-width:640px){ .portal-wrap{ padding:96px 5vw 50px; } .auth-wrap{ padding:96px 16px 40px; } }

@@ -201,6 +201,7 @@ function applyLang(){
     if(ap && ap.style.display==='block'){ var at=document.querySelector('.atab.active'); if(at) showAdminTab(at.dataset.tab); }
     if(document.getElementById('page-news') && document.getElementById('page-news').classList.contains('active')) renderNews();
     if(document.getElementById('page-reps') && document.getElementById('page-reps').classList.contains('active')) renderReps();
+    if(document.getElementById('page-competitions') && document.getElementById('page-competitions').classList.contains('active')) renderCompetitions();
   }catch(e){}
 }
 
@@ -234,17 +235,232 @@ function selectGender(g){
   setTimeout(function(){ go('register'); }, 300);
 }
 
+/* =========================================================================
+   ROLE-BASED ACCESS CONTROL (frontend layer)
+   The backend/API is the source of truth; this only shapes the UI and blocks
+   obvious navigation. Every protected API call still carries the JWT and is
+   re-checked server-side.
+   ========================================================================= */
+var authToken = sessionStorage.getItem('ssac_token') || null;
+var authUser = null;
+try{ authUser = JSON.parse(sessionStorage.getItem('ssac_user') || 'null'); }catch(e){ authUser = null; }
+
+function currentRole(){ return authUser ? authUser.role : null; }
+function isLoggedIn(){ return !!authToken; }
+function authHeaders(){ return authToken ? { Authorization: 'Bearer ' + authToken } : {}; }
+function landingFor(role){ return role==='admin' ? 'admin' : (role==='council' ? 'council' : 'competitions'); }
+function cap(s){ return String(s||'').charAt(0).toUpperCase() + String(s||'').slice(1); }
+function roleLabel(r){ return tr(cap(r), {admin:'مشرف', council:'عضو مجلس', student:'طالب'}[r] || r); }
+
+function setNav(baseId, on){
+  ['', 'm_'].forEach(function(pfx){ var e=document.getElementById(pfx+baseId); if(e) e.style.display = on ? '' : 'none'; });
+}
+function applyRoleUI(){
+  var role = currentRole(), loggedIn = isLoggedIn();
+  setNav('navLogin', !loggedIn);
+  setNav('navLogout', loggedIn);
+  setNav('navCompetitions', loggedIn);                       // every signed-in role has Competitions
+  setNav('navCouncil', role==='admin' || role==='council');  // Advisory Council: admin + council
+  setNav('navAdmin', role==='admin');                        // Admin panel: admin only
+  // keep the legacy admin bearer in sync so existing admin-panel calls work
+  adminToken = (role==='admin') ? authToken : null;
+  var h = document.getElementById('htmlRoot');
+  if(h){ h.className = h.className.replace(/\brole-\w+\b/g,'').replace(/\s+/g,' ').trim();
+         if(role) h.classList.add('role-' + role);
+         h.classList.toggle('logged-in', loggedIn); }
+}
+
+async function doLogin(ev){
+  if(ev) ev.preventDefault();
+  var email = val('login_email');
+  var passEl = document.getElementById('login_pass'); var password = passEl ? passEl.value : '';
+  var errEl = document.getElementById('loginErr'); if(errEl) errEl.textContent='';
+  if(!email || !password){ if(errEl) errEl.textContent = tr('Please enter your email and password.','يرجى إدخال البريد وكلمة المرور.'); return; }
+  try{
+    var r = await api('/api/auth/login', { method:'POST', body: JSON.stringify({ email:email, password:password }) });
+    authToken = r.token; authUser = r.user;
+    sessionStorage.setItem('ssac_token', authToken);
+    sessionStorage.setItem('ssac_user', JSON.stringify(authUser));
+    if(passEl) passEl.value='';
+    applyRoleUI();
+    go(landingFor(authUser.role));
+  }catch(e){
+    if(errEl) errEl.textContent = (e && e.status===401)
+      ? tr('Invalid email or password.','بريد إلكتروني أو كلمة مرور غير صحيحة.')
+      : tr('Sign-in is unavailable right now. Please try again later.','تعذّر تسجيل الدخول حاليًا. حاول لاحقًا.');
+  }
+}
+function doLogout(){
+  authToken = null; authUser = null; adminToken = null;
+  sessionStorage.removeItem('ssac_token');
+  sessionStorage.removeItem('ssac_user');
+  sessionStorage.removeItem('ssac_admin_token');
+  document.getElementById('htmlRoot').classList.remove('admin-authed');
+  applyRoleUI();
+  go('home');
+}
+
+/* ---- Competitions (all roles) ---- */
+async function renderCompetitions(targetEl){
+  var box = targetEl || document.getElementById('competitionsBody');
+  if(!box) return;
+  box.innerHTML = '<div class="empty-card">'+tr('Loading…','جارٍ التحميل…')+'</div>';
+  var comps = [];
+  try{ var r = await api('/api/competitions', { headers: authHeaders() }); comps = r.competitions || []; }
+  catch(e){
+    if(e && e.status===401){ doLogout(); return; }
+    box.innerHTML = '<div class="empty-card">'+tr('Could not load competitions.','تعذّر تحميل المسابقات.')+'</div>'; return;
+  }
+  if(currentRole()==='admin'){ renderAdminCompetitions(box, comps); return; }
+  if(!comps.length){ box.innerHTML = '<div class="empty-card">'+tr('No competitions are open right now. Please check back soon.','لا توجد مسابقات متاحة حاليًا. تابعنا قريبًا بإذن الله.')+'</div>'; return; }
+  box.innerHTML = comps.map(function(c){
+    var title = (lang==='ar' && c.title_ar) ? c.title_ar : c.title;
+    var desc  = (lang==='ar' && c.description_ar) ? c.description_ar : (c.description||'');
+    return '<article class="comp-card"><div class="comp-body">'
+      + (c.category ? '<span class="comp-cat">'+esc(c.category)+'</span>' : '')
+      + '<h3>'+esc(title)+'</h3>'
+      + (desc ? '<p>'+esc(desc)+'</p>' : '')
+      + '</div><div class="comp-foot">'
+      + (c.registered
+          ? '<span class="comp-done">✓ '+tr('Registered','تم التسجيل')+'</span>'
+          : '<button class="btn-teal" onclick="registerCompetition('+c.id+',this)">'+tr('Register','سجّل الآن')+'</button>')
+      + '</div></article>';
+  }).join('');
+}
+async function registerCompetition(id, btn){
+  if(btn){ btn.disabled=true; btn.textContent = tr('Registering…','جارٍ التسجيل…'); }
+  try{ await api('/api/competitions/'+id+'/register', { method:'POST', headers: authHeaders(), body:'{}' }); renderCompetitions(); }
+  catch(e){
+    if(e && e.status===401){ doLogout(); return; }
+    alert(tr('Could not register: ','تعذّر التسجيل: ')+(e && e.message || ''));
+    if(btn){ btn.disabled=false; btn.textContent = tr('Register','سجّل الآن'); }
+  }
+}
+
+/* ---- Competitions management (admin) ---- */
+function renderAdminCompetitions(box, comps){
+  var st = {draft:tr('Draft','مسودة'), open:tr('Open','مفتوحة'), closed:tr('Closed','مغلقة')};
+  var form = '<form class="mng-form col" onsubmit="createCompetition(event)">'
+    + '<input id="cmp_title" placeholder="'+tr('Title (English)','العنوان (إنجليزي)')+'">'
+    + '<input id="cmp_title_ar" placeholder="'+tr('Title (Arabic)','العنوان (عربي)')+'">'
+    + '<input id="cmp_category" placeholder="'+tr('Category (optional)','التصنيف (اختياري)')+'">'
+    + '<textarea id="cmp_desc" rows="2" placeholder="'+tr('Description','الوصف')+'"></textarea>'
+    + '<label class="chk-line"><input type="checkbox" id="cmp_open"> '+tr('Open to students & council right away','متاحة للطلاب والمجلس فورًا')+'</label>'
+    + '<button class="btn-teal" type="submit">'+tr('Add competition','إضافة مسابقة')+'</button></form>';
+  var list = comps.length ? comps.map(function(c){
+    return '<div class="rbac-row"><div class="rbac-info"><b>'+esc(c.title)+'</b>'
+      + ' <span class="rbac-badge s-'+c.status+'">'+esc(st[c.status]||c.status)+'</span>'
+      + (c.active ? '' : ' <span class="rbac-badge s-closed">'+tr('Inactive','معطّلة')+'</span>')
+      + '<span class="rbac-sub">'+(c.registrations||0)+' '+tr('registered','مسجّل')+'</span></div>'
+      + '<div class="rbac-actions">'
+      + (c.status!=='open'   ? '<button class="btn-outline sm" onclick="setCompStatus('+c.id+',\'open\')">'+tr('Open','فتح')+'</button>' : '')
+      + (c.status!=='closed' ? '<button class="btn-outline sm" onclick="setCompStatus('+c.id+',\'closed\')">'+tr('Close','إغلاق')+'</button>' : '')
+      + '<button class="btn-outline sm" onclick="setCompActive('+c.id+','+(c.active?'false':'true')+')">'+(c.active?tr('Deactivate','تعطيل'):tr('Activate','تفعيل'))+'</button>'
+      + '<button class="btn-outline sm danger" onclick="deleteCompetition('+c.id+')">'+tr('Delete','حذف')+'</button>'
+      + '</div></div>';
+  }).join('') : '<div class="empty-card">'+tr('No competitions yet. Add one above.','لا توجد مسابقات بعد. أضِف واحدة بالأعلى.')+'</div>';
+  box.innerHTML = '<div class="rbac-manage">'+form+'<div class="rbac-list">'+list+'</div></div>';
+}
+async function createCompetition(ev){
+  if(ev) ev.preventDefault();
+  var title = val('cmp_title');
+  if(!title){ alert(tr('Title is required.','العنوان مطلوب.')); return; }
+  var body = { title:title, title_ar:val('cmp_title_ar'), category:val('cmp_category'), description:val('cmp_desc'),
+               status: document.getElementById('cmp_open').checked ? 'open' : 'draft' };
+  try{ await api('/api/competitions', { method:'POST', headers: authHeaders(), body: JSON.stringify(body) }); refreshComps(); }
+  catch(e){ alert(tr('Could not save: ','تعذّر الحفظ: ')+(e && e.message || '')); }
+}
+async function setCompStatus(id, status){
+  try{ await api('/api/competitions/'+id, { method:'PATCH', headers: authHeaders(), body: JSON.stringify({ status:status }) }); refreshComps(); }
+  catch(e){ alert(e && e.message || 'Error'); }
+}
+async function setCompActive(id, active){
+  try{ await api('/api/competitions/'+id, { method:'PATCH', headers: authHeaders(), body: JSON.stringify({ active:active }) }); refreshComps(); }
+  catch(e){ alert(e && e.message || 'Error'); }
+}
+async function deleteCompetition(id){
+  if(!confirm(tr('Delete this competition? This cannot be undone.','حذف هذه المسابقة؟ لا يمكن التراجع.'))) return;
+  try{ await api('/api/competitions/'+id, { method:'DELETE', headers: authHeaders() }); refreshComps(); }
+  catch(e){ alert(e && e.message || 'Error'); }
+}
+function refreshComps(){
+  // re-render whichever competitions view is on screen
+  var adminBox = document.getElementById('adminCompBody');
+  if(adminBox && document.getElementById('page-admin').classList.contains('active')) renderCompetitions(adminBox);
+  else renderCompetitions();
+}
+
+/* ---- User management (admin only) ---- */
+async function renderAdminUsers(){
+  var box = document.getElementById('adminUsersBody'); if(!box) return;
+  box.innerHTML = '<div class="empty-card">'+tr('Loading…','جارٍ التحميل…')+'</div>';
+  var users = [];
+  try{ var r = await api('/api/users', { headers: authHeaders() }); users = r.users || []; }
+  catch(e){
+    if(e && e.status===401){ doLogout(); return; }
+    box.innerHTML = '<div class="empty-card">'+tr('Could not load users.','تعذّر تحميل المستخدمين.')+'</div>'; return;
+  }
+  var form = '<form class="mng-form" onsubmit="createUser(event)">'
+    + '<input id="usr_name" placeholder="'+tr('Full name','الاسم الكامل')+'">'
+    + '<input id="usr_email" type="email" placeholder="'+tr('Email','البريد الإلكتروني')+'">'
+    + '<input id="usr_pass" type="password" placeholder="'+tr('Password','كلمة المرور')+'">'
+    + '<select id="usr_role"><option value="student">'+tr('Student','طالب')+'</option>'
+    + '<option value="council">'+tr('Council','عضو مجلس')+'</option>'
+    + '<option value="admin">'+tr('Admin','مشرف')+'</option></select>'
+    + '<button class="btn-teal" type="submit">'+tr('Add user','إضافة مستخدم')+'</button></form>';
+  var rows = users.map(function(u){
+    return '<div class="rbac-row"><div class="rbac-info"><b>'+esc(u.name)+'</b>'
+      + ' <span class="rbac-badge r-'+u.role+'">'+esc(roleLabel(u.role))+'</span>'
+      + (u.active ? '' : ' <span class="rbac-badge s-closed">'+tr('Inactive','معطّل')+'</span>')
+      + '<span class="rbac-sub">'+esc(u.email)+'</span></div>'
+      + '<div class="rbac-actions">'
+      + '<button class="btn-outline sm" onclick="toggleUser('+u.id+','+(u.active?'false':'true')+')">'+(u.active?tr('Deactivate','تعطيل'):tr('Activate','تفعيل'))+'</button>'
+      + '<button class="btn-outline sm danger" onclick="deleteUser('+u.id+')">'+tr('Delete','حذف')+'</button>'
+      + '</div></div>';
+  }).join('');
+  box.innerHTML = '<div class="rbac-manage">'+form+'<div class="rbac-list">'+(rows||('<div class="empty-card">'+tr('No users yet.','لا يوجد مستخدمون بعد.')+'</div>'))+'</div></div>';
+}
+async function createUser(ev){
+  if(ev) ev.preventDefault();
+  var name=val('usr_name'), email=val('usr_email'), pass=document.getElementById('usr_pass').value, role=val('usr_role');
+  if(!name||!email||!pass){ alert(tr('Name, email and password are required.','الاسم والبريد وكلمة المرور مطلوبة.')); return; }
+  try{ await api('/api/users', { method:'POST', headers: authHeaders(), body: JSON.stringify({ name:name, email:email, password:pass, role:role }) }); renderAdminUsers(); }
+  catch(e){ alert(tr('Could not create user: ','تعذّر إنشاء المستخدم: ')+(e && e.message || '')); }
+}
+async function toggleUser(id, active){
+  try{ await api('/api/users/'+id, { method:'PATCH', headers: authHeaders(), body: JSON.stringify({ active:active }) }); renderAdminUsers(); }
+  catch(e){ alert(e && e.message || 'Error'); }
+}
+async function deleteUser(id){
+  if(!confirm(tr('Delete this user?','حذف هذا المستخدم؟'))) return;
+  try{ await api('/api/users/'+id, { method:'DELETE', headers: authHeaders() }); renderAdminUsers(); }
+  catch(e){ alert(e && e.message || 'Error'); }
+}
+
+/* Pages that require a login, and which roles may open them.
+   The backend re-checks every request — this is the UX layer only. */
+var PAGE_ROLES = { competitions:['admin','council','student'], council:['admin','council'], admin:['admin'] };
 function go(pageId){
+  var need = PAGE_ROLES[pageId];
+  if(need){
+    if(!isLoggedIn()){ go('login'); return; }
+    if(need.indexOf(currentRole()) < 0){
+      alert(tr('You do not have permission to view this page.','ليس لديك صلاحية لعرض هذه الصفحة.'));
+      go(landingFor(currentRole())); return;
+    }
+  }
+  var target = document.getElementById('page-' + pageId);
+  if(!target){ pageId='home'; target=document.getElementById('page-home'); }
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.getElementById('page-' + pageId).classList.add('active');
+  target.classList.add('active');
   document.getElementById('htmlRoot').classList.toggle('on-admin', pageId==='admin');
   if(pageId==='admin'){
-    var authed=!!adminToken;
-    document.getElementById('htmlRoot').classList.toggle('admin-authed', authed);
-    var lb=document.getElementById('adminLoginBox'); if(lb) lb.style.display = authed?'none':'block';
-    var ap=document.getElementById('adminPanel'); if(ap) ap.style.display = authed?'block':'none';
-    if(authed) showAdminTab('overview');
+    document.getElementById('htmlRoot').classList.add('admin-authed');
+    var lb=document.getElementById('adminLoginBox'); if(lb) lb.style.display='none';
+    var ap=document.getElementById('adminPanel'); if(ap) ap.style.display='block';
+    showAdminTab('overview');
   }
+  if(pageId==='competitions'){ renderCompetitions(); }
   window.scrollTo({top:0, behavior:'instant'});
   if(pageId === 'gender' && state.department){
     document.getElementById('genderFacultyCrumb').textContent = ' · ' + deptLabel(state.department);
@@ -382,13 +598,7 @@ async function tryAdminLogin(){
   }
 }
 
-function adminLogout(){
-  adminToken = null;
-  sessionStorage.removeItem('ssac_admin_token');
-  document.getElementById('adminPanel').style.display = 'none';
-  document.getElementById('adminLoginBox').style.display = 'block';
-  document.getElementById('htmlRoot').classList.remove('admin-authed');
-}
+function adminLogout(){ doLogout(); }
 
 async function loadAdminData(){
   const tbody = document.getElementById('adminTbody');
@@ -542,12 +752,14 @@ async function renderReps(){
 /* ---- ADMIN: tabs ---- */
 function showAdminTab(name){
   document.querySelectorAll('.atab').forEach(function(b){ b.classList.toggle('active', b.dataset.tab===name); });
-  ['overview','regs','reps','news','messages'].forEach(function(t){ var p=document.getElementById('apanel-'+t); if(p) p.hidden=(t!==name); });
+  ['overview','regs','reps','news','messages','competitions','users'].forEach(function(t){ var p=document.getElementById('apanel-'+t); if(p) p.hidden=(t!==name); });
   if(name==='overview') renderAnalytics();
   if(name==='regs') loadAdminData();
   if(name==='reps') renderAdminReps();
   if(name==='news') renderAdminNews();
   if(name==='messages') renderAdminMessages();
+  if(name==='competitions') renderCompetitions(document.getElementById('adminCompBody'));
+  if(name==='users') renderAdminUsers();
 }
 async function tryAdminLogin(){
   var pass=document.getElementById('adminPass').value;
@@ -755,6 +967,36 @@ function renderChips(){
 }
 renderChips();
 
-/* apply the active-language dictionary on first paint so renamed labels
-   (Members, Academic Level, …) show in English too, not just after a toggle */
+/* ---- RBAC i18n strings (added on top of the base dictionary) ---- */
+try{
+  Object.assign(I18N.en, {
+    "nav.council":"Advisory Council","nav.competitions":"Competitions","nav.login":"Login","nav.logout":"Log Out",
+    "atab.competitions":"Competitions","atab.users":"Users",
+    "login.title":"Sign in","login.sub":"Sign in to reach your portal. Accounts are created by the Administrator.","login.email":"Email","login.pass":"Password","login.btn":"Log In",
+    "comp.title":"Competitions","comp.sub":"View available competitions and register to take part.",
+    "council.title":"Advisory Council","council.sub":"Your council area and available competitions.",
+    "council.c1t":"Competitions","council.c1p":"Browse the competitions the Administration has opened and register to participate.",
+    "council.c2t":"Council Members","council.c2p":"View the current members serving on the Supreme Student Advisory Council."
+  });
+  Object.assign(I18N.ar, {
+    "nav.council":"المجلس الاستشاري","nav.competitions":"المسابقات","nav.login":"تسجيل الدخول","nav.logout":"تسجيل الخروج",
+    "atab.competitions":"المسابقات","atab.users":"المستخدمون",
+    "login.title":"تسجيل الدخول","login.sub":"سجّل الدخول للوصول إلى لوحتك. الحسابات يُنشئها المشرف.","login.email":"البريد الإلكتروني","login.pass":"كلمة المرور","login.btn":"دخول",
+    "comp.title":"المسابقات","comp.sub":"اطّلع على المسابقات المتاحة وسجّل للمشاركة.",
+    "council.title":"المجلس الاستشاري","council.sub":"منطقة المجلس والمسابقات المتاحة.",
+    "council.c1t":"المسابقات","council.c1p":"تصفّح المسابقات التي فتحتها الإدارة وسجّل للمشاركة.",
+    "council.c2t":"أعضاء المجلس","council.c2p":"اطّلع على الأعضاء الحاليين في المجلس الاستشاري الطلابي الأعلى."
+  });
+}catch(e){}
+
+/* apply the active-language dictionary + role-based UI on first paint */
+try{ applyRoleUI(); }catch(e){}
 try{ applyLang(); }catch(e){}
+
+/* If a token is stored, confirm it with the backend; drop it if it's expired/invalid. */
+(function(){
+  if(!authToken) return;
+  api('/api/auth/me', { headers: authHeaders() })
+    .then(function(r){ authUser = r.user; sessionStorage.setItem('ssac_user', JSON.stringify(authUser)); applyRoleUI(); })
+    .catch(function(e){ if(e && e.status===401) doLogout(); });
+})();
