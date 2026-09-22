@@ -11,10 +11,22 @@
 const { Pool } = require('pg');
 
 let pool;
+// Accept whichever connection-string env var is present. Manual setup uses
+// DATABASE_URL; Vercel's "Connect Database" / Vercel Postgres integrations
+// inject POSTGRES_URL (and friends) automatically — any of these works.
+function connString() {
+  return process.env.DATABASE_URL
+    || process.env.POSTGRES_URL
+    || process.env.POSTGRES_URL_NON_POOLING
+    || process.env.POSTGRES_PRISMA_URL
+    || process.env.DATABASE_POSTGRES_URL
+    || '';
+}
+
 function getPool() {
   if (!pool) {
-    const cs = process.env.DATABASE_URL;
-    if (!cs) throw new Error('DATABASE_URL is not set');
+    const cs = connString();
+    if (!cs) throw new Error('No database connection string set (DATABASE_URL / POSTGRES_URL)');
     pool = new Pool({
       connectionString: cs,
       // Managed Postgres providers require SSL; local dev can disable it via sslmode=disable.
