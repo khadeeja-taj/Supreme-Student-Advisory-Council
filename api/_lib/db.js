@@ -107,6 +107,7 @@ async function init() {
     `);
 
     // Council members added by a department HOD / council account, approved by admin.
+    // Uses the same fields as the registration wizard so it can reuse that form.
     await q(`
       CREATE TABLE IF NOT EXISTS council_members (
         id           SERIAL PRIMARY KEY,
@@ -121,6 +122,16 @@ async function init() {
         created_at   TIMESTAMPTZ NOT NULL DEFAULT now()
       )
     `);
+    // Extra columns so the full registration wizard can be reused for members.
+    await q(`ALTER TABLE council_members ADD COLUMN IF NOT EXISTS nationality TEXT`);
+    await q(`ALTER TABLE council_members ADD COLUMN IF NOT EXISTS regno TEXT`);
+    await q(`ALTER TABLE council_members ADD COLUMN IF NOT EXISTS gender TEXT`);
+    await q(`ALTER TABLE council_members ADD COLUMN IF NOT EXISTS level TEXT`);
+    await q(`ALTER TABLE council_members ADD COLUMN IF NOT EXISTS program TEXT`);
+    await q(`ALTER TABLE council_members ADD COLUMN IF NOT EXISTS semester TEXT`);
+    await q(`ALTER TABLE council_members ADD COLUMN IF NOT EXISTS cgpa TEXT`);
+    await q(`ALTER TABLE council_members ADD COLUMN IF NOT EXISTS skills TEXT`);
+    await q(`ALTER TABLE council_members ADD COLUMN IF NOT EXISTS hobbies TEXT`);
 
     // Seed the first admin so there is always a way in.
     const { rows } = await q(`SELECT 1 FROM users WHERE role = 'admin' LIMIT 1`);

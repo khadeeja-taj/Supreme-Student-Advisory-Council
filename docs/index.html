@@ -418,7 +418,7 @@
       <div class="council-card">
         <h3 data-i18n="council.c1t">Add Council Member</h3>
         <p data-i18n="council.c1p">Add a member for your department (up to 5). Submissions are approved by the Admin.</p>
-        <button class="btn-teal" onclick="go('council-add')" data-i18n="council.c1b">Add Council Member</button>
+        <button class="btn-teal" onclick="startAddMember()" data-i18n="council.c1b">Add Council Member</button>
       </div>
       <div class="council-card">
         <h3 data-i18n="council.c2t">Competitions</h3>
@@ -565,11 +565,11 @@
       <a href="#" onclick="go('reps');return false;" data-i18n="nav.reps">Representatives</a>
       <a href="#" onclick="go('news');return false;" data-i18n="footer.news">News &amp; Announcements</a>
       <a href="#" onclick="go('contact');return false;" data-i18n="nav.contact">Contact</a>
-      <a href="#" onclick="go('departments');return false;" data-i18n="footer.reg">Student Registration</a>
+      <a href="#" onclick="state.mode='';state.competition=null;go('departments');return false;" data-i18n="footer.reg">Student Registration</a>
     </div>
     <div class="footer-col">
       <h4 data-i18n="footer.council">The Council</h4>
-      <a href="#" onclick="go('departments');return false;" data-i18n="footer.faculties">Twelve Faculties</a>
+      <a href="#" onclick="state.mode='';state.competition=null;go('departments');return false;" data-i18n="footer.faculties">Twelve Faculties</a>
       <a href="#" onclick="go('gender');return false;" data-i18n="footer.wings">Male &amp; Female Councils</a>
       <a href="#" onclick="go('reps');return false;" data-i18n="footer.reps">Faculty Representatives</a>
       <a href="#" onclick="go('admin');return false;" data-i18n="nav.admin">Admin</a>

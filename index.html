@@ -1062,7 +1062,7 @@ html[dir="rtl"] .comp-detail h2{ margin-right:0; margin-left:10px; }
       <div class="council-card">
         <h3 data-i18n="council.c1t">Add Council Member</h3>
         <p data-i18n="council.c1p">Add a member for your department (up to 5). Submissions are approved by the Admin.</p>
-        <button class="btn-teal" onclick="go('council-add')" data-i18n="council.c1b">Add Council Member</button>
+        <button class="btn-teal" onclick="startAddMember()" data-i18n="council.c1b">Add Council Member</button>
       </div>
       <div class="council-card">
         <h3 data-i18n="council.c2t">Competitions</h3>
@@ -1209,11 +1209,11 @@ html[dir="rtl"] .comp-detail h2{ margin-right:0; margin-left:10px; }
       <a href="#" onclick="go('reps');return false;" data-i18n="nav.reps">Representatives</a>
       <a href="#" onclick="go('news');return false;" data-i18n="footer.news">News &amp; Announcements</a>
       <a href="#" onclick="go('contact');return false;" data-i18n="nav.contact">Contact</a>
-      <a href="#" onclick="go('departments');return false;" data-i18n="footer.reg">Student Registration</a>
+      <a href="#" onclick="state.mode='';state.competition=null;go('departments');return false;" data-i18n="footer.reg">Student Registration</a>
     </div>
     <div class="footer-col">
       <h4 data-i18n="footer.council">The Council</h4>
-      <a href="#" onclick="go('departments');return false;" data-i18n="footer.faculties">Twelve Faculties</a>
+      <a href="#" onclick="state.mode='';state.competition=null;go('departments');return false;" data-i18n="footer.faculties">Twelve Faculties</a>
       <a href="#" onclick="go('gender');return false;" data-i18n="footer.wings">Male &amp; Female Councils</a>
       <a href="#" onclick="go('reps');return false;" data-i18n="footer.reps">Faculty Representatives</a>
       <a href="#" onclick="go('admin');return false;" data-i18n="nav.admin">Admin</a>
@@ -1578,9 +1578,19 @@ async function openCompetition(id){
 }
 function startCompetitionEntry(id){
   var c = (window._comps||{})[id] || { id:id };
+  state.mode = '';                                   // not a council submission
   state.competition = { id:id, title:(lang==='ar'&&c.title_ar)?c.title_ar:(c.title||'') };
   state.department = null; state.gender = null;
   go('register');
+}
+
+/* Add a council member — reuse the SAME registration wizard (faculty grid →
+   personal → academic → skills → submit); only the submit target differs. */
+function startAddMember(){
+  state.mode = 'council';
+  state.competition = null;
+  state.department = null; state.gender = null;
+  go('departments');
 }
 
 /* ---- Competitions management (admin) ---- */
@@ -1880,8 +1890,11 @@ async function submitForm(){
   const btn = document.querySelector('#formstep-4 .btn-teal');
   if(btn){ btn.disabled = true; }
   var inCompetition = !!(state.competition && state.competition.id);
+  var inCouncil = (state.mode === 'council');
   try{
-    if(inCompetition){
+    if(inCouncil){
+      await api('/api/council-members', { method:'POST', headers: authHeaders(), body: JSON.stringify(data) });
+    } else if(inCompetition){
       await api('/api/competitions/'+state.competition.id+'/register', { method:'POST', body: JSON.stringify(data) });
     } else {
       await api('/api/register', { method:'POST', body: JSON.stringify(data) });
@@ -1894,7 +1907,7 @@ async function submitForm(){
   if(btn){ btn.disabled = false; }
 
   document.getElementById('successCard').innerHTML = successRows(data);
-  state.competition = null; // clear competition context after submit
+  state.competition = null; state.mode = ''; // clear context after submit
   go('success');
 }
 function successRows(d){

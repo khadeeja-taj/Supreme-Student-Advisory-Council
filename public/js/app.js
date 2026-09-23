@@ -347,9 +347,19 @@ async function openCompetition(id){
 }
 function startCompetitionEntry(id){
   var c = (window._comps||{})[id] || { id:id };
+  state.mode = '';                                   // not a council submission
   state.competition = { id:id, title:(lang==='ar'&&c.title_ar)?c.title_ar:(c.title||'') };
   state.department = null; state.gender = null;
   go('register');
+}
+
+/* Add a council member — reuse the SAME registration wizard (faculty grid →
+   personal → academic → skills → submit); only the submit target differs. */
+function startAddMember(){
+  state.mode = 'council';
+  state.competition = null;
+  state.department = null; state.gender = null;
+  go('departments');
 }
 
 /* ---- Competitions management (admin) ---- */
@@ -649,8 +659,11 @@ async function submitForm(){
   const btn = document.querySelector('#formstep-4 .btn-teal');
   if(btn){ btn.disabled = true; }
   var inCompetition = !!(state.competition && state.competition.id);
+  var inCouncil = (state.mode === 'council');
   try{
-    if(inCompetition){
+    if(inCouncil){
+      await api('/api/council-members', { method:'POST', headers: authHeaders(), body: JSON.stringify(data) });
+    } else if(inCompetition){
       await api('/api/competitions/'+state.competition.id+'/register', { method:'POST', body: JSON.stringify(data) });
     } else {
       await api('/api/register', { method:'POST', body: JSON.stringify(data) });
@@ -663,7 +676,7 @@ async function submitForm(){
   if(btn){ btn.disabled = false; }
 
   document.getElementById('successCard').innerHTML = successRows(data);
-  state.competition = null; // clear competition context after submit
+  state.competition = null; state.mode = ''; // clear context after submit
   go('success');
 }
 function successRows(d){
