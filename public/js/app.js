@@ -980,8 +980,26 @@ function svgGauge(pct){
 }
 
 /* ---- ADMIN: analytics (Supreme Student Advisory Council data) ---- */
+/* Overview data = council members + all competition registrations, mapped to the
+   shape the charts already expect ({faculty, gender, status, submittedAt}). */
+async function getDashboardRows(){
+  var rows=[];
+  try{
+    var m=await api('/api/council-members',{headers:authHeaders()});
+    (m.members||[]).forEach(function(x){ rows.push({faculty:x.department, gender:x.gender, status:x.status, submittedAt:x.created_at}); });
+  }catch(e){ if(e&&e.status===401){ doLogout(); return rows; } }
+  try{
+    var cr=await api('/api/competitions',{headers:authHeaders()});
+    var comps=cr.competitions||[];
+    var lists=await Promise.all(comps.map(function(c){
+      return api('/api/competitions/'+c.id+'/registrations',{headers:authHeaders()}).then(function(r){return r.entries||[];}).catch(function(){return [];});
+    }));
+    lists.forEach(function(list){ list.forEach(function(x){ rows.push({faculty:x.faculty, gender:x.gender, status:x.status, submittedAt:x.created_at}); }); });
+  }catch(e){}
+  return rows;
+}
 async function renderAnalytics(){
-  var rows=await getRegs();
+  var rows=await getDashboardRows();
   var total=rows.length;
   var male=rows.filter(function(r){return r.gender==='Male';}).length;
   var female=rows.filter(function(r){return r.gender==='Female';}).length;
