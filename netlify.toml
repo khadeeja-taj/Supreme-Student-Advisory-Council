@@ -1,0 +1,61 @@
+# Netlify configuration — static front-end in /public, API as Netlify Functions.
+[build]
+  publish = "public"
+  functions = "netlify/functions"
+  command = "echo 'no build step — static site + functions'"
+
+[functions]
+  node_bundler = "esbuild"
+  # pg pulls an optional native module; keep these unbundled so they load from node_modules at runtime.
+  external_node_modules = ["pg", "pg-native"]
+
+# ---- API routing: keep the existing /api/* URLs working ----
+# Order matters: Netlify uses the first matching rule, so the most specific paths come first.
+
+[[redirects]]
+  from = "/api/auth/login"
+  to = "/.netlify/functions/login"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/auth/me"
+  to = "/.netlify/functions/me"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/users/:id"
+  to = "/.netlify/functions/user?id=:id"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/users"
+  to = "/.netlify/functions/users"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/competitions/:id/register"
+  to = "/.netlify/functions/competition-register?id=:id"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/competitions/:id/registrations"
+  to = "/.netlify/functions/competition-registrations?id=:id"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/competitions/:id"
+  to = "/.netlify/functions/competition?id=:id"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/competitions"
+  to = "/.netlify/functions/competitions"
+  status = 200
+  force = true

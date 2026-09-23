@@ -58,3 +58,32 @@ users.
 
 Every non-public route returns **401** without a valid token and **403** if the
 role is not allowed — enforced server-side, independent of the UI.
+
+---
+
+## Deploying on Netlify
+
+The same backend runs on Netlify Functions (no code rewrite — a thin adapter in
+`netlify/functions/_adapter.js` runs the existing `/api` handlers). Config lives
+in `netlify.toml` (publish `public/`, functions in `netlify/functions/`, and
+`/api/*` redirects that keep every existing URL working).
+
+**Netlify dashboard setup**
+1. **Add a new site → Import from GitHub** → pick this repo and the branch.
+2. Build settings (usually auto-detected from `netlify.toml`):
+   - Build command: none (static site) — `netlify.toml` sets a no-op.
+   - Publish directory: `public`
+   - Functions directory: `netlify/functions`
+3. **Site settings → Environment variables** — add:
+   - `DATABASE_URL` — your Postgres connection string (Supabase **Transaction pooler**, port 6543)
+   - `JWT_SECRET` — a long random string
+   - `ADMIN_EMAIL` — first admin's email
+   - `ADMIN_PASSWORD` — first admin's password
+4. **Deploy**. On the first API request the tables are created and the first
+   Admin is seeded. Log in at the site, then create Council/Student users under
+   **Admin → Users**.
+
+All 12 endpoints keep their `/api/...` paths:
+`/api/auth/login`, `/api/auth/me`, `/api/users`, `/api/users/:id`,
+`/api/competitions`, `/api/competitions/:id`, `/api/competitions/:id/register`,
+`/api/competitions/:id/registrations`.
