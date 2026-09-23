@@ -219,6 +219,11 @@
           <label data-i18n="f.reg">Registration Number</label>
           <input type="text" id="f_regno" autocomplete="off">
         </div>
+        <div class="field">
+          <label data-i18n="f.social">Social media accounts (optional)</label>
+          <div id="socialAccounts"></div>
+          <button type="button" class="btn-outline sm" onclick="addSocialAccount()" data-i18n="f.socialadd">+ Add account</button>
+        </div>
         <div class="form-actions">
           <button class="btn-outline" onclick="go('gender')" data-i18n="btn.back">← Back</button>
           <button class="btn-teal" onclick="nextStep(1)" data-i18n="btn.next">Next →</button>
@@ -391,11 +396,14 @@
 
 <!-- ================= COMPETITIONS (public) ================= -->
 <section class="page" id="page-competitions">
-  <div class="portal-wrap">
-    <div class="portal-head">
+  <div class="stepheader">
+    <div class="chevron-motif"></div>
+    <div class="sh-panel">
       <h2 data-i18n="comp.title">Competitions</h2>
-      <p class="portal-sub" data-i18n="comp.sub">Browse the competitions and register to take part.</p>
+      <p data-i18n="comp.sub">Browse the competitions and register to take part.</p>
     </div>
+  </div>
+  <div class="portal-wrap">
     <div id="competitionsBody" class="comp-grid"></div>
   </div>
 </section>
@@ -409,11 +417,14 @@
 
 <!-- ================= ADVISORY COUNCIL (council + admin) ================= -->
 <section class="page" id="page-council">
-  <div class="portal-wrap">
-    <div class="portal-head">
+  <div class="stepheader">
+    <div class="chevron-motif"></div>
+    <div class="sh-panel">
       <h2 data-i18n="council.title">Advisory Council</h2>
-      <p class="portal-sub" data-i18n="council.sub">Your council area.</p>
+      <p data-i18n="council.sub">Your council area.</p>
     </div>
+  </div>
+  <div class="portal-wrap">
     <div class="council-cards">
       <div class="council-card">
         <h3 data-i18n="council.c1t">Add Council Member</h3>

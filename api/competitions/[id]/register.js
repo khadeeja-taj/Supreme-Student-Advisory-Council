@@ -28,6 +28,7 @@ module.exports = async (req, res) => {
       year: str(b.year, 20), cgpa: str(b.cgpa, 20),
       skills: Array.isArray(b.skills) ? b.skills.join(', ') : str(b.skills, 600),
       hobbies: Array.isArray(b.hobbies) ? b.hobbies.join(', ') : str(b.hobbies, 600),
+      socials: Array.isArray(b.socials) ? b.socials.join(' , ') : str(b.socials, 800),
       note: str(b.note, 500)
     };
     if (!data.name || !data.email) return send(res, 400, { error: 'Name and email are required.' });
@@ -35,11 +36,11 @@ module.exports = async (req, res) => {
 
     await q(
       `INSERT INTO competition_entries
-         (competition_id, name, email, phone, nationality, regno, faculty, gender, program, semester, year, cgpa, skills, hobbies, note)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)`,
+         (competition_id, name, email, phone, nationality, regno, faculty, gender, program, semester, year, cgpa, skills, hobbies, note, socials)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)`,
       [id, data.name, data.email, data.phone || null, data.nationality || null, data.regno || null,
        data.faculty || null, data.gender || null, data.program || null, data.semester || null,
-       data.year || null, data.cgpa || null, data.skills || null, data.hobbies || null, data.note || null]
+       data.year || null, data.cgpa || null, data.skills || null, data.hobbies || null, data.note || null, data.socials || null]
     );
     return send(res, 201, { ok: true });
   } catch (e) {

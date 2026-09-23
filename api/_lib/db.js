@@ -133,6 +133,8 @@ async function init() {
     await q(`ALTER TABLE council_members ADD COLUMN IF NOT EXISTS cgpa TEXT`);
     await q(`ALTER TABLE council_members ADD COLUMN IF NOT EXISTS skills TEXT`);
     await q(`ALTER TABLE council_members ADD COLUMN IF NOT EXISTS hobbies TEXT`);
+    await q(`ALTER TABLE council_members ADD COLUMN IF NOT EXISTS socials TEXT`);
+    await q(`ALTER TABLE competition_entries ADD COLUMN IF NOT EXISTS socials TEXT`);
 
     // Seed the first admin so there is always a way in.
     const { rows } = await q(`SELECT 1 FROM users WHERE role = 'admin' LIMIT 1`);

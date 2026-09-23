@@ -39,16 +39,17 @@ module.exports = async (req, res) => {
 
       const skills = Array.isArray(b.skills) ? b.skills.join(', ') : str(b.skills, 600);
       const hobbies = Array.isArray(b.hobbies) ? b.hobbies.join(', ') : str(b.hobbies, 600);
+      const socials = Array.isArray(b.socials) ? b.socials.join(' , ') : str(b.socials, 800);
       // Admin additions are approved immediately; council additions await approval.
       const status = me.role === 'admin' ? 'approved' : 'pending';
       const { rows } = await q(
         `INSERT INTO council_members
-           (name, department, position, email, phone, details, nationality, regno, gender, level, program, semester, cgpa, skills, hobbies, status, created_by)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17) RETURNING *`,
+           (name, department, position, email, phone, details, nationality, regno, gender, level, program, semester, cgpa, skills, hobbies, socials, status, created_by)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18) RETURNING *`,
         [name, department, str(b.position, 120) || null, str(b.email, 160) || null, str(b.phone, 40) || null,
          str(b.details, 1000) || null, str(b.nationality, 80) || null, str(b.regno, 60) || null, str(b.gender, 20) || null,
          str(b.level, 40) || null, str(b.program, 120) || null, str(b.semester, 40) || null, str(b.cgpa, 20) || null,
-         skills || null, hobbies || null, status, me.id]
+         skills || null, hobbies || null, socials || null, status, me.id]
       );
       return send(res, 201, { ok: true, member: rows[0] });
     }

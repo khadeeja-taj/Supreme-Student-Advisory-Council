@@ -652,3 +652,11 @@ html[dir="rtl"] textarea, html[dir="rtl"] button, html[dir="rtl"] p, html[dir="r
 html[dir="rtl"] a, html[dir="rtl"] label, html[dir="rtl"] small{ font-family:'Cairo','Segoe UI',sans-serif !important; }
 html[dir="rtl"] body{ font-weight:500; }
 html[dir="rtl"] h1, html[dir="rtl"] h2, html[dir="rtl"] h3, html[dir="rtl"] .hero h1, html[dir="rtl"] .stepheader h2{ font-weight:800 !important; }
+
+/* pages that now have a section banner header don't need the big top padding */
+#page-competitions .portal-wrap, #page-council .portal-wrap{ padding-top:36px; }
+
+/* social media accounts (repeatable) */
+.social-row{ display:flex; gap:8px; align-items:center; margin-bottom:8px; }
+.social-input{ flex:1; padding:12px 14px; border:1px solid rgba(2,48,71,.18); border-radius:10px; font-size:.92rem; }
+.social-del{ width:34px; height:34px; min-width:34px; border:1px solid rgba(2,48,71,.2); background:#fff; border-radius:8px; font-size:1.1rem; color:#b33b3b; line-height:1; }

@@ -362,6 +362,7 @@ function clearRegForm(){
   ['f_name','f_email','f_phone','f_nationality','f_regno','f_program','f_semester','f_cgpa','f_skills_other','f_hobbies_other','f_faculty'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
   var lvl=document.getElementById('f_level'); if(lvl) lvl.selectedIndex=0;
   document.querySelectorAll('#skillsChips input:checked, #hobbiesChips input:checked').forEach(function(i){ i.checked=false; var c=i.closest('.chip'); if(c) c.classList.remove('checked'); });
+  var sb=document.getElementById('socialAccounts'); if(sb){ sb.innerHTML=''; addSocialAccount(); }
 }
 function startCompetitionEntry(id){
   var c = (window._comps||{})[id] || { id:id };
@@ -464,7 +465,7 @@ async function viewEntries(id){
   if(!entries.length){ box.innerHTML='<div class="rbac-sub">'+tr('No registrations yet.','لا يوجد مسجّلون بعد.')+'</div>'; return; }
   box.innerHTML = entries.map(function(en){
     var badge = en.status==='approved'?'open':(en.status==='rejected'?'closed':'draft');
-    return '<div class="entry-row"><div class="rbac-info"><b>'+esc(en.name)+'</b> <span class="rbac-badge s-'+badge+'">'+esc(en.status)+'</span><span class="rbac-sub">'+esc(en.email||'')+(en.faculty?' · '+esc(facLabel(en.faculty)):'')+(en.phone?' · '+esc(en.phone):'')+'</span></div>'
+    return '<div class="entry-row"><div class="rbac-info"><b>'+esc(en.name)+'</b> <span class="rbac-badge s-'+badge+'">'+esc(en.status)+'</span><span class="rbac-sub">'+esc(en.email||'')+(en.faculty?' · '+esc(facLabel(en.faculty)):'')+(en.phone?' · '+esc(en.phone):'')+(en.socials?' · '+esc(en.socials):'')+'</span></div>'
       + '<div class="rbac-actions">'
       + (en.status!=='approved'?'<button class="btn-outline sm" onclick="setEntry('+en.id+',\'approved\','+id+')">'+tr('Approve','قبول')+'</button>':'')
       + (en.status!=='rejected'?'<button class="btn-outline sm" onclick="setEntry('+en.id+',\'rejected\','+id+')">'+tr('Reject','رفض')+'</button>':'')
@@ -527,7 +528,7 @@ async function renderCouncilMembers(){
     var badge=m.status==='approved'?'open':(m.status==='rejected'?'closed':'draft');
     return '<div class="rbac-row"><div class="rbac-info"><b>'+esc(m.name)+'</b> <span class="rbac-badge r-council">'+esc(facLabel(m.department))+'</span>'
       + ' <span class="rbac-badge s-'+badge+'">'+esc(m.status)+'</span>'
-      + '<span class="rbac-sub">'+(m.position?esc(m.position)+' · ':'')+esc(m.email||'')+'</span></div>'
+      + '<span class="rbac-sub">'+(m.position?esc(m.position)+' · ':'')+esc(m.email||'')+(m.phone?' · '+esc(m.phone):'')+(m.socials?' · '+esc(m.socials):'')+'</span></div>'
       + '<div class="rbac-actions">'
       + (m.status!=='approved'?'<button class="btn-outline sm" onclick="setMember('+m.id+',\'approved\')">'+tr('Approve','قبول')+'</button>':'')
       + (m.status!=='rejected'?'<button class="btn-outline sm" onclick="setMember('+m.id+',\'rejected\')">'+tr('Reject','رفض')+'</button>':'')
@@ -626,6 +627,7 @@ function go(pageId){
       document.getElementById('f_faculty').value = state.department ? state.department.en : '';
       document.getElementById('registerCrumb').textContent = state.department ? (' · ' + deptLabel(state.department) + ' — ' + (state.gender||'')) : '';
     }
+    var _sb=document.getElementById('socialAccounts'); if(_sb && !_sb.children.length) addSocialAccount();
     goToStep(1);
   }
 }
@@ -668,6 +670,14 @@ function _fv(id){ const el=document.getElementById(id); return el?el.value.trim(
 function collectChecked(sel){ return Array.prototype.slice.call(document.querySelectorAll(sel)).map(function(i){return i.value;}); }
 function gatherSkills(){ var a=collectChecked('#skillsChips input:checked'); var o=_fv('f_skills_other'); if(o) a.push(o); return a; }
 function gatherHobbies(){ var a=collectChecked('#hobbiesChips input:checked'); var o=_fv('f_hobbies_other'); if(o) a.push(o); return a; }
+function addSocialAccount(value){
+  var box=document.getElementById('socialAccounts'); if(!box) return;
+  var row=document.createElement('div'); row.className='social-row';
+  row.innerHTML='<input type="text" class="social-input" autocomplete="off" placeholder="'+(lang==='ar'?'مثال: https://instagram.com/username':'e.g. https://instagram.com/username')+'"><button type="button" class="social-del" title="remove" onclick="this.parentNode.remove()">×</button>';
+  if(value) row.querySelector('input').value=value;
+  box.appendChild(row);
+}
+function gatherSocials(){ return Array.prototype.slice.call(document.querySelectorAll('#socialAccounts .social-input')).map(function(i){return i.value.trim();}).filter(Boolean); }
 function buildReview(){
   const box = document.getElementById('reviewMini');
   const L=(en,ar)=>lang==='ar'?ar:en;
@@ -694,7 +704,7 @@ async function submitForm(){
     nationality: _fv('f_nationality'), regno: _fv('f_regno'),
     faculty: _fv('f_faculty') || (state.department ? state.department.en : null), gender: state.gender,
     level: _fv('f_level'), program: _fv('f_program'), semester: _fv('f_semester'),
-    cgpa: _fv('f_cgpa'), skills: gatherSkills(), hobbies: gatherHobbies(),
+    cgpa: _fv('f_cgpa'), skills: gatherSkills(), hobbies: gatherHobbies(), socials: gatherSocials(),
     submittedAt: new Date().toISOString()
   };
   if(!data.name || !data.email || !data.phone || !data.regno){
@@ -1144,7 +1154,8 @@ try{
     "council.title":"Advisory Council","council.sub":"Your council area.",
     "council.c1t":"Add Council Member","council.c1p":"Add a member for your department (up to 5). Submissions are approved by the Admin.","council.c1b":"Add Council Member",
     "council.c2t":"Competitions","council.c2p":"Browse the competitions available on the site.",
-    "canv.title":"Add Council Member","canv.sub":"Select the department and enter the member's details."
+    "canv.title":"Add Council Member","canv.sub":"Select the department and enter the member's details.",
+    "f.social":"Social media accounts (optional)","f.socialadd":"+ Add account"
   });
   Object.assign(I18N.ar, {
     "nav.council":"المجلس الاستشاري","nav.competitions":"المسابقات","nav.login":"تسجيل الدخول","nav.logout":"تسجيل الخروج",
@@ -1154,7 +1165,8 @@ try{
     "council.title":"المجلس الاستشاري","council.sub":"منطقة المجلس.",
     "council.c1t":"إضافة عضو مجلس","council.c1p":"أضِف عضوًا لكليتك (حتى 5 أعضاء). الاعتماد يتم من قِبل المشرف.","council.c1b":"إضافة عضو مجلس",
     "council.c2t":"المسابقات","council.c2p":"تصفّح المسابقات المتاحة في الموقع.",
-    "canv.title":"إضافة عضو مجلس","canv.sub":"اختر الكلية وأدخل بيانات العضو."
+    "canv.title":"إضافة عضو مجلس","canv.sub":"اختر الكلية وأدخل بيانات العضو.",
+    "f.social":"حسابات التواصل الاجتماعي (اختياري)","f.socialadd":"+ إضافة حساب"
   });
 }catch(e){}
 
