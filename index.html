@@ -843,25 +843,25 @@ html[dir="rtl"] .comp-detail h2{ margin-right:0; margin-left:10px; }
         <div class="readonly-chip" style="margin-bottom:22px;" id="deptChip">Faculty: —</div>
         <div class="field">
           <label data-i18n="f.name">Full Name</label>
-          <input type="text" id="f_name">
+          <input type="text" id="f_name" autocomplete="off">
         </div>
         <div class="field">
           <label data-i18n="f.email">Email Address</label>
-          <input type="email" id="f_email">
+          <input type="email" id="f_email" autocomplete="off">
         </div>
         <div class="field-row">
           <div class="field">
             <label data-i18n="f.phone">Phone Number</label>
-            <input type="tel" id="f_phone">
+            <input type="tel" id="f_phone" autocomplete="off">
           </div>
           <div class="field">
             <label data-i18n="f.nat">Nationality</label>
-            <input type="text" id="f_nationality">
+            <input type="text" id="f_nationality" autocomplete="off">
           </div>
         </div>
         <div class="field">
           <label data-i18n="f.reg">Registration Number</label>
-          <input type="text" id="f_regno">
+          <input type="text" id="f_regno" autocomplete="off">
         </div>
         <div class="form-actions">
           <button class="btn-outline" onclick="go('gender')" data-i18n="btn.back">← Back</button>
@@ -890,17 +890,17 @@ html[dir="rtl"] .comp-detail h2{ margin-right:0; margin-left:10px; }
           </div>
           <div class="field">
             <label data-i18n="f.program">Degree Program</label>
-            <input type="text" id="f_program">
+            <input type="text" id="f_program" autocomplete="off">
           </div>
         </div>
         <div class="field-row">
           <div class="field">
             <label data-i18n="f.semester">Current Semester</label>
-            <input type="text" id="f_semester">
+            <input type="text" id="f_semester" autocomplete="off">
           </div>
           <div class="field">
             <label data-i18n="f.cgpa">CGPA <span class="opt" data-i18n="f.optional">(optional)</span></label>
-            <input type="text" id="f_cgpa">
+            <input type="text" id="f_cgpa" autocomplete="off">
           </div>
         </div>
         <div class="form-actions">
@@ -916,12 +916,12 @@ html[dir="rtl"] .comp-detail h2{ margin-right:0; margin-left:10px; }
         <div class="field">
           <label class="group-label" data-i18n="f.skills">Skills</label>
           <div class="chips" id="skillsChips"></div>
-          <input type="text" id="f_skills_other" class="other-input" data-i18n-ph="ph.other" placeholder="Other (optional)">
+          <input type="text" id="f_skills_other" autocomplete="off" class="other-input" data-i18n-ph="ph.other" placeholder="Other (optional)">
         </div>
         <div class="field">
           <label class="group-label" data-i18n="f.hobbies">Hobbies &amp; Interests</label>
           <div class="chips" id="hobbiesChips"></div>
-          <input type="text" id="f_hobbies_other" class="other-input" data-i18n-ph="ph.other" placeholder="Other (optional)">
+          <input type="text" id="f_hobbies_other" autocomplete="off" class="other-input" data-i18n-ph="ph.other" placeholder="Other (optional)">
         </div>
         <div class="form-actions">
           <button class="btn-outline" onclick="prevStep(3)" data-i18n="btn.back">← Back</button>
@@ -1576,11 +1576,17 @@ async function openCompetition(id){
     + '</div></div>';
   go('compdetail');
 }
+function clearRegForm(){
+  ['f_name','f_email','f_phone','f_nationality','f_regno','f_program','f_semester','f_cgpa','f_skills_other','f_hobbies_other','f_faculty'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
+  var lvl=document.getElementById('f_level'); if(lvl) lvl.selectedIndex=0;
+  document.querySelectorAll('#skillsChips input:checked, #hobbiesChips input:checked').forEach(function(i){ i.checked=false; var c=i.closest('.chip'); if(c) c.classList.remove('checked'); });
+}
 function startCompetitionEntry(id){
   var c = (window._comps||{})[id] || { id:id };
   state.mode = '';                                   // not a council submission
   state.competition = { id:id, title:(lang==='ar'&&c.title_ar)?c.title_ar:(c.title||'') };
   state.department = null; state.gender = null;
+  clearRegForm();
   go('register');
 }
 
@@ -1590,6 +1596,7 @@ function startAddMember(){
   state.mode = 'council';
   state.competition = null;
   state.department = null; state.gender = null;
+  clearRegForm();
   go('departments');
 }
 

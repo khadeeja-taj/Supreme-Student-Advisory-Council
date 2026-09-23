@@ -345,11 +345,17 @@ async function openCompetition(id){
     + '</div></div>';
   go('compdetail');
 }
+function clearRegForm(){
+  ['f_name','f_email','f_phone','f_nationality','f_regno','f_program','f_semester','f_cgpa','f_skills_other','f_hobbies_other','f_faculty'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
+  var lvl=document.getElementById('f_level'); if(lvl) lvl.selectedIndex=0;
+  document.querySelectorAll('#skillsChips input:checked, #hobbiesChips input:checked').forEach(function(i){ i.checked=false; var c=i.closest('.chip'); if(c) c.classList.remove('checked'); });
+}
 function startCompetitionEntry(id){
   var c = (window._comps||{})[id] || { id:id };
   state.mode = '';                                   // not a council submission
   state.competition = { id:id, title:(lang==='ar'&&c.title_ar)?c.title_ar:(c.title||'') };
   state.department = null; state.gender = null;
+  clearRegForm();
   go('register');
 }
 
@@ -359,6 +365,7 @@ function startAddMember(){
   state.mode = 'council';
   state.competition = null;
   state.department = null; state.gender = null;
+  clearRegForm();
   go('departments');
 }
 

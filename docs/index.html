@@ -199,25 +199,25 @@
         <div class="readonly-chip" style="margin-bottom:22px;" id="deptChip">Faculty: —</div>
         <div class="field">
           <label data-i18n="f.name">Full Name</label>
-          <input type="text" id="f_name">
+          <input type="text" id="f_name" autocomplete="off">
         </div>
         <div class="field">
           <label data-i18n="f.email">Email Address</label>
-          <input type="email" id="f_email">
+          <input type="email" id="f_email" autocomplete="off">
         </div>
         <div class="field-row">
           <div class="field">
             <label data-i18n="f.phone">Phone Number</label>
-            <input type="tel" id="f_phone">
+            <input type="tel" id="f_phone" autocomplete="off">
           </div>
           <div class="field">
             <label data-i18n="f.nat">Nationality</label>
-            <input type="text" id="f_nationality">
+            <input type="text" id="f_nationality" autocomplete="off">
           </div>
         </div>
         <div class="field">
           <label data-i18n="f.reg">Registration Number</label>
-          <input type="text" id="f_regno">
+          <input type="text" id="f_regno" autocomplete="off">
         </div>
         <div class="form-actions">
           <button class="btn-outline" onclick="go('gender')" data-i18n="btn.back">← Back</button>
@@ -246,17 +246,17 @@
           </div>
           <div class="field">
             <label data-i18n="f.program">Degree Program</label>
-            <input type="text" id="f_program">
+            <input type="text" id="f_program" autocomplete="off">
           </div>
         </div>
         <div class="field-row">
           <div class="field">
             <label data-i18n="f.semester">Current Semester</label>
-            <input type="text" id="f_semester">
+            <input type="text" id="f_semester" autocomplete="off">
           </div>
           <div class="field">
             <label data-i18n="f.cgpa">CGPA <span class="opt" data-i18n="f.optional">(optional)</span></label>
-            <input type="text" id="f_cgpa">
+            <input type="text" id="f_cgpa" autocomplete="off">
           </div>
         </div>
         <div class="form-actions">
@@ -272,12 +272,12 @@
         <div class="field">
           <label class="group-label" data-i18n="f.skills">Skills</label>
           <div class="chips" id="skillsChips"></div>
-          <input type="text" id="f_skills_other" class="other-input" data-i18n-ph="ph.other" placeholder="Other (optional)">
+          <input type="text" id="f_skills_other" autocomplete="off" class="other-input" data-i18n-ph="ph.other" placeholder="Other (optional)">
         </div>
         <div class="field">
           <label class="group-label" data-i18n="f.hobbies">Hobbies &amp; Interests</label>
           <div class="chips" id="hobbiesChips"></div>
-          <input type="text" id="f_hobbies_other" class="other-input" data-i18n-ph="ph.other" placeholder="Other (optional)">
+          <input type="text" id="f_hobbies_other" autocomplete="off" class="other-input" data-i18n-ph="ph.other" placeholder="Other (optional)">
         </div>
         <div class="form-actions">
           <button class="btn-outline" onclick="prevStep(3)" data-i18n="btn.back">← Back</button>
