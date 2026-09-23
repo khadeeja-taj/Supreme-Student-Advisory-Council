@@ -46,6 +46,8 @@ let initPromise = null;
 async function init() {
   if (initPromise) return initPromise;
   initPromise = (async () => {
+    // Accounts that log in: 'admin' (full control) and 'council' (department HOD /
+    // authority who adds council members). Competitors do NOT have accounts.
     await q(`
       CREATE TABLE IF NOT EXISTS users (
         id            SERIAL PRIMARY KEY,
@@ -53,10 +55,13 @@ async function init() {
         email         TEXT UNIQUE NOT NULL,
         password_hash TEXT NOT NULL,
         role          TEXT NOT NULL CHECK (role IN ('admin','council','student')),
+        department    TEXT,
         active        BOOLEAN NOT NULL DEFAULT TRUE,
         created_at    TIMESTAMPTZ NOT NULL DEFAULT now()
       )
     `);
+    await q(`ALTER TABLE users ADD COLUMN IF NOT EXISTS department TEXT`);
+
     await q(`
       CREATE TABLE IF NOT EXISTS competitions (
         id             SERIAL PRIMARY KEY,
@@ -64,22 +69,56 @@ async function init() {
         title_ar       TEXT,
         description    TEXT,
         description_ar TEXT,
+        requirements   TEXT,
+        requirements_ar TEXT,
         category       TEXT,
-        status         TEXT NOT NULL DEFAULT 'draft' CHECK (status IN ('draft','open','closed')),
+        status         TEXT NOT NULL DEFAULT 'soon',
         active         BOOLEAN NOT NULL DEFAULT TRUE,
-        opens_at       TIMESTAMPTZ,
-        closes_at      TIMESTAMPTZ,
         created_at     TIMESTAMPTZ NOT NULL DEFAULT now()
       )
     `);
+    // Make the schema safe on a DB created by an earlier version.
+    await q(`ALTER TABLE competitions ADD COLUMN IF NOT EXISTS requirements TEXT`);
+    await q(`ALTER TABLE competitions ADD COLUMN IF NOT EXISTS requirements_ar TEXT`);
+    await q(`ALTER TABLE competitions DROP CONSTRAINT IF EXISTS competitions_status_check`);
+
+    // Public competition registrations (no account) — the existing registration form.
     await q(`
-      CREATE TABLE IF NOT EXISTS competition_registrations (
+      CREATE TABLE IF NOT EXISTS competition_entries (
         id             SERIAL PRIMARY KEY,
         competition_id INTEGER NOT NULL REFERENCES competitions(id) ON DELETE CASCADE,
-        user_id        INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        name           TEXT NOT NULL,
+        email          TEXT NOT NULL,
+        phone          TEXT,
+        nationality    TEXT,
+        regno          TEXT,
+        faculty        TEXT,
+        gender         TEXT,
+        program        TEXT,
+        semester       TEXT,
+        year           TEXT,
+        cgpa           TEXT,
+        skills         TEXT,
+        hobbies        TEXT,
         note           TEXT,
-        created_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
-        UNIQUE (competition_id, user_id)
+        status         TEXT NOT NULL DEFAULT 'pending',
+        created_at     TIMESTAMPTZ NOT NULL DEFAULT now()
+      )
+    `);
+
+    // Council members added by a department HOD / council account, approved by admin.
+    await q(`
+      CREATE TABLE IF NOT EXISTS council_members (
+        id           SERIAL PRIMARY KEY,
+        name         TEXT NOT NULL,
+        department   TEXT NOT NULL,
+        position     TEXT,
+        email        TEXT,
+        phone        TEXT,
+        details      TEXT,
+        status       TEXT NOT NULL DEFAULT 'pending',
+        created_by   INTEGER REFERENCES users(id) ON DELETE SET NULL,
+        created_at   TIMESTAMPTZ NOT NULL DEFAULT now()
       )
     `);
 

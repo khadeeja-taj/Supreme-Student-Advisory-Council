@@ -98,7 +98,7 @@
       <h1 data-i18n="hero.title">Supreme Student Advisory Council</h1>
       <p class="lead" data-i18n="hero.lead">Under the direction of the Worthy President of the International Islamic University Islamabad, the University is pleased to announce the establishment of the Supreme Student Advisory Council — a platform for students across every faculty to represent, advise and shape campus life.</p>
       <div class="cta-row">
-        <button class="btn-primary" onclick="go('login')"><span data-i18n="hero.cta">Get Started</span> →</button>
+        <button class="btn-primary" onclick="go('competitions')"><span data-i18n="hero.cta">Get Started</span> →</button>
       </div>
     </div>
   </div>
@@ -389,36 +389,55 @@
   </div>
 </section>
 
-<!-- ================= COMPETITIONS ================= -->
+<!-- ================= COMPETITIONS (public) ================= -->
 <section class="page" id="page-competitions">
   <div class="portal-wrap">
     <div class="portal-head">
       <h2 data-i18n="comp.title">Competitions</h2>
-      <p class="portal-sub" data-i18n="comp.sub">View available competitions and register to take part.</p>
+      <p class="portal-sub" data-i18n="comp.sub">Browse the competitions and register to take part.</p>
     </div>
     <div id="competitionsBody" class="comp-grid"></div>
   </div>
 </section>
 
-<!-- ================= ADVISORY COUNCIL (council role) ================= -->
+<!-- ================= COMPETITION DETAIL (public) ================= -->
+<section class="page" id="page-compdetail">
+  <div class="portal-wrap">
+    <div id="compDetailBody"></div>
+  </div>
+</section>
+
+<!-- ================= ADVISORY COUNCIL (council + admin) ================= -->
 <section class="page" id="page-council">
   <div class="portal-wrap">
     <div class="portal-head">
       <h2 data-i18n="council.title">Advisory Council</h2>
-      <p class="portal-sub" data-i18n="council.sub">Your council area and available competitions.</p>
+      <p class="portal-sub" data-i18n="council.sub">Your council area.</p>
     </div>
     <div class="council-cards">
       <div class="council-card">
-        <h3 data-i18n="council.c1t">Competitions</h3>
-        <p data-i18n="council.c1p">Browse the competitions the Administration has opened and register to participate.</p>
-        <button class="btn-teal" onclick="go('competitions')" data-i18n="nav.competitions">Competitions</button>
+        <h3 data-i18n="council.c1t">Add Council Member</h3>
+        <p data-i18n="council.c1p">Add a member for your department (up to 5). Submissions are approved by the Admin.</p>
+        <button class="btn-teal" onclick="go('council-add')" data-i18n="council.c1b">Add Council Member</button>
       </div>
       <div class="council-card">
-        <h3 data-i18n="council.c2t">Council Members</h3>
-        <p data-i18n="council.c2p">View the current members serving on the Supreme Student Advisory Council.</p>
-        <button class="btn-outline" onclick="go('reps')" data-i18n="nav.reps">Members</button>
+        <h3 data-i18n="council.c2t">Competitions</h3>
+        <p data-i18n="council.c2p">Browse the competitions available on the site.</p>
+        <button class="btn-outline" onclick="go('competitions')" data-i18n="nav.competitions">Competitions</button>
       </div>
     </div>
+  </div>
+</section>
+
+<!-- ================= ADD COUNCIL MEMBER (council + admin) ================= -->
+<section class="page" id="page-council-add">
+  <div class="portal-wrap">
+    <div class="portal-head">
+      <button class="btn-outline sm" onclick="go('council')">← <span data-i18n="btn.back">Back</span></button>
+      <h2 data-i18n="canv.title">Add Council Member</h2>
+      <p class="portal-sub" data-i18n="canv.sub">Select the department and enter the member's details.</p>
+    </div>
+    <div id="councilAddBody"></div>
   </div>
 </section>
 
@@ -445,6 +464,7 @@
         <button class="atab" data-tab="news" onclick="showAdminTab('news')" data-i18n="atab.news">Announcements</button>
         <button class="atab" data-tab="messages" onclick="showAdminTab('messages')" data-i18n="atab.messages">Messages</button>
         <button class="atab" data-tab="competitions" onclick="showAdminTab('competitions')" data-i18n="atab.competitions">Competitions</button>
+        <button class="atab" data-tab="council" onclick="showAdminTab('council')" data-i18n="atab.council">Council Members</button>
         <button class="atab" data-tab="users" onclick="showAdminTab('users')" data-i18n="atab.users">Users</button>
       </div>
 
@@ -501,6 +521,10 @@
 
       <div class="atab-panel" id="apanel-competitions" hidden>
         <div id="adminCompBody"></div>
+      </div>
+
+      <div class="atab-panel" id="apanel-council" hidden>
+        <div id="adminCouncilBody"></div>
       </div>
 
       <div class="atab-panel" id="apanel-users" hidden>

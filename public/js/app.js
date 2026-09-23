@@ -259,7 +259,7 @@ function applyRoleUI(){
   var role = currentRole(), loggedIn = isLoggedIn();
   setNav('navLogin', !loggedIn);
   setNav('navLogout', loggedIn);
-  setNav('navCompetitions', loggedIn);                       // every signed-in role has Competitions
+  setNav('navCompetitions', true);                           // Competitions are public — always visible
   setNav('navCouncil', role==='admin' || role==='council');  // Advisory Council: admin + council
   setNav('navAdmin', role==='admin');                        // Admin panel: admin only
   // keep the legacy admin bearer in sync so existing admin-panel calls work
@@ -300,64 +300,84 @@ function doLogout(){
   go('home');
 }
 
-/* ---- Competitions (all roles) ---- */
-async function renderCompetitions(targetEl){
-  var box = targetEl || document.getElementById('competitionsBody');
+/* ---- Competitions: PUBLIC browse → detail → register (no login) ---- */
+function compStatusBadge(s){
+  if(s==='open') return '<span class="rbac-badge s-open">'+tr('Available','متاحة الآن')+'</span>';
+  if(s==='soon') return '<span class="rbac-badge s-draft">'+tr('Coming soon','قريبًا')+'</span>';
+  return '<span class="rbac-badge s-closed">'+tr('Closed','مغلقة')+'</span>';
+}
+async function renderCompetitions(){
+  var box = document.getElementById('competitionsBody');
   if(!box) return;
   box.innerHTML = '<div class="empty-card">'+tr('Loading…','جارٍ التحميل…')+'</div>';
   var comps = [];
   try{ var r = await api('/api/competitions', { headers: authHeaders() }); comps = r.competitions || []; }
-  catch(e){
-    if(e && e.status===401){ doLogout(); return; }
-    box.innerHTML = '<div class="empty-card">'+tr('Could not load competitions.','تعذّر تحميل المسابقات.')+'</div>'; return;
-  }
-  if(currentRole()==='admin'){ renderAdminCompetitions(box, comps); return; }
-  if(!comps.length){ box.innerHTML = '<div class="empty-card">'+tr('No competitions are open right now. Please check back soon.','لا توجد مسابقات متاحة حاليًا. تابعنا قريبًا بإذن الله.')+'</div>'; return; }
+  catch(e){ box.innerHTML = '<div class="empty-card">'+tr('Could not load competitions.','تعذّر تحميل المسابقات.')+'</div>'; return; }
+  if(!comps.length){ box.innerHTML = '<div class="empty-card">'+tr('No competitions yet. Please check back soon, in shā’ Allah.','لا توجد مسابقات بعد. تابعنا قريبًا بإذن الله.')+'</div>'; return; }
+  window._comps = {};
   box.innerHTML = comps.map(function(c){
+    window._comps[c.id] = c;
     var title = (lang==='ar' && c.title_ar) ? c.title_ar : c.title;
-    var desc  = (lang==='ar' && c.description_ar) ? c.description_ar : (c.description||'');
-    return '<article class="comp-card"><div class="comp-body">'
+    return '<article class="comp-card comp-click" onclick="openCompetition('+c.id+')"><div class="comp-body">'
       + (c.category ? '<span class="comp-cat">'+esc(c.category)+'</span>' : '')
-      + '<h3>'+esc(title)+'</h3>'
-      + (desc ? '<p>'+esc(desc)+'</p>' : '')
-      + '</div><div class="comp-foot">'
-      + (c.registered
-          ? '<span class="comp-done">✓ '+tr('Registered','تم التسجيل')+'</span>'
-          : '<button class="btn-teal" onclick="registerCompetition('+c.id+',this)">'+tr('Register','سجّل الآن')+'</button>')
-      + '</div></article>';
+      + '<h3>'+esc(title)+'</h3>' + compStatusBadge(c.status)
+      + '</div><div class="comp-foot"><span class="comp-link">'+tr('View details →','عرض التفاصيل →')+'</span></div></article>';
   }).join('');
 }
-async function registerCompetition(id, btn){
-  if(btn){ btn.disabled=true; btn.textContent = tr('Registering…','جارٍ التسجيل…'); }
-  try{ await api('/api/competitions/'+id+'/register', { method:'POST', headers: authHeaders(), body:'{}' }); renderCompetitions(); }
-  catch(e){
-    if(e && e.status===401){ doLogout(); return; }
-    alert(tr('Could not register: ','تعذّر التسجيل: ')+(e && e.message || ''));
-    if(btn){ btn.disabled=false; btn.textContent = tr('Register','سجّل الآن'); }
-  }
+async function openCompetition(id){
+  var box = document.getElementById('compDetailBody'); if(!box) return;
+  var c = (window._comps||{})[id];
+  if(!c){ try{ var r=await api('/api/competitions/'+id,{headers:authHeaders()}); c=r.competition; }catch(e){} }
+  if(!c){ alert(tr('Could not open this competition.','تعذّر فتح المسابقة.')); return; }
+  var title = (lang==='ar' && c.title_ar) ? c.title_ar : c.title;
+  var desc  = (lang==='ar' && c.description_ar) ? c.description_ar : (c.description||'');
+  var reqs  = (lang==='ar' && c.requirements_ar) ? c.requirements_ar : (c.requirements||'');
+  box.innerHTML = '<button class="btn-outline sm" onclick="go(\'competitions\')">← '+tr('Back to competitions','رجوع للمسابقات')+'</button>'
+    + '<div class="comp-detail">'
+    + (c.category ? '<span class="comp-cat">'+esc(c.category)+'</span>' : '')
+    + '<h2>'+esc(title)+'</h2> '+compStatusBadge(c.status)
+    + (desc ? '<p>'+esc(desc).replace(/\n/g,'<br>')+'</p>' : '')
+    + (reqs ? '<h3>'+tr('Requirements & conditions','الشروط والمتطلبات')+'</h3><p>'+esc(reqs).replace(/\n/g,'<br>')+'</p>' : '')
+    + '<div class="comp-detail-foot">'
+    + (c.status==='open'
+        ? '<button class="btn-primary" onclick="startCompetitionEntry('+c.id+')">'+tr('Register for this competition','سجّل في هذه المسابقة')+' →</button>'
+        : '<span class="comp-done">'+(c.status==='soon'?tr('Registration opens soon.','التسجيل يُفتح قريبًا.'):tr('Registration is closed.','التسجيل مغلق.'))+'</span>')
+    + '</div></div>';
+  go('compdetail');
+}
+function startCompetitionEntry(id){
+  var c = (window._comps||{})[id] || { id:id };
+  state.competition = { id:id, title:(lang==='ar'&&c.title_ar)?c.title_ar:(c.title||'') };
+  state.department = null; state.gender = null;
+  go('register');
 }
 
 /* ---- Competitions management (admin) ---- */
-function renderAdminCompetitions(box, comps){
-  var st = {draft:tr('Draft','مسودة'), open:tr('Open','مفتوحة'), closed:tr('Closed','مغلقة')};
+async function renderAdminCompetitions(){
+  var box = document.getElementById('adminCompBody'); if(!box) return;
+  box.innerHTML = '<div class="empty-card">'+tr('Loading…','جارٍ التحميل…')+'</div>';
+  var comps = [];
+  try{ var r = await api('/api/competitions', { headers: authHeaders() }); comps = r.competitions || []; }
+  catch(e){ if(e&&e.status===401){doLogout();return;} box.innerHTML='<div class="empty-card">'+tr('Could not load.','تعذّر التحميل.')+'</div>'; return; }
   var form = '<form class="mng-form col" onsubmit="createCompetition(event)">'
     + '<input id="cmp_title" placeholder="'+tr('Title (English)','العنوان (إنجليزي)')+'">'
     + '<input id="cmp_title_ar" placeholder="'+tr('Title (Arabic)','العنوان (عربي)')+'">'
     + '<input id="cmp_category" placeholder="'+tr('Category (optional)','التصنيف (اختياري)')+'">'
     + '<textarea id="cmp_desc" rows="2" placeholder="'+tr('Description','الوصف')+'"></textarea>'
-    + '<label class="chk-line"><input type="checkbox" id="cmp_open"> '+tr('Open to students & council right away','متاحة للطلاب والمجلس فورًا')+'</label>'
+    + '<textarea id="cmp_reqs" rows="2" placeholder="'+tr('Requirements / conditions','الشروط والمتطلبات')+'"></textarea>'
+    + '<select id="cmp_status"><option value="soon">'+tr('Coming soon','قريبًا')+'</option><option value="open">'+tr('Available (open registration)','متاحة (تسجيل مفتوح)')+'</option><option value="closed">'+tr('Closed','مغلقة')+'</option></select>'
     + '<button class="btn-teal" type="submit">'+tr('Add competition','إضافة مسابقة')+'</button></form>';
   var list = comps.length ? comps.map(function(c){
-    return '<div class="rbac-row"><div class="rbac-info"><b>'+esc(c.title)+'</b>'
-      + ' <span class="rbac-badge s-'+c.status+'">'+esc(st[c.status]||c.status)+'</span>'
-      + (c.active ? '' : ' <span class="rbac-badge s-closed">'+tr('Inactive','معطّلة')+'</span>')
-      + '<span class="rbac-sub">'+(c.registrations||0)+' '+tr('registered','مسجّل')+'</span></div>'
+    return '<div class="rbac-row"><div class="rbac-info"><b>'+esc(c.title)+'</b> '+compStatusBadge(c.status)
+      + '<span class="rbac-sub">'+(c.entries||0)+' '+tr('registered','مسجّل')+'</span></div>'
       + '<div class="rbac-actions">'
-      + (c.status!=='open'   ? '<button class="btn-outline sm" onclick="setCompStatus('+c.id+',\'open\')">'+tr('Open','فتح')+'</button>' : '')
-      + (c.status!=='closed' ? '<button class="btn-outline sm" onclick="setCompStatus('+c.id+',\'closed\')">'+tr('Close','إغلاق')+'</button>' : '')
-      + '<button class="btn-outline sm" onclick="setCompActive('+c.id+','+(c.active?'false':'true')+')">'+(c.active?tr('Deactivate','تعطيل'):tr('Activate','تفعيل'))+'</button>'
+      + '<select class="sm-select" onchange="setCompStatus('+c.id+',this.value)">'
+        + '<option value="soon"'+(c.status==='soon'?' selected':'')+'>'+tr('Coming soon','قريبًا')+'</option>'
+        + '<option value="open"'+(c.status==='open'?' selected':'')+'>'+tr('Available','متاحة')+'</option>'
+        + '<option value="closed"'+(c.status==='closed'?' selected':'')+'>'+tr('Closed','مغلقة')+'</option></select>'
+      + '<button class="btn-outline sm" onclick="viewEntries('+c.id+')">'+tr('Registrations','المسجّلون')+'</button>'
       + '<button class="btn-outline sm danger" onclick="deleteCompetition('+c.id+')">'+tr('Delete','حذف')+'</button>'
-      + '</div></div>';
+      + '</div><div class="entries-box" id="entries-'+c.id+'"></div></div>';
   }).join('') : '<div class="empty-card">'+tr('No competitions yet. Add one above.','لا توجد مسابقات بعد. أضِف واحدة بالأعلى.')+'</div>';
   box.innerHTML = '<div class="rbac-manage">'+form+'<div class="rbac-list">'+list+'</div></div>';
 }
@@ -365,30 +385,90 @@ async function createCompetition(ev){
   if(ev) ev.preventDefault();
   var title = val('cmp_title');
   if(!title){ alert(tr('Title is required.','العنوان مطلوب.')); return; }
-  var body = { title:title, title_ar:val('cmp_title_ar'), category:val('cmp_category'), description:val('cmp_desc'),
-               status: document.getElementById('cmp_open').checked ? 'open' : 'draft' };
-  try{ await api('/api/competitions', { method:'POST', headers: authHeaders(), body: JSON.stringify(body) }); refreshComps(); }
+  var body = { title:title, title_ar:val('cmp_title_ar'), category:val('cmp_category'), description:val('cmp_desc'), requirements:val('cmp_reqs'), status: val('cmp_status')||'soon' };
+  try{ await api('/api/competitions', { method:'POST', headers: authHeaders(), body: JSON.stringify(body) }); renderAdminCompetitions(); }
   catch(e){ alert(tr('Could not save: ','تعذّر الحفظ: ')+(e && e.message || '')); }
 }
 async function setCompStatus(id, status){
-  try{ await api('/api/competitions/'+id, { method:'PATCH', headers: authHeaders(), body: JSON.stringify({ status:status }) }); refreshComps(); }
-  catch(e){ alert(e && e.message || 'Error'); }
-}
-async function setCompActive(id, active){
-  try{ await api('/api/competitions/'+id, { method:'PATCH', headers: authHeaders(), body: JSON.stringify({ active:active }) }); refreshComps(); }
+  try{ await api('/api/competitions/'+id, { method:'PATCH', headers: authHeaders(), body: JSON.stringify({ status:status }) }); }
   catch(e){ alert(e && e.message || 'Error'); }
 }
 async function deleteCompetition(id){
   if(!confirm(tr('Delete this competition? This cannot be undone.','حذف هذه المسابقة؟ لا يمكن التراجع.'))) return;
-  try{ await api('/api/competitions/'+id, { method:'DELETE', headers: authHeaders() }); refreshComps(); }
+  try{ await api('/api/competitions/'+id, { method:'DELETE', headers: authHeaders() }); renderAdminCompetitions(); }
   catch(e){ alert(e && e.message || 'Error'); }
 }
-function refreshComps(){
-  // re-render whichever competitions view is on screen
-  var adminBox = document.getElementById('adminCompBody');
-  if(adminBox && document.getElementById('page-admin').classList.contains('active')) renderCompetitions(adminBox);
-  else renderCompetitions();
+async function viewEntries(id){
+  var box = document.getElementById('entries-'+id); if(!box) return;
+  if(box.getAttribute('data-open')==='1'){ box.innerHTML=''; box.setAttribute('data-open','0'); return; }
+  box.setAttribute('data-open','1');
+  box.innerHTML = '<div class="rbac-sub">'+tr('Loading…','جارٍ التحميل…')+'</div>';
+  var entries=[];
+  try{ var r=await api('/api/competitions/'+id+'/registrations',{headers:authHeaders()}); entries=r.entries||[]; }
+  catch(e){ box.innerHTML='<div class="rbac-sub">'+tr('Could not load.','تعذّر التحميل.')+'</div>'; return; }
+  if(!entries.length){ box.innerHTML='<div class="rbac-sub">'+tr('No registrations yet.','لا يوجد مسجّلون بعد.')+'</div>'; return; }
+  box.innerHTML = entries.map(function(en){
+    var badge = en.status==='approved'?'open':(en.status==='rejected'?'closed':'draft');
+    return '<div class="entry-row"><div class="rbac-info"><b>'+esc(en.name)+'</b> <span class="rbac-badge s-'+badge+'">'+esc(en.status)+'</span><span class="rbac-sub">'+esc(en.email||'')+(en.faculty?' · '+esc(facLabel(en.faculty)):'')+(en.phone?' · '+esc(en.phone):'')+'</span></div>'
+      + '<div class="rbac-actions">'
+      + (en.status!=='approved'?'<button class="btn-outline sm" onclick="setEntry('+en.id+',\'approved\','+id+')">'+tr('Approve','قبول')+'</button>':'')
+      + (en.status!=='rejected'?'<button class="btn-outline sm" onclick="setEntry('+en.id+',\'rejected\','+id+')">'+tr('Reject','رفض')+'</button>':'')
+      + '<button class="btn-outline sm danger" onclick="delEntry('+en.id+','+id+')">'+tr('Delete','حذف')+'</button>'
+      + '</div></div>';
+  }).join('');
 }
+function reopenEntries(id){ var b=document.getElementById('entries-'+id); if(b){ b.setAttribute('data-open','0'); viewEntries(id); } }
+async function setEntry(eid,status,cid){ try{ await api('/api/entries/'+eid,{method:'PATCH',headers:authHeaders(),body:JSON.stringify({status:status})}); reopenEntries(cid); }catch(e){ alert(e&&e.message||'Error'); } }
+async function delEntry(eid,cid){ if(!confirm(tr('Delete this registration?','حذف هذا التسجيل؟')))return; try{ await api('/api/entries/'+eid,{method:'DELETE',headers:authHeaders()}); reopenEntries(cid); }catch(e){ alert(e&&e.message||'Error'); } }
+
+/* ---- Council members: council/HOD adds → admin approves ---- */
+function renderCouncilAddForm(){
+  var box = document.getElementById('councilAddBody'); if(!box) return;
+  var opts = DEPARTMENTS.map(function(d){ return '<option value="'+esc(d.en)+'">'+esc(lang==='ar'?d.ar:d.en)+'</option>'; }).join('');
+  box.innerHTML = '<form class="mng-form col" onsubmit="submitCouncilMember(event)">'
+    + '<label class="fld-label">'+tr('Department','الكلية')+'</label>'
+    + '<select id="cm_dept">'+opts+'</select>'
+    + '<input id="cm_name" placeholder="'+tr('Member full name','اسم العضو الكامل')+'">'
+    + '<input id="cm_position" placeholder="'+tr('Position (e.g. President)','المنصب (مثال: رئيس)')+'">'
+    + '<input id="cm_email" type="email" placeholder="'+tr('Email (optional)','البريد (اختياري)')+'">'
+    + '<input id="cm_phone" placeholder="'+tr('Phone (optional)','الهاتف (اختياري)')+'">'
+    + '<textarea id="cm_details" rows="2" placeholder="'+tr('Details / notes (optional)','تفاصيل / ملاحظات (اختياري)')+'"></textarea>'
+    + '<button class="btn-teal" type="submit">'+tr('Submit for approval','إرسال للاعتماد')+'</button></form>'
+    + '<p class="portal-sub" style="margin-top:10px">'+tr('Each department can have up to 5 members. Submissions are approved by the Admin.','كل كلية بحد أقصى 5 أعضاء. الاعتماد يتم من قِبل المشرف.')+'</p>'
+    + '<div id="cmAddMsg"></div>';
+}
+async function submitCouncilMember(ev){
+  if(ev) ev.preventDefault();
+  var name=val('cm_name'), dept=val('cm_dept');
+  if(!name||!dept){ alert(tr('Name and department are required.','الاسم والكلية مطلوبان.')); return; }
+  var body={ name:name, department:dept, position:val('cm_position'), email:val('cm_email'), phone:val('cm_phone'), details:val('cm_details') };
+  try{
+    await api('/api/council-members',{method:'POST',headers:authHeaders(),body:JSON.stringify(body)});
+    document.getElementById('cmAddMsg').innerHTML='<div class="ok-card">✓ '+tr('Submitted. Awaiting admin approval.','تم الإرسال. بانتظار اعتماد المشرف.')+'</div>';
+    ['cm_name','cm_position','cm_email','cm_phone','cm_details'].forEach(function(id){var e=document.getElementById(id);if(e)e.value='';});
+  }catch(e){ if(e&&e.status===401){doLogout();return;} alert(tr('Could not submit: ','تعذّر الإرسال: ')+(e&&e.message||'')); }
+}
+async function renderCouncilMembers(){
+  var box=document.getElementById('adminCouncilBody'); if(!box) return;
+  box.innerHTML='<div class="empty-card">'+tr('Loading…','جارٍ التحميل…')+'</div>';
+  var members=[];
+  try{ var r=await api('/api/council-members',{headers:authHeaders()}); members=r.members||[]; }
+  catch(e){ if(e&&e.status===401){doLogout();return;} box.innerHTML='<div class="empty-card">'+tr('Could not load.','تعذّر التحميل.')+'</div>'; return; }
+  if(!members.length){ box.innerHTML='<div class="empty-card">'+tr('No council members added yet.','لم يُضَف أعضاء بعد.')+'</div>'; return; }
+  box.innerHTML='<div class="rbac-list">'+members.map(function(m){
+    var badge=m.status==='approved'?'open':(m.status==='rejected'?'closed':'draft');
+    return '<div class="rbac-row"><div class="rbac-info"><b>'+esc(m.name)+'</b> <span class="rbac-badge r-council">'+esc(facLabel(m.department))+'</span>'
+      + ' <span class="rbac-badge s-'+badge+'">'+esc(m.status)+'</span>'
+      + '<span class="rbac-sub">'+(m.position?esc(m.position)+' · ':'')+esc(m.email||'')+'</span></div>'
+      + '<div class="rbac-actions">'
+      + (m.status!=='approved'?'<button class="btn-outline sm" onclick="setMember('+m.id+',\'approved\')">'+tr('Approve','قبول')+'</button>':'')
+      + (m.status!=='rejected'?'<button class="btn-outline sm" onclick="setMember('+m.id+',\'rejected\')">'+tr('Reject','رفض')+'</button>':'')
+      + '<button class="btn-outline sm danger" onclick="delMember('+m.id+')">'+tr('Delete','حذف')+'</button>'
+      + '</div></div>';
+  }).join('')+'</div>';
+}
+async function setMember(id,status){ try{ await api('/api/council-members/'+id,{method:'PATCH',headers:authHeaders(),body:JSON.stringify({status:status})}); renderCouncilMembers(); }catch(e){ alert(e&&e.message||'Error'); } }
+async function delMember(id){ if(!confirm(tr('Delete this member?','حذف هذا العضو؟')))return; try{ await api('/api/council-members/'+id,{method:'DELETE',headers:authHeaders()}); renderCouncilMembers(); }catch(e){ alert(e&&e.message||'Error'); } }
 
 /* ---- User management (admin only) ---- */
 async function renderAdminUsers(){
@@ -404,13 +484,14 @@ async function renderAdminUsers(){
     + '<input id="usr_name" placeholder="'+tr('Full name','الاسم الكامل')+'">'
     + '<input id="usr_email" type="email" placeholder="'+tr('Email','البريد الإلكتروني')+'">'
     + '<input id="usr_pass" type="password" placeholder="'+tr('Password','كلمة المرور')+'">'
-    + '<select id="usr_role"><option value="student">'+tr('Student','طالب')+'</option>'
-    + '<option value="council">'+tr('Council','عضو مجلس')+'</option>'
+    + '<select id="usr_role"><option value="council">'+tr('Council / HOD','عضو مجلس / رئيس قسم')+'</option>'
     + '<option value="admin">'+tr('Admin','مشرف')+'</option></select>'
-    + '<button class="btn-teal" type="submit">'+tr('Add user','إضافة مستخدم')+'</button></form>';
+    + '<input id="usr_dept" placeholder="'+tr('Department (for council)','الكلية (للمجلس)')+'">'
+    + '<button class="btn-teal" type="submit">'+tr('Add account','إضافة حساب')+'</button></form>';
   var rows = users.map(function(u){
     return '<div class="rbac-row"><div class="rbac-info"><b>'+esc(u.name)+'</b>'
       + ' <span class="rbac-badge r-'+u.role+'">'+esc(roleLabel(u.role))+'</span>'
+      + (u.department? ' <span class="rbac-badge r-council">'+esc(facLabel(u.department))+'</span>':'')
       + (u.active ? '' : ' <span class="rbac-badge s-closed">'+tr('Inactive','معطّل')+'</span>')
       + '<span class="rbac-sub">'+esc(u.email)+'</span></div>'
       + '<div class="rbac-actions">'
@@ -422,9 +503,9 @@ async function renderAdminUsers(){
 }
 async function createUser(ev){
   if(ev) ev.preventDefault();
-  var name=val('usr_name'), email=val('usr_email'), pass=document.getElementById('usr_pass').value, role=val('usr_role');
+  var name=val('usr_name'), email=val('usr_email'), pass=document.getElementById('usr_pass').value, role=val('usr_role'), dept=val('usr_dept');
   if(!name||!email||!pass){ alert(tr('Name, email and password are required.','الاسم والبريد وكلمة المرور مطلوبة.')); return; }
-  try{ await api('/api/users', { method:'POST', headers: authHeaders(), body: JSON.stringify({ name:name, email:email, password:pass, role:role }) }); renderAdminUsers(); }
+  try{ await api('/api/users', { method:'POST', headers: authHeaders(), body: JSON.stringify({ name:name, email:email, password:pass, role:role, department:dept }) }); renderAdminUsers(); }
   catch(e){ alert(tr('Could not create user: ','تعذّر إنشاء المستخدم: ')+(e && e.message || '')); }
 }
 async function toggleUser(id, active){
@@ -439,7 +520,7 @@ async function deleteUser(id){
 
 /* Pages that require a login, and which roles may open them.
    The backend re-checks every request — this is the UX layer only. */
-var PAGE_ROLES = { competitions:['admin','council','student'], council:['admin','council'], admin:['admin'] };
+var PAGE_ROLES = { council:['admin','council'], 'council-add':['admin','council'], admin:['admin'] };
 function go(pageId){
   var need = PAGE_ROLES[pageId];
   if(need){
@@ -461,14 +542,20 @@ function go(pageId){
     showAdminTab('overview');
   }
   if(pageId==='competitions'){ renderCompetitions(); }
+  if(pageId==='council-add'){ renderCouncilAddForm(); }
   window.scrollTo({top:0, behavior:'instant'});
   if(pageId === 'gender' && state.department){
     document.getElementById('genderFacultyCrumb').textContent = ' · ' + deptLabel(state.department);
   }
   if(pageId === 'register'){
-    document.getElementById('deptChip').textContent = (lang==='ar'?'الكلية: ':'Faculty: ') + (state.department ? deptLabel(state.department) : '—');
-    document.getElementById('f_faculty').value = state.department ? deptLabel(state.department) : '';
-    document.getElementById('registerCrumb').textContent = state.department ? (' · ' + deptLabel(state.department) + ' — ' + (state.gender||'')) : '';
+    if(state.competition && state.competition.id){
+      document.getElementById('deptChip').textContent = tr('Competition: ','المسابقة: ') + state.competition.title;
+      document.getElementById('registerCrumb').textContent = ' · ' + state.competition.title;
+    } else {
+      document.getElementById('deptChip').textContent = (lang==='ar'?'الكلية: ':'Faculty: ') + (state.department ? deptLabel(state.department) : '—');
+      document.getElementById('f_faculty').value = state.department ? deptLabel(state.department) : '';
+      document.getElementById('registerCrumb').textContent = state.department ? (' · ' + deptLabel(state.department) + ' — ' + (state.gender||'')) : '';
+    }
     goToStep(1);
   }
 }
@@ -535,7 +622,7 @@ async function submitForm(){
   const data = {
     name: _fv('f_name'), email: _fv('f_email'), phone: _fv('f_phone'),
     nationality: _fv('f_nationality'), regno: _fv('f_regno'),
-    faculty: state.department ? state.department.en : null, gender: state.gender,
+    faculty: state.department ? state.department.en : (_fv('f_faculty') || null), gender: state.gender,
     level: _fv('f_level'), program: _fv('f_program'), semester: _fv('f_semester'),
     cgpa: _fv('f_cgpa'), skills: gatherSkills(), hobbies: gatherHobbies(),
     submittedAt: new Date().toISOString()
@@ -546,8 +633,13 @@ async function submitForm(){
   }
   const btn = document.querySelector('#formstep-4 .btn-teal');
   if(btn){ btn.disabled = true; }
+  var inCompetition = !!(state.competition && state.competition.id);
   try{
-    await api('/api/register', { method:'POST', body: JSON.stringify(data) });
+    if(inCompetition){
+      await api('/api/competitions/'+state.competition.id+'/register', { method:'POST', body: JSON.stringify(data) });
+    } else {
+      await api('/api/register', { method:'POST', body: JSON.stringify(data) });
+    }
   }catch(e){
     if(btn){ btn.disabled = false; }
     alert((lang==='ar' ? 'تعذّر إرسال التسجيل: ' : 'Could not submit registration: ') + e.message);
@@ -556,6 +648,7 @@ async function submitForm(){
   if(btn){ btn.disabled = false; }
 
   document.getElementById('successCard').innerHTML = successRows(data);
+  state.competition = null; // clear competition context after submit
   go('success');
 }
 function successRows(d){
@@ -752,13 +845,14 @@ async function renderReps(){
 /* ---- ADMIN: tabs ---- */
 function showAdminTab(name){
   document.querySelectorAll('.atab').forEach(function(b){ b.classList.toggle('active', b.dataset.tab===name); });
-  ['overview','regs','reps','news','messages','competitions','users'].forEach(function(t){ var p=document.getElementById('apanel-'+t); if(p) p.hidden=(t!==name); });
+  ['overview','regs','reps','news','messages','competitions','council','users'].forEach(function(t){ var p=document.getElementById('apanel-'+t); if(p) p.hidden=(t!==name); });
   if(name==='overview') renderAnalytics();
   if(name==='regs') loadAdminData();
   if(name==='reps') renderAdminReps();
   if(name==='news') renderAdminNews();
   if(name==='messages') renderAdminMessages();
-  if(name==='competitions') renderCompetitions(document.getElementById('adminCompBody'));
+  if(name==='competitions') renderAdminCompetitions();
+  if(name==='council') renderCouncilMembers();
   if(name==='users') renderAdminUsers();
 }
 async function tryAdminLogin(){
@@ -971,21 +1065,23 @@ renderChips();
 try{
   Object.assign(I18N.en, {
     "nav.council":"Advisory Council","nav.competitions":"Competitions","nav.login":"Login","nav.logout":"Log Out",
-    "atab.competitions":"Competitions","atab.users":"Users",
+    "atab.competitions":"Competitions","atab.council":"Council Members","atab.users":"Users",
     "login.title":"Sign in","login.sub":"Sign in to reach your portal. Accounts are created by the Administrator.","login.email":"Email","login.pass":"Password","login.btn":"Log In",
-    "comp.title":"Competitions","comp.sub":"View available competitions and register to take part.",
-    "council.title":"Advisory Council","council.sub":"Your council area and available competitions.",
-    "council.c1t":"Competitions","council.c1p":"Browse the competitions the Administration has opened and register to participate.",
-    "council.c2t":"Council Members","council.c2p":"View the current members serving on the Supreme Student Advisory Council."
+    "comp.title":"Competitions","comp.sub":"Browse the competitions and register to take part.",
+    "council.title":"Advisory Council","council.sub":"Your council area.",
+    "council.c1t":"Add Council Member","council.c1p":"Add a member for your department (up to 5). Submissions are approved by the Admin.","council.c1b":"Add Council Member",
+    "council.c2t":"Competitions","council.c2p":"Browse the competitions available on the site.",
+    "canv.title":"Add Council Member","canv.sub":"Select the department and enter the member's details."
   });
   Object.assign(I18N.ar, {
     "nav.council":"المجلس الاستشاري","nav.competitions":"المسابقات","nav.login":"تسجيل الدخول","nav.logout":"تسجيل الخروج",
-    "atab.competitions":"المسابقات","atab.users":"المستخدمون",
+    "atab.competitions":"المسابقات","atab.council":"أعضاء المجلس","atab.users":"المستخدمون",
     "login.title":"تسجيل الدخول","login.sub":"سجّل الدخول للوصول إلى لوحتك. الحسابات يُنشئها المشرف.","login.email":"البريد الإلكتروني","login.pass":"كلمة المرور","login.btn":"دخول",
-    "comp.title":"المسابقات","comp.sub":"اطّلع على المسابقات المتاحة وسجّل للمشاركة.",
-    "council.title":"المجلس الاستشاري","council.sub":"منطقة المجلس والمسابقات المتاحة.",
-    "council.c1t":"المسابقات","council.c1p":"تصفّح المسابقات التي فتحتها الإدارة وسجّل للمشاركة.",
-    "council.c2t":"أعضاء المجلس","council.c2p":"اطّلع على الأعضاء الحاليين في المجلس الاستشاري الطلابي الأعلى."
+    "comp.title":"المسابقات","comp.sub":"تصفّح المسابقات وسجّل للمشاركة.",
+    "council.title":"المجلس الاستشاري","council.sub":"منطقة المجلس.",
+    "council.c1t":"إضافة عضو مجلس","council.c1p":"أضِف عضوًا لكليتك (حتى 5 أعضاء). الاعتماد يتم من قِبل المشرف.","council.c1b":"إضافة عضو مجلس",
+    "council.c2t":"المسابقات","council.c2p":"تصفّح المسابقات المتاحة في الموقع.",
+    "canv.title":"إضافة عضو مجلس","canv.sub":"اختر الكلية وأدخل بيانات العضو."
   });
 }catch(e){}
 

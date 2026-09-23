@@ -618,3 +618,20 @@ html[dir="rtl"] .portal-wrap{ text-align:right; }
 .chk-line{ display:flex; align-items:center; gap:8px; font-size:.88rem; color:var(--navy); }
 .mng-form.col{ flex-direction:column; align-items:stretch; }
 @media (max-width:640px){ .portal-wrap{ padding:96px 5vw 50px; } .auth-wrap{ padding:96px 16px 40px; } }
+
+/* ---- competition detail + admin entries + council add ---- */
+.comp-card.comp-click{ cursor:pointer; transition:transform .15s ease, box-shadow .15s ease; }
+.comp-card.comp-click:hover{ transform:translateY(-3px); box-shadow:0 14px 34px rgba(2,48,71,.12); }
+.comp-link{ color:var(--teal); font-weight:700; font-size:.9rem; }
+.comp-detail{ background:#fff; border:1px solid rgba(2,48,71,.10); border-radius:16px; padding:26px; margin-top:16px; box-shadow:0 8px 26px rgba(2,48,71,.06); }
+.comp-detail h2{ margin:.4rem 0 6px; color:var(--navy); display:inline-block; margin-right:10px; }
+html[dir="rtl"] .comp-detail h2{ margin-right:0; margin-left:10px; }
+.comp-detail h3{ margin:18px 0 6px; color:var(--navy); font-size:1.05rem; }
+.comp-detail p{ color:#4a6270; line-height:1.7; margin:6px 0; }
+.comp-detail-foot{ margin-top:20px; }
+.entries-box{ width:100%; }
+.entries-box:not(:empty){ margin-top:10px; padding-top:10px; border-top:1px dashed rgba(2,48,71,.15); display:flex; flex-direction:column; gap:8px; }
+.entry-row{ display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; background:#f5fafc; border-radius:10px; padding:8px 12px; }
+.sm-select{ padding:6px 10px; border:1px solid rgba(2,48,71,.2); border-radius:8px; font-size:.82rem; background:#fff; color:var(--navy); }
+.fld-label{ font-size:.82rem; font-weight:700; color:var(--navy); }
+.ok-card{ background:#d8f2e2; color:#1c7c4a; border-radius:10px; padding:12px 14px; font-weight:700; margin-top:12px; }

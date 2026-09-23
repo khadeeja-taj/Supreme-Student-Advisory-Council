@@ -37,6 +37,24 @@
   force = true
 
 [[redirects]]
+  from = "/api/council-members/:id"
+  to = "/.netlify/functions/council-member?id=:id"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/council-members"
+  to = "/.netlify/functions/council-members"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/entries/:id"
+  to = "/.netlify/functions/entry?id=:id"
+  status = 200
+  force = true
+
+[[redirects]]
   from = "/api/competitions/:id/register"
   to = "/.netlify/functions/competition-register?id=:id"
   status = 200

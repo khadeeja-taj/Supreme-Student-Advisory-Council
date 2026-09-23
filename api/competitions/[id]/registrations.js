@@ -4,7 +4,7 @@ const { init, q } = require('../../_lib/db');
 const { cors, send } = require('../../_lib/http');
 const { guard } = require('../../_lib/auth');
 
-// List everyone registered for a competition — Admin only.
+// Admin — list everyone who registered for a competition.
 module.exports = async (req, res) => {
   cors(res);
   if (req.method === 'OPTIONS') return res.end();
@@ -18,16 +18,12 @@ module.exports = async (req, res) => {
   try {
     await init();
     const { rows } = await q(
-      `SELECT r.id, r.note, r.created_at, u.name, u.email, u.role
-         FROM competition_registrations r
-         JOIN users u ON u.id = r.user_id
-        WHERE r.competition_id = $1
-        ORDER BY r.created_at DESC`,
+      `SELECT * FROM competition_entries WHERE competition_id = $1 ORDER BY created_at DESC`,
       [id]
     );
-    return send(res, 200, { registrations: rows });
+    return send(res, 200, { entries: rows });
   } catch (e) {
-    console.error('registrations error', e);
+    console.error('entries error', e);
     return send(res, 500, { error: 'Server error' });
   }
 };

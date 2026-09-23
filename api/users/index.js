@@ -15,7 +15,7 @@ module.exports = async (req, res) => {
 
     if (req.method === 'GET') {
       const { rows } = await q(
-        'SELECT id, name, email, role, active, created_at FROM users ORDER BY id'
+        'SELECT id, name, email, role, department, active, created_at FROM users ORDER BY id'
       );
       return send(res, 200, { users: rows });
     }
@@ -33,10 +33,10 @@ module.exports = async (req, res) => {
       if (password.length < 6) return send(res, 400, { error: 'Password must be at least 6 characters.' });
       try {
         const { rows } = await q(
-          `INSERT INTO users (name, email, password_hash, role)
-           VALUES ($1, $2, $3, $4)
-           RETURNING id, name, email, role, active, created_at`,
-          [name, email, hash(password), role]
+          `INSERT INTO users (name, email, password_hash, role, department)
+           VALUES ($1, $2, $3, $4, $5)
+           RETURNING id, name, email, role, department, active, created_at`,
+          [name, email, hash(password), role, str(b.department, 160) || null]
         );
         return send(res, 201, { ok: true, user: rows[0] });
       } catch (e) {
