@@ -635,3 +635,8 @@ html[dir="rtl"] .comp-detail h2{ margin-right:0; margin-left:10px; }
 .sm-select{ padding:6px 10px; border:1px solid rgba(2,48,71,.2); border-radius:8px; font-size:.82rem; background:#fff; color:var(--navy); }
 .fld-label{ font-size:.82rem; font-weight:700; color:var(--navy); }
 .ok-card{ background:#d8f2e2; color:#1c7c4a; border-radius:10px; padding:12px 14px; font-weight:700; margin-top:12px; }
+
+/* council-add: department chip row */
+.deptchip-row{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:16px; }
+.deptchip{ background:var(--sky); color:var(--navy); font-weight:700; font-size:.85rem; padding:7px 14px; border-radius:999px; }
+#page-council-add .dept-grid{ margin-top:6px; }

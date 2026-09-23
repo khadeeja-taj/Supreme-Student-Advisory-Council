@@ -646,6 +646,11 @@ html[dir="rtl"] .comp-detail h2{ margin-right:0; margin-left:10px; }
 .fld-label{ font-size:.82rem; font-weight:700; color:var(--navy); }
 .ok-card{ background:#d8f2e2; color:#1c7c4a; border-radius:10px; padding:12px 14px; font-weight:700; margin-top:12px; }
 
+/* council-add: department chip row */
+.deptchip-row{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:16px; }
+.deptchip{ background:var(--sky); color:var(--navy); font-weight:700; font-size:.85rem; padding:7px 14px; border-radius:999px; }
+#page-council-add .dept-grid{ margin-top:6px; }
+
 </style>
 </head>
 <body>
@@ -1648,29 +1653,42 @@ async function setEntry(eid,status,cid){ try{ await api('/api/entries/'+eid,{met
 async function delEntry(eid,cid){ if(!confirm(tr('Delete this registration?','حذف هذا التسجيل؟')))return; try{ await api('/api/entries/'+eid,{method:'DELETE',headers:authHeaders()}); reopenEntries(cid); }catch(e){ alert(e&&e.message||'Error'); } }
 
 /* ---- Council members: council/HOD adds → admin approves ---- */
-function renderCouncilAddForm(){
+function renderCouncilAddForm(){ state._cmDept = null; renderCouncilAddStep(); }
+function pickCouncilDept(i){ state._cmDept = DEPARTMENTS[i]; renderCouncilAddStep(); }
+function renderCouncilAddStep(){
   var box = document.getElementById('councilAddBody'); if(!box) return;
-  var opts = DEPARTMENTS.map(function(d){ return '<option value="'+esc(d.en)+'">'+esc(lang==='ar'?d.ar:d.en)+'</option>'; }).join('');
-  box.innerHTML = '<form class="mng-form col" onsubmit="submitCouncilMember(event)">'
-    + '<label class="fld-label">'+tr('Department','الكلية')+'</label>'
-    + '<select id="cm_dept">'+opts+'</select>'
-    + '<input id="cm_name" placeholder="'+tr('Member full name','اسم العضو الكامل')+'">'
-    + '<input id="cm_position" placeholder="'+tr('Position (e.g. President)','المنصب (مثال: رئيس)')+'">'
-    + '<input id="cm_email" type="email" placeholder="'+tr('Email (optional)','البريد (اختياري)')+'">'
-    + '<input id="cm_phone" placeholder="'+tr('Phone (optional)','الهاتف (اختياري)')+'">'
-    + '<textarea id="cm_details" rows="2" placeholder="'+tr('Details / notes (optional)','تفاصيل / ملاحظات (اختياري)')+'"></textarea>'
-    + '<button class="btn-teal" type="submit">'+tr('Submit for approval','إرسال للاعتماد')+'</button></form>'
-    + '<p class="portal-sub" style="margin-top:10px">'+tr('Each department can have up to 5 members. Submissions are approved by the Admin.','كل كلية بحد أقصى 5 أعضاء. الاعتماد يتم من قِبل المشرف.')+'</p>'
-    + '<div id="cmAddMsg"></div>';
+  if(!state._cmDept){
+    // Step 1 — the faculty cards grid (same look as the registration flow)
+    var grid = DEPARTMENTS.map(function(d,i){
+      return '<button class="dept-card" onclick="pickCouncilDept('+i+')">'
+        + '<span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+ICONS[d.icon]+'</svg></span>'
+        + '<span class="txt"><span class="name">'+esc(lang==='ar'?d.ar:d.en)+'</span></span>'
+        + '<span class="chk"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span></button>';
+    }).join('');
+    box.innerHTML = '<p class="portal-sub" style="margin-bottom:14px">'+tr('Step 1 — choose the department','الخطوة 1 — اختر الكلية')+'</p><div class="dept-grid">'+grid+'</div>';
+  } else {
+    // Step 2 — the member details form (styled card)
+    var d = state._cmDept;
+    box.innerHTML = '<div class="formcard">'
+      + '<div class="deptchip-row"><span class="deptchip">'+tr('Department: ','الكلية: ')+esc(lang==='ar'?d.ar:d.en)+'</span> <button class="btn-outline sm" onclick="state._cmDept=null;renderCouncilAddStep()">'+tr('Change department','تغيير الكلية')+'</button></div>'
+      + '<div class="field"><label>'+tr('Member full name','اسم العضو الكامل')+' *</label><input id="cm_name"></div>'
+      + '<div class="field"><label>'+tr('Position (e.g. President)','المنصب (مثال: رئيس)')+'</label><input id="cm_position"></div>'
+      + '<div class="field"><label>'+tr('Email (optional)','البريد (اختياري)')+'</label><input id="cm_email" type="email"></div>'
+      + '<div class="field"><label>'+tr('Phone (optional)','الهاتف (اختياري)')+'</label><input id="cm_phone"></div>'
+      + '<div class="field"><label>'+tr('Details / notes (optional)','تفاصيل / ملاحظات (اختياري)')+'</label><textarea id="cm_details" rows="3"></textarea></div>'
+      + '<button class="btn-teal" style="width:100%" onclick="submitCouncilMember()">'+tr('Submit for approval','إرسال للاعتماد')+'</button>'
+      + '<p class="portal-sub" style="margin-top:12px">'+tr('Each department can have up to 5 members. Approved by the Admin.','كل كلية بحد أقصى 5 أعضاء. الاعتماد من المشرف.')+'</p>'
+      + '<div id="cmAddMsg"></div></div>';
+  }
 }
 async function submitCouncilMember(ev){
   if(ev) ev.preventDefault();
-  var name=val('cm_name'), dept=val('cm_dept');
-  if(!name||!dept){ alert(tr('Name and department are required.','الاسم والكلية مطلوبان.')); return; }
+  var name=val('cm_name'); var dept = state._cmDept ? state._cmDept.en : '';
+  if(!name||!dept){ alert(tr('Member name is required.','اسم العضو مطلوب.')); return; }
   var body={ name:name, department:dept, position:val('cm_position'), email:val('cm_email'), phone:val('cm_phone'), details:val('cm_details') };
   try{
     await api('/api/council-members',{method:'POST',headers:authHeaders(),body:JSON.stringify(body)});
-    document.getElementById('cmAddMsg').innerHTML='<div class="ok-card">✓ '+tr('Submitted. Awaiting admin approval.','تم الإرسال. بانتظار اعتماد المشرف.')+'</div>';
+    var msg=document.getElementById('cmAddMsg'); if(msg) msg.innerHTML='<div class="ok-card">✓ '+tr('Submitted. Awaiting admin approval.','تم الإرسال. بانتظار اعتماد المشرف.')+'</div>';
     ['cm_name','cm_position','cm_email','cm_phone','cm_details'].forEach(function(id){var e=document.getElementById(id);if(e)e.value='';});
   }catch(e){ if(e&&e.status===401){doLogout();return;} alert(tr('Could not submit: ','تعذّر الإرسال: ')+(e&&e.message||'')); }
 }
