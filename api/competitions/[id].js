@@ -47,6 +47,10 @@ module.exports = async (req, res) => {
       if (b.requirements != null) setCol('requirements', b.requirements, 4000);
       if (b.requirements_ar != null) setCol('requirements_ar', b.requirements_ar, 4000);
       if (b.category != null) setCol('category', b.category, 80);
+      if (b.image != null) {
+        const img = (typeof b.image === 'string' && b.image.length > 0 && b.image.length < 3000000) ? b.image : null;
+        sets.push(`image = $${i++}`); vals.push(img);
+      }
       if (b.status != null) {
         if (!['soon', 'open', 'closed'].includes(b.status)) return send(res, 400, { error: 'Invalid status' });
         sets.push(`status = $${i++}`); vals.push(b.status);

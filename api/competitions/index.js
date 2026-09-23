@@ -29,7 +29,7 @@ module.exports = async (req, res) => {
         )).rows;
       } else {
         rows = (await q(
-          `SELECT id, title, title_ar, description, description_ar, requirements, requirements_ar, category, status
+          `SELECT id, title, title_ar, description, description_ar, requirements, requirements_ar, category, status, image
              FROM competitions
             WHERE active = TRUE AND status IN ('soon','open')
             ORDER BY created_at DESC`
@@ -45,10 +45,11 @@ module.exports = async (req, res) => {
       const title = str(b.title, 160);
       if (!title) return send(res, 400, { error: 'Title is required.' });
       const status = ['soon', 'open', 'closed'].includes(b.status) ? b.status : 'soon';
+      const image = (typeof b.image === 'string' && b.image.length > 0 && b.image.length < 3000000) ? b.image : null;
       const { rows } = await q(
         `INSERT INTO competitions
-           (title, title_ar, description, description_ar, requirements, requirements_ar, category, status, active)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+           (title, title_ar, description, description_ar, requirements, requirements_ar, category, status, active, image)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
          RETURNING *`,
         [
           title,
@@ -59,7 +60,8 @@ module.exports = async (req, res) => {
           str(b.requirements_ar, 4000) || null,
           str(b.category, 80) || null,
           status,
-          b.active !== false
+          b.active !== false,
+          image
         ]
       );
       return send(res, 201, { ok: true, competition: rows[0] });

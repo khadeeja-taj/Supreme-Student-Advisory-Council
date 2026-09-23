@@ -22,6 +22,20 @@ function parseBody(event) {
   try { return JSON.parse(raw); } catch (e) { return {}; }
 }
 
+// Derive the resource :id from the ORIGINAL request URL, e.g.
+// /api/competitions/5/register -> "5", /api/users/7 -> "7".
+// This is reliable even if Netlify's redirect query substitution doesn't reach
+// the function's queryStringParameters.
+function deriveId(event) {
+  let pathname = '';
+  try { pathname = new URL(event.rawUrl).pathname; }
+  catch (e) { pathname = event.path || event.rawPath || ''; }
+  const parts = pathname.split('/').filter(Boolean); // ['api','competitions','5','register']
+  const i = parts.indexOf('api');
+  const seg = i >= 0 ? parts[i + 2] : parts[2];
+  return seg && /^[0-9]+$/.test(seg) ? seg : null;
+}
+
 module.exports = function adapt(handler) {
   return function (event, context) {
     // keep the DB pool alive between invocations
@@ -34,10 +48,13 @@ module.exports = function adapt(handler) {
         settled = true;
         resolve({ statusCode: statusCode, headers: headers, body: body == null ? '' : String(body) });
       };
+      const query = Object.assign({}, event.queryStringParameters || {});
+      const pid = deriveId(event);
+      if (pid) query.id = pid;   // authoritative id from the URL path
       const req = {
         method: event.httpMethod || 'GET',
         headers: normalizeHeaders(event.headers),
-        query: event.queryStringParameters || {},
+        query: query,
         body: parseBody(event)
       };
       const res = {

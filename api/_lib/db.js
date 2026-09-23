@@ -80,6 +80,7 @@ async function init() {
     // Make the schema safe on a DB created by an earlier version.
     await q(`ALTER TABLE competitions ADD COLUMN IF NOT EXISTS requirements TEXT`);
     await q(`ALTER TABLE competitions ADD COLUMN IF NOT EXISTS requirements_ar TEXT`);
+    await q(`ALTER TABLE competitions ADD COLUMN IF NOT EXISTS image TEXT`);
     await q(`ALTER TABLE competitions DROP CONSTRAINT IF EXISTS competitions_status_check`);
 
     // Public competition registrations (no account) — the existing registration form.

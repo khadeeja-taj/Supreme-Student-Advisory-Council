@@ -192,6 +192,7 @@ function applyLang(){
   var lba=document.getElementById('langBtnAdmin'); if(lba) lba.textContent = lang === 'ar' ? '🌐 English' : '🌐 العربية';
   document.getElementById('langBtnMobile').textContent = lang === 'ar' ? 'English' : 'العربية';
   renderDepartments();
+  try{ populateFacultySelect(); }catch(e){}
   try{ renderChips(); }catch(e){}
   if(state.department){
     document.getElementById('f_faculty').value = deptLabel(state.department);
@@ -226,6 +227,15 @@ function renderDepartments(){
   });
 }
 renderDepartments();
+
+function populateFacultySelect(){
+  var sel=document.getElementById('f_faculty'); if(!sel) return;
+  var cur=sel.value;
+  sel.innerHTML='<option value="">'+(lang==='ar'?'اختر كليتك':'Select your faculty')+'</option>'
+    + DEPARTMENTS.map(function(d){ return '<option value="'+esc(d.en)+'">'+esc(lang==='ar'?d.ar:d.en)+'</option>'; }).join('');
+  if(cur) sel.value=cur;
+}
+try{ populateFacultySelect(); }catch(e){}
 
 function selectGender(g){
   state.gender = g;
@@ -318,7 +328,9 @@ async function renderCompetitions(){
   box.innerHTML = comps.map(function(c){
     window._comps[c.id] = c;
     var title = (lang==='ar' && c.title_ar) ? c.title_ar : c.title;
-    return '<article class="comp-card comp-click" onclick="openCompetition('+c.id+')"><div class="comp-body">'
+    return '<article class="comp-card comp-click" onclick="openCompetition('+c.id+')">'
+      + (c.image ? '<div class="comp-thumb" style="background-image:url(\''+c.image+'\')"></div>' : '')
+      + '<div class="comp-body">'
       + (c.category ? '<span class="comp-cat">'+esc(c.category)+'</span>' : '')
       + '<h3>'+esc(title)+'</h3>' + compStatusBadge(c.status)
       + '</div><div class="comp-foot"><span class="comp-link">'+tr('View details →','عرض التفاصيل →')+'</span></div></article>';
@@ -334,6 +346,7 @@ async function openCompetition(id){
   var reqs  = (lang==='ar' && c.requirements_ar) ? c.requirements_ar : (c.requirements||'');
   box.innerHTML = '<button class="btn-outline sm" onclick="go(\'competitions\')">← '+tr('Back to competitions','رجوع للمسابقات')+'</button>'
     + '<div class="comp-detail">'
+    + (c.image ? '<img class="comp-detail-img" src="'+c.image+'" alt="">' : '')
     + (c.category ? '<span class="comp-cat">'+esc(c.category)+'</span>' : '')
     + '<h2>'+esc(title)+'</h2> '+compStatusBadge(c.status)
     + (desc ? '<p>'+esc(desc).replace(/\n/g,'<br>')+'</p>' : '')
@@ -383,6 +396,8 @@ async function renderAdminCompetitions(){
     + '<textarea id="cmp_desc" rows="2" placeholder="'+tr('Description','الوصف')+'"></textarea>'
     + '<textarea id="cmp_reqs" rows="2" placeholder="'+tr('Requirements / conditions','الشروط والمتطلبات')+'"></textarea>'
     + '<select id="cmp_status"><option value="soon">'+tr('Coming soon','قريبًا')+'</option><option value="open">'+tr('Available (open registration)','متاحة (تسجيل مفتوح)')+'</option><option value="closed">'+tr('Closed','مغلقة')+'</option></select>'
+    + '<label class="fld-label">'+tr('Image (optional)','صورة (اختياري)')+'</label>'
+    + '<input type="file" id="cmp_image" accept="image/*">'
     + '<button class="btn-teal" type="submit">'+tr('Add competition','إضافة مسابقة')+'</button></form>';
   var list = comps.length ? comps.map(function(c){
     return '<div class="rbac-row"><div class="rbac-info"><b>'+esc(c.title)+'</b> '+compStatusBadge(c.status)
@@ -398,11 +413,34 @@ async function renderAdminCompetitions(){
   }).join('') : '<div class="empty-card">'+tr('No competitions yet. Add one above.','لا توجد مسابقات بعد. أضِف واحدة بالأعلى.')+'</div>';
   box.innerHTML = '<div class="rbac-manage">'+form+'<div class="rbac-list">'+list+'</div></div>';
 }
+function readImageCompressed(inputId, maxW){
+  return new Promise(function(resolve){
+    var inp=document.getElementById(inputId);
+    if(!inp || !inp.files || !inp.files[0]){ resolve(null); return; }
+    var reader=new FileReader();
+    reader.onload=function(e){
+      var img=new Image();
+      img.onload=function(){
+        var mw=maxW||1000, scale=Math.min(1, mw/img.width);
+        var w=Math.round(img.width*scale), h=Math.round(img.height*scale);
+        var cv=document.createElement('canvas'); cv.width=w; cv.height=h;
+        cv.getContext('2d').drawImage(img,0,0,w,h);
+        try{ resolve(cv.toDataURL('image/jpeg',0.82)); }catch(err){ resolve(e.target.result); }
+      };
+      img.onerror=function(){ resolve(e.target.result); };
+      img.src=e.target.result;
+    };
+    reader.onerror=function(){ resolve(null); };
+    reader.readAsDataURL(inp.files[0]);
+  });
+}
 async function createCompetition(ev){
   if(ev) ev.preventDefault();
   var title = val('cmp_title');
   if(!title){ alert(tr('Title is required.','العنوان مطلوب.')); return; }
+  var image = await readImageCompressed('cmp_image', 1000);
   var body = { title:title, title_ar:val('cmp_title_ar'), category:val('cmp_category'), description:val('cmp_desc'), requirements:val('cmp_reqs'), status: val('cmp_status')||'soon' };
+  if(image) body.image = image;
   try{ await api('/api/competitions', { method:'POST', headers: authHeaders(), body: JSON.stringify(body) }); renderAdminCompetitions(); }
   catch(e){ alert(tr('Could not save: ','تعذّر الحفظ: ')+(e && e.message || '')); }
 }
@@ -585,7 +623,7 @@ function go(pageId){
       document.getElementById('registerCrumb').textContent = ' · ' + state.competition.title;
     } else {
       document.getElementById('deptChip').textContent = (lang==='ar'?'الكلية: ':'Faculty: ') + (state.department ? deptLabel(state.department) : '—');
-      document.getElementById('f_faculty').value = state.department ? deptLabel(state.department) : '';
+      document.getElementById('f_faculty').value = state.department ? state.department.en : '';
       document.getElementById('registerCrumb').textContent = state.department ? (' · ' + deptLabel(state.department) + ' — ' + (state.gender||'')) : '';
     }
     goToStep(1);
@@ -654,7 +692,7 @@ async function submitForm(){
   const data = {
     name: _fv('f_name'), email: _fv('f_email'), phone: _fv('f_phone'),
     nationality: _fv('f_nationality'), regno: _fv('f_regno'),
-    faculty: state.department ? state.department.en : (_fv('f_faculty') || null), gender: state.gender,
+    faculty: _fv('f_faculty') || (state.department ? state.department.en : null), gender: state.gender,
     level: _fv('f_level'), program: _fv('f_program'), semester: _fv('f_semester'),
     cgpa: _fv('f_cgpa'), skills: gatherSkills(), hobbies: gatherHobbies(),
     submittedAt: new Date().toISOString()
