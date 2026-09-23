@@ -1712,7 +1712,9 @@ async function renderAdminUsers(){
     + '<input id="usr_pass" type="password" placeholder="'+tr('Password','كلمة المرور')+'">'
     + '<select id="usr_role"><option value="council">'+tr('Council / HOD','عضو مجلس / رئيس قسم')+'</option>'
     + '<option value="admin">'+tr('Admin','مشرف')+'</option></select>'
-    + '<input id="usr_dept" placeholder="'+tr('Department (for council)','الكلية (للمجلس)')+'">'
+    + '<select id="usr_dept"><option value="">'+tr('Department (for Council/HOD)','الكلية (للمجلس/رئيس القسم)')+'</option>'
+        + DEPARTMENTS.map(function(d){ return '<option value="'+esc(d.en)+'">'+esc(lang==='ar'?d.ar:d.en)+'</option>'; }).join('')
+    + '</select>'
     + '<button class="btn-teal" type="submit">'+tr('Add account','إضافة حساب')+'</button></form>';
   var rows = users.map(function(u){
     return '<div class="rbac-row"><div class="rbac-info"><b>'+esc(u.name)+'</b>'
