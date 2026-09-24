@@ -699,6 +699,9 @@ html[dir="rtl"] .comp-detail-2col{ flex-direction:row-reverse; }
 
 /* Admin per-competition analytics */
 .comp-analytics{ background:#f5fafc; border:1px solid rgba(2,48,71,.10); border-radius:12px; padding:14px; margin-top:10px; }
+.cc-charts{ display:flex; gap:18px; flex-wrap:wrap; margin-bottom:8px; }
+.cc-mini{ flex:1; min-width:180px; text-align:center; }
+.cc-mini h5{ margin:0 0 6px; color:var(--navy); font-size:.85rem; }
 .mini-tiles{ display:grid; grid-template-columns:repeat(auto-fit,minmax(90px,1fr)); gap:10px; margin-bottom:12px; }
 .mini-tile{ background:#fff; border:1px solid rgba(2,48,71,.10); border-radius:10px; padding:10px; text-align:center; }
 .mini-tile b{ display:block; font-size:1.3rem; color:var(--navy); font-weight:800; }

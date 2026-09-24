@@ -201,9 +201,13 @@ function applyLang(){
   try{
     var ap=document.getElementById('adminPanel');
     if(ap && ap.style.display==='block'){ var at=document.querySelector('.atab.active'); if(at) showAdminTab(at.dataset.tab); }
-    if(document.getElementById('page-news') && document.getElementById('page-news').classList.contains('active')) renderNews();
-    if(document.getElementById('page-reps') && document.getElementById('page-reps').classList.contains('active')) renderReps();
-    if(document.getElementById('page-competitions') && document.getElementById('page-competitions').classList.contains('active')) renderCompetitions();
+    function _active(id){ var e=document.getElementById(id); return e && e.classList.contains('active'); }
+    if(_active('page-news')) renderNews();
+    if(_active('page-reps')) renderReps();
+    if(_active('page-competitions')) renderCompetitions();
+    if(_active('page-compdetail') && window._lastCompId) openCompetition(window._lastCompId);
+    if(_active('page-gender')) setGenderPageLabels();
+    if(_active('page-register')){ refreshRegisterLabels(); var s4=document.getElementById('formstep-4'); if(s4 && s4.style.display!=='none') buildReview(); }
   }catch(e){}
 }
 
@@ -251,24 +255,29 @@ function populateFacultySelect(){
 }
 try{ populateFacultySelect(); }catch(e){}
 
-/* Academic level dropdown: 8 Bachelor's levels, 2 Master's/PhD levels,
-   plus the thesis-writing stage. Values are language-independent so stored
-   data stays stable when the visitor switches language. */
+/* Academic level dropdown — depends on the chosen degree:
+   • Bachelor's / Diploma → 8 levels
+   • Master's / PhD        → 2 levels + the thesis-writing stage
+   Values are language-independent so stored data stays stable across languages. */
 function populateSemesterSelect(){
   var sel=document.getElementById('f_semester'); if(!sel) return;
   var cur=sel.value;
+  var degEl=document.getElementById('f_level'); var deg=degEl?degEl.value:'';
   var lvl=tr('Level','المستوى');
   var html='<option value="" disabled selected>'+tr('Select your academic level','اختر المستوى الأكاديمي')+'</option>';
-  html+='<optgroup label="'+tr("Bachelor's","بكالوريوس")+'">';
-  for(var i=1;i<=8;i++){ html+='<option value="BS - Level '+i+'">'+lvl+' '+i+'</option>'; }
-  html+='</optgroup>';
-  html+='<optgroup label="'+tr("Master's / PhD","ماجستير / دكتوراه")+'">';
-  html+='<option value="PG - Level 1">'+lvl+' 1</option>';
-  html+='<option value="PG - Level 2">'+lvl+' 2</option>';
-  html+='<option value="PG - Thesis writing stage">'+tr('Thesis writing stage','مرحلة كتابة الرسالة')+'</option>';
-  html+='</optgroup>';
-  sel.innerHTML=html; if(cur) sel.value=cur;
+  if(deg==='MS' || deg==='PhD'){
+    html+='<option value="PG - Level 1">'+lvl+' 1</option>';
+    html+='<option value="PG - Level 2">'+lvl+' 2</option>';
+    html+='<option value="PG - Thesis writing stage">'+tr('Thesis writing stage','مرحلة كتابة الرسالة')+'</option>';
+  } else if(deg==='BS' || deg==='Diploma'){
+    for(var i=1;i<=8;i++){ html+='<option value="BS - Level '+i+'">'+lvl+' '+i+'</option>'; }
+  } else {
+    html='<option value="" disabled selected>'+tr('Select your degree first','اختر الدرجة العلمية أولًا')+'</option>';
+  }
+  sel.innerHTML=html; if(cur){ sel.value=cur; }
 }
+/* When the degree changes, rebuild the academic-level options and clear the old pick. */
+function onDegreeChange(){ var sel=document.getElementById('f_semester'); if(sel) sel.value=''; populateSemesterSelect(); }
 try{ populateSemesterSelect(); }catch(e){}
 
 function selectGender(g){
@@ -375,6 +384,7 @@ async function openCompetition(id){
   var c = (window._comps||{})[id];
   if(!c){ try{ var r=await api('/api/competitions/'+id,{headers:authHeaders()}); c=r.competition; }catch(e){} }
   if(!c){ alert(tr('Could not open this competition.','تعذّر فتح المسابقة.')); return; }
+  window._lastCompId = id;
   var title = (lang==='ar' && c.title_ar) ? c.title_ar : c.title;
   var desc  = (lang==='ar' && c.description_ar) ? c.description_ar : (c.description||'');
   var reqs  = (lang==='ar' && c.requirements_ar) ? c.requirements_ar : (c.requirements||'');
@@ -412,7 +422,7 @@ function startCompetitionEntry(id){
   var c = (window._comps||{})[id] || { id:id };
   state.mode = '';                                   // not a council submission
   state.flow = 'competition';
-  state.competition = { id:id, title:(lang==='ar'&&c.title_ar)?c.title_ar:(c.title||'') };
+  state.competition = { id:id, title:c.title||'', title_ar:c.title_ar||'' };
   state.department = null; state.gender = null;
   document.getElementById('genderContinue').disabled = true;
   document.getElementById('genderMale').classList.remove('selected');
@@ -570,12 +580,14 @@ async function viewEntries(id){
   var pending=entries.length-approved-rejected;
   var male=entries.filter(function(e){return e.gender==='Male';}).length;
   var female=entries.filter(function(e){return e.gender==='Female';}).length;
-  var analytics='<div class="comp-analytics"><div class="mini-tiles">'
-    +'<div class="mini-tile"><b>'+entries.length+'</b><span>'+tr('Total','الإجمالي')+'</span></div>'
-    +'<div class="mini-tile"><b>'+approved+'</b><span>'+tr('Approved','مقبول')+'</span></div>'
-    +'<div class="mini-tile"><b>'+pending+'</b><span>'+tr('Pending','قيد المراجعة')+'</span></div>'
-    +'<div class="mini-tile"><b>'+male+'</b><span>'+tr('Male','طلاب')+'</span></div>'
-    +'<div class="mini-tile"><b>'+female+'</b><span>'+tr('Female','طالبات')+'</span></div></div>'
+  var byFac={}; entries.forEach(function(e){ var f=e.faculty||'—'; byFac[f]=(byFac[f]||0)+1; });
+  var facKeys=Object.keys(byFac).sort(function(a,b){return byFac[b]-byFac[a];});
+  var analytics='<div class="comp-analytics">'
+    +'<div class="cc-charts">'
+    +'<div class="cc-mini"><h5>'+tr('By status','حسب الحالة')+'</h5>'+svgDonut([{label:tr('Approved','مقبول'),value:approved,color:'#2a9d63'},{label:tr('Pending','قيد المراجعة'),value:pending,color:'#FFB703'},{label:tr('Rejected','مرفوض'),value:rejected,color:'#e05656'}], entries.length, tr('total','الإجمالي'))+'</div>'
+    +'<div class="cc-mini"><h5>'+tr('By gender','حسب الجنس')+'</h5>'+svgDonut([{label:tr('Male','ذكور'),value:male,color:'#219EBC'},{label:tr('Female','إناث'),value:female,color:'#FB8500'}], entries.length, tr('total','الإجمالي'))+'</div>'
+    +'</div>'
+    +'<h5 style="margin:6px 0 6px;color:var(--navy)">'+tr('By faculty','حسب الكلية')+'</h5><div class="bars">'+barRows(facKeys.map(function(f){return {label:facLabel(f),value:byFac[f]};}))+'</div>'
     +'<div class="export-row"><button class="btn-outline sm" onclick="exportEntries('+id+')">⬇ '+tr('Export CSV (Excel)','تصدير CSV (إكسل)')+'</button></div></div>';
   var rows=entries.map(function(en){
     var badge = en.status==='approved'?'open':(en.status==='rejected'?'closed':'draft');
@@ -604,7 +616,7 @@ function showEntryDetail(cid, eid){
   document.getElementById('regModalBody').innerHTML=
     rf(tr('Full Name','الاسم'),d.name)+rf(tr('Email','البريد الإلكتروني'),d.email)+rf(tr('Phone','الهاتف'),d.phone)+
     rf(tr('Nationality','الجنسية'),d.nationality)+rf(tr('Registration No.','الرقم الجامعي'),d.regno)+
-    rf(tr('Council','المجلس'),councilLabel(d.gender))+rf(tr('Faculty','الكلية'),facLabel(d.faculty),true)+
+    rf(tr('Gender','الجنس'),genderLabel(d.gender))+rf(tr('Faculty','الكلية'),facLabel(d.faculty),true)+
     rf(tr('Degree','الدرجة العلمية'),levelLabel(d.level))+rf(tr('Degree Program','البرنامج'),d.program)+rf(tr('Academic Level','المستوى الأكاديمي'),semLabel(d.semester))+
     rf(tr('CGPA','المعدل التراكمي'),d.cgpa)+(d.note?rf(tr('Note','ملاحظة'),d.note,true):'')+rf(tr('Submitted','تاريخ الإرسال'),date,true);
   document.getElementById('regModal').hidden=false;
@@ -777,22 +789,43 @@ function go(pageId){
   if(pageId==='competitions'){ renderCompetitions(); }
   if(pageId==='council-add'){ renderCouncilAddForm(); }
   window.scrollTo({top:0, behavior:'instant'});
+  if(pageId === 'gender'){ setGenderPageLabels(); }
   if(pageId === 'gender' && state.department){
     document.getElementById('genderFacultyCrumb').textContent = ' · ' + deptLabel(state.department);
   }
   if(pageId === 'register'){
-    if(state.department){ document.getElementById('f_faculty').value = state.department.en; }
-    if(isComp()){
-      document.getElementById('deptChip').textContent = tr('Competition: ','المسابقة: ') + state.competition.title
-        + (state.department ? ' · ' + deptLabel(state.department) : '');
-      document.getElementById('registerCrumb').textContent = ' · ' + state.competition.title;
-    } else {
-      document.getElementById('deptChip').textContent = (lang==='ar'?'الكلية: ':'Faculty: ') + (state.department ? deptLabel(state.department) : '—');
-      document.getElementById('registerCrumb').textContent = state.department ? (' · ' + deptLabel(state.department) + ' — ' + (state.gender||'')) : '';
-    }
     var _sb=document.getElementById('socialAccounts'); if(_sb && !_sb.children.length) addSocialAccount();
     arrangeWizard();
+    refreshRegisterLabels();
     goToStep(1);
+  }
+}
+function compTitle(){ if(!state.competition) return ''; return (lang==='ar'&&state.competition.title_ar)?state.competition.title_ar:(state.competition.title||''); }
+function refreshRegisterLabels(){
+  if(state.department){ var ff=document.getElementById('f_faculty'); if(ff) ff.value=state.department.en; }
+  var dc=document.getElementById('deptChip'), rc=document.getElementById('registerCrumb');
+  if(isComp()){
+    if(dc) dc.textContent = tr('Competition: ','المسابقة: ') + compTitle() + (state.department ? ' · ' + deptLabel(state.department) : '');
+    if(rc) rc.textContent = ' · ' + compTitle();
+  } else {
+    if(dc) dc.textContent = (lang==='ar'?'الكلية: ':'Faculty: ') + (state.department ? deptLabel(state.department) : '—');
+    if(rc) rc.textContent = state.department ? (' · ' + deptLabel(state.department) + ' — ' + genderLabel(state.gender)) : '';
+  }
+}
+function setGenderPageLabels(){
+  var comp=isComp(); var p=document.getElementById('page-gender'); if(!p) return;
+  var h=p.querySelector('.sh-panel h2'), s=p.querySelector('.sh-panel p');
+  var mh=document.querySelector('#genderMale h3'), fh=document.querySelector('#genderFemale h3');
+  if(comp){
+    if(h) h.textContent=tr('Select Gender','اختر الجنس');
+    if(s) s.textContent=tr('Choose whether you are a male or female student','اختر إن كنت طالبًا أو طالبة');
+    if(mh) mh.textContent=tr('Male','ذكر');
+    if(fh) fh.textContent=tr('Female','أنثى');
+  } else {
+    if(h) h.textContent=I18N[lang]['gender.title'];
+    if(s) s.textContent=I18N[lang]['gender.sub'];
+    if(mh) mh.textContent=I18N[lang]['gender.male'];
+    if(fh) fh.textContent=I18N[lang]['gender.female'];
   }
 }
 
@@ -805,6 +838,10 @@ function arrangeWizard(){
   if(root) root.classList.toggle('flow-competition', comp);
   var sf=document.getElementById('socialField'); if(sf) sf.style.display = comp ? 'none' : '';
   var s1a=document.getElementById('step1Actions'); if(s1a) s1a.style.display = comp ? 'none' : '';
+  // Faculty is chosen on the earlier grid — keep it fixed (read-only) here.
+  var ff=document.getElementById('f_faculty'); if(ff){ ff.disabled = !!state.department; ff.style.opacity = state.department ? '.75' : ''; ff.style.cursor = state.department ? 'not-allowed' : ''; }
+  // Rebuild the academic-level list for the current degree.
+  try{ populateSemesterSelect(); }catch(e){}
 }
 
 function openDrawer(){ document.getElementById('drawer').classList.add('open'); document.getElementById('scrim').classList.add('show'); }
@@ -880,7 +917,7 @@ function buildReview(){
     rf(L('Phone','الهاتف'), _fv('f_phone')) +
     rf(L('Nationality','الجنسية'), _fv('f_nationality')) +
     rf(L('Registration No.','الرقم الجامعي'), _fv('f_regno')) +
-    rf(L('Council','المجلس'), councilLabel(state.gender)) +
+    rf(L('Gender','الجنس'), genderLabel(state.gender)) +
     rf(L('Faculty','الكلية'), state.department?deptLabel(state.department):'', true) +
     rf(L('Degree','الدرجة العلمية'), levelLabel(_fv('f_level'))) +
     rf(L('Degree Program','البرنامج'), _fv('f_program')) +
@@ -933,7 +970,7 @@ function successRows(d){
   function r(label,val){ return '<div class="row"><span>'+label+'</span><span>'+(esc(val)||'—')+'</span></div>'; }
   return r(L('Full Name','الاسم'),d.name)+r(L('Email','البريد الإلكتروني'),d.email)+r(L('Phone','الهاتف'),d.phone)+
     r(L('Nationality','الجنسية'),d.nationality)+r(L('Registration No.','الرقم الجامعي'),d.regno)+
-    r(L('Council','المجلس'),councilLabel(d.gender))+r(L('Faculty','الكلية'),facLabel(d.faculty))+
+    r(L('Gender','الجنس'),genderLabel(d.gender))+r(L('Faculty','الكلية'),facLabel(d.faculty))+
     r(L('Degree','الدرجة العلمية'),levelLabel(d.level))+r(L('Degree Program','البرنامج'),d.program)+
     r(L('Academic Level','المستوى الأكاديمي'),semLabel(d.semester))+r(L('CGPA','المعدل التراكمي'),d.cgpa)+
     (isComp() ? '' : r(L('Skills','المهارات'),(d.skills||[]).join(', '))+r(L('Hobbies & Interests','الهوايات والاهتمامات'),(d.hobbies||[]).join(', ')));
@@ -1056,6 +1093,7 @@ function authHdr(){ return { Authorization: 'Bearer ' + adminToken }; }
 function tr(en,ar){ return lang==='ar'?ar:en; }
 function facLabel(en){ var d=DEPARTMENTS.filter(function(x){return x.en===en||x.ar===en;})[0]; return d?(lang==='ar'?d.ar:d.en):en; }
 function councilLabel(g){ return I18N[lang][g==='Female'?'val.female':'val.male']; }
+function genderLabel(g){ return g==='Female' ? tr('Female','أنثى') : tr('Male','ذكر'); }
 function levelLabel(v){ if(!v) return ''; var k='lvl.'+String(v).toLowerCase(); return (I18N[lang][k]!==undefined)?I18N[lang][k]:v; }
 function semLabel(v){
   if(!v) return '';
@@ -1182,6 +1220,13 @@ function svgGauge(pct){
   return '<div class="gauge"><svg viewBox="0 0 160 100"><path d="M20 82 A60 60 0 0 1 140 82" fill="none" stroke="#e6eef2" stroke-width="16" stroke-linecap="round"/><path d="M20 82 A60 60 0 0 1 140 82" fill="none" stroke="#219EBC" stroke-width="16" stroke-linecap="round" stroke-dasharray="'+fill.toFixed(2)+' '+circ.toFixed(2)+'"/><text x="80" y="76" text-anchor="middle" class="g-num">'+Math.round(pct)+'%</text></svg><div class="g-cap">'+tr('of applications approved','من الطلبات تمت الموافقة عليها')+'</div></div>';
 }
 
+function barRows(items){
+  if(!items || !items.length) return '<div class="empty-card">'+tr('No data yet.','لا توجد بيانات بعد.')+'</div>';
+  var max=Math.max.apply(null,[1].concat(items.map(function(i){return i.value;})));
+  return items.map(function(i){
+    return '<div class="bar-row"><span class="bar-label">'+esc(i.label)+'</span><span class="bar-track"><span class="bar-fill" style="width:'+Math.round(i.value/max*100)+'%'+(i.color?(';background:'+i.color):'')+'"></span></span><span class="bar-val">'+i.value+'</span></div>';
+  }).join('');
+}
 /* ---- ADMIN: analytics (Supreme Student Advisory Council data) ---- */
 /* Overview data = council members + all competition registrations, mapped to the
    shape the charts already expect ({faculty, gender, status, submittedAt}). */
@@ -1226,15 +1271,16 @@ async function renderAnalytics(){
   try{ var ra=await api('/api/announcements'); anns=ra.items||[]; }catch(e){}
   try{ var rr=await api('/api/council-members',{headers:authHeaders()}); members=rr.members||[]; }catch(e){}
   var compReg=comps.reduce(function(s,c){return s+(c.entries||0);},0);
-  var rate=total?Math.round(approved/total*100):0;
-  document.getElementById('adminStats').innerHTML='<div class="stat-tiles">'
-    + tile('t1','trophy',comps.length,tr('Competitions','المسابقات'))
-    + tile('t2','user',compReg,tr('Competition registrations','تسجيلات المسابقات'))
-    + tile('t3','people',members.length,tr('Council members','أعضاء المجلس'))
-    + tile('t4','mail',msgs.length,tr('Messages','الرسائل'))
-    + tile('t5','mega',anns.length,tr('Announcements','الإعلانات'))
-    + tile('t6','check',rate+'%',tr('Approval rate','معدل الموافقة'))
-    + '</div>';
+  document.getElementById('adminStats').innerHTML=
+    '<div class="chart-card"><div class="cc-head"><h4>'+tr('Site activity','نشاط الموقع')+'</h4><span class="cc-sub">'+tr('across the whole site','عبر الموقع بالكامل')+'</span></div><div class="bars">'
+    + barRows([
+        {label:tr('Competitions','المسابقات'),value:comps.length,color:'#219EBC'},
+        {label:tr('Competition registrations','تسجيلات المسابقات'),value:compReg,color:'#126782'},
+        {label:tr('Council members','أعضاء المجلس'),value:members.length,color:'#2a9d63'},
+        {label:tr('Messages','الرسائل'),value:msgs.length,color:'#FB8500'},
+        {label:tr('Announcements','الإعلانات'),value:anns.length,color:'#8E5079'}
+      ])
+    + '</div></div>';
 
   var now=new Date(), pts=[];
   for(var i=6;i>=0;i--){ var d=new Date(now); d.setDate(now.getDate()-i); var key=d.toDateString();
@@ -1291,7 +1337,7 @@ function viewReg(id){
   document.getElementById('regModalBody').innerHTML=
     rf(tr('Full Name','الاسم'),d.name)+rf(tr('Email','البريد الإلكتروني'),d.email)+rf(tr('Phone','الهاتف'),d.phone)+
     rf(tr('Nationality','الجنسية'),d.nationality)+rf(tr('Registration No.','الرقم الجامعي'),d.regno)+
-    rf(tr('Council','المجلس'),councilLabel(d.gender))+rf(tr('Faculty','الكلية'),facLabel(d.faculty),true)+
+    rf(tr('Gender','الجنس'),genderLabel(d.gender))+rf(tr('Faculty','الكلية'),facLabel(d.faculty),true)+
     rf(tr('Degree','الدرجة العلمية'),levelLabel(d.level))+rf(tr('Degree Program','البرنامج'),d.program)+
     rf(tr('Academic Level','المستوى الأكاديمي'),semLabel(d.semester))+rf(tr('CGPA','المعدل التراكمي'),d.cgpa)+
     rf(tr('Skills','المهارات'),(d.skills||[]).join(', '),true)+rf(tr('Hobbies & Interests','الهوايات والاهتمامات'),(d.hobbies||[]).join(', '),true)+
