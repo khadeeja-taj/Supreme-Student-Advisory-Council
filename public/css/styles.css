@@ -209,7 +209,17 @@
       linear-gradient(180deg, rgba(255,255,255,0.16) 0%, rgba(255,255,255,0.08) 100%);
   }
   html[dir="rtl"] .stepheader{ text-align:right; }
-  @media (max-width: 640px){ .stepheader{ --collage:url("../assets/section-collage-m.jpg"); min-height:240px; margin-top:60px; padding:0 5vw 22px; } }
+  @media (max-width: 640px){
+    .stepheader{
+      --collage:url("../assets/section-collage-m.jpg");
+      min-height:auto; margin-top:60px; padding:0 5vw 22px;
+      /* show the WHOLE collage (full width, natural height) — never crop on phones */
+      background:
+        var(--collage) top center / 100% auto no-repeat,
+        linear-gradient(120deg, var(--navy) 0%, #05445e 55%, var(--teal) 130%);
+      padding-top:39vw;   /* reserve room for the full image height (aspect 8:3 ⇒ ~37.5vw) */
+    }
+  }
   .stepheader > *{ position:relative; z-index:2; }
   .stepheader .kicker{ display:none; }
   .stepheader .sh-panel{ display:block; max-width:min(680px,100%); }
