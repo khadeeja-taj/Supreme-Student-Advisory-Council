@@ -722,3 +722,21 @@ html[dir="rtl"] .comp-detail-2col{ flex-direction:row-reverse; }
 .home-pop .hp-body h3{ margin:0 0 8px; color:var(--navy); font-size:1.25rem; }
 .home-pop .hp-body p{ margin:0 0 16px; color:#4a6270; font-size:.92rem; line-height:1.6; max-height:120px; overflow:hidden; }
 .home-pop .hp-actions{ display:flex; gap:10px; flex-wrap:wrap; }
+.hp-dots{ display:flex; gap:6px; justify-content:center; margin-top:14px; }
+.hp-dot{ width:8px; height:8px; border-radius:50%; background:#cdd9e0; cursor:pointer; transition:all .2s; }
+.hp-dot.on{ background:var(--teal); width:22px; border-radius:5px; }
+
+/* ============================================================
+   Arabic typography — clearer, larger, and better spaced
+   ============================================================ */
+html[dir="rtl"] body{ font-size:1.05rem; line-height:1.9; font-weight:500; }
+html[dir="rtl"] p, html[dir="rtl"] label, html[dir="rtl"] .stepsub,
+html[dir="rtl"] .portal-sub, html[dir="rtl"] .info-card p, html[dir="rtl"] .subtitle,
+html[dir="rtl"] .rbac-sub, html[dir="rtl"] .cd-text p{ font-size:1.03rem; line-height:1.9; }
+html[dir="rtl"] .hero p.lead{ font-size:1.32rem; line-height:2.05; font-family:'Cairo',sans-serif !important; }
+html[dir="rtl"] input, html[dir="rtl"] select, html[dir="rtl"] textarea{ font-size:1.02rem; }
+html[dir="rtl"] .navlinks a{ font-size:1.03rem; }
+html[dir="rtl"] .field label, html[dir="rtl"] .stephead{ font-weight:700; }
+html[dir="rtl"] .btn-primary, html[dir="rtl"] .btn-teal, html[dir="rtl"] .btn-outline, html[dir="rtl"] .pill-btn{ font-size:1.02rem; font-weight:700; }
+html[dir="rtl"] .stepheader .sh-panel h2{ font-size:2.05rem; }
+html[dir="rtl"] .info-card h3, html[dir="rtl"] .council-card h3{ font-size:1.14rem; }

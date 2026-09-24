@@ -46,8 +46,8 @@ let initPromise = null;
 async function init() {
   if (initPromise) return initPromise;
   initPromise = (async () => {
-    // Accounts that log in: 'admin' (full control) and 'council' (department HOD /
-    // authority who adds council members). Competitors do NOT have accounts.
+    // All schema DDL runs in a single round-trip (statements are idempotent).
+    // Batching keeps cold-start latency low on serverless.
     await q(`
       CREATE TABLE IF NOT EXISTS users (
         id            SERIAL PRIMARY KEY,
@@ -58,11 +58,9 @@ async function init() {
         department    TEXT,
         active        BOOLEAN NOT NULL DEFAULT TRUE,
         created_at    TIMESTAMPTZ NOT NULL DEFAULT now()
-      )
-    `);
-    await q(`ALTER TABLE users ADD COLUMN IF NOT EXISTS department TEXT`);
+      );
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS department TEXT;
 
-    await q(`
       CREATE TABLE IF NOT EXISTS competitions (
         id             SERIAL PRIMARY KEY,
         title          TEXT NOT NULL,
@@ -75,17 +73,13 @@ async function init() {
         status         TEXT NOT NULL DEFAULT 'soon',
         active         BOOLEAN NOT NULL DEFAULT TRUE,
         created_at     TIMESTAMPTZ NOT NULL DEFAULT now()
-      )
-    `);
-    // Make the schema safe on a DB created by an earlier version.
-    await q(`ALTER TABLE competitions ADD COLUMN IF NOT EXISTS requirements TEXT`);
-    await q(`ALTER TABLE competitions ADD COLUMN IF NOT EXISTS requirements_ar TEXT`);
-    await q(`ALTER TABLE competitions ADD COLUMN IF NOT EXISTS image TEXT`);
-    await q(`ALTER TABLE competitions ADD COLUMN IF NOT EXISTS featured BOOLEAN NOT NULL DEFAULT FALSE`);
-    await q(`ALTER TABLE competitions DROP CONSTRAINT IF EXISTS competitions_status_check`);
+      );
+      ALTER TABLE competitions ADD COLUMN IF NOT EXISTS requirements TEXT;
+      ALTER TABLE competitions ADD COLUMN IF NOT EXISTS requirements_ar TEXT;
+      ALTER TABLE competitions ADD COLUMN IF NOT EXISTS image TEXT;
+      ALTER TABLE competitions ADD COLUMN IF NOT EXISTS featured BOOLEAN NOT NULL DEFAULT FALSE;
+      ALTER TABLE competitions DROP CONSTRAINT IF EXISTS competitions_status_check;
 
-    // Public competition registrations (no account) — the existing registration form.
-    await q(`
       CREATE TABLE IF NOT EXISTS competition_entries (
         id             SERIAL PRIMARY KEY,
         competition_id INTEGER NOT NULL REFERENCES competitions(id) ON DELETE CASCADE,
@@ -105,12 +99,10 @@ async function init() {
         note           TEXT,
         status         TEXT NOT NULL DEFAULT 'pending',
         created_at     TIMESTAMPTZ NOT NULL DEFAULT now()
-      )
-    `);
+      );
+      ALTER TABLE competition_entries ADD COLUMN IF NOT EXISTS socials TEXT;
+      ALTER TABLE competition_entries ADD COLUMN IF NOT EXISTS level TEXT;
 
-    // Council members added by a department HOD / council account, approved by admin.
-    // Uses the same fields as the registration wizard so it can reuse that form.
-    await q(`
       CREATE TABLE IF NOT EXISTS council_members (
         id           SERIAL PRIMARY KEY,
         name         TEXT NOT NULL,
@@ -122,21 +114,18 @@ async function init() {
         status       TEXT NOT NULL DEFAULT 'pending',
         created_by   INTEGER REFERENCES users(id) ON DELETE SET NULL,
         created_at   TIMESTAMPTZ NOT NULL DEFAULT now()
-      )
+      );
+      ALTER TABLE council_members ADD COLUMN IF NOT EXISTS nationality TEXT;
+      ALTER TABLE council_members ADD COLUMN IF NOT EXISTS regno TEXT;
+      ALTER TABLE council_members ADD COLUMN IF NOT EXISTS gender TEXT;
+      ALTER TABLE council_members ADD COLUMN IF NOT EXISTS level TEXT;
+      ALTER TABLE council_members ADD COLUMN IF NOT EXISTS program TEXT;
+      ALTER TABLE council_members ADD COLUMN IF NOT EXISTS semester TEXT;
+      ALTER TABLE council_members ADD COLUMN IF NOT EXISTS cgpa TEXT;
+      ALTER TABLE council_members ADD COLUMN IF NOT EXISTS skills TEXT;
+      ALTER TABLE council_members ADD COLUMN IF NOT EXISTS hobbies TEXT;
+      ALTER TABLE council_members ADD COLUMN IF NOT EXISTS socials TEXT;
     `);
-    // Extra columns so the full registration wizard can be reused for members.
-    await q(`ALTER TABLE council_members ADD COLUMN IF NOT EXISTS nationality TEXT`);
-    await q(`ALTER TABLE council_members ADD COLUMN IF NOT EXISTS regno TEXT`);
-    await q(`ALTER TABLE council_members ADD COLUMN IF NOT EXISTS gender TEXT`);
-    await q(`ALTER TABLE council_members ADD COLUMN IF NOT EXISTS level TEXT`);
-    await q(`ALTER TABLE council_members ADD COLUMN IF NOT EXISTS program TEXT`);
-    await q(`ALTER TABLE council_members ADD COLUMN IF NOT EXISTS semester TEXT`);
-    await q(`ALTER TABLE council_members ADD COLUMN IF NOT EXISTS cgpa TEXT`);
-    await q(`ALTER TABLE council_members ADD COLUMN IF NOT EXISTS skills TEXT`);
-    await q(`ALTER TABLE council_members ADD COLUMN IF NOT EXISTS hobbies TEXT`);
-    await q(`ALTER TABLE council_members ADD COLUMN IF NOT EXISTS socials TEXT`);
-    await q(`ALTER TABLE competition_entries ADD COLUMN IF NOT EXISTS socials TEXT`);
-    await q(`ALTER TABLE competition_entries ADD COLUMN IF NOT EXISTS level TEXT`);
 
     // Seed the first admin so there is always a way in.
     const { rows } = await q(`SELECT 1 FROM users WHERE role = 'admin' LIMIT 1`);

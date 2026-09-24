@@ -21,8 +21,12 @@ module.exports = async (req, res) => {
     if (req.method === 'GET') {
       let rows;
       if (me && me.role === 'admin') {
+        // Exclude the heavy base64 image from the list to keep the payload small/fast.
         rows = (await q(
-          `SELECT c.*,
+          `SELECT c.id, c.title, c.title_ar, c.description, c.description_ar,
+                  c.requirements, c.requirements_ar, c.category, c.status, c.active,
+                  c.featured, c.created_at,
+                  (c.image IS NOT NULL) AS has_image,
                   (SELECT count(*) FROM competition_entries e WHERE e.competition_id = c.id)::int AS entries
              FROM competitions c
             ORDER BY c.created_at DESC`
