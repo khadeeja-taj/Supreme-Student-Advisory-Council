@@ -29,7 +29,7 @@ module.exports = async (req, res) => {
         )).rows;
       } else {
         rows = (await q(
-          `SELECT id, title, title_ar, description, description_ar, requirements, requirements_ar, category, status, image
+          `SELECT id, title, title_ar, description, description_ar, requirements, requirements_ar, category, status, image, featured
              FROM competitions
             WHERE active = TRUE AND status IN ('soon','open')
             ORDER BY created_at DESC`

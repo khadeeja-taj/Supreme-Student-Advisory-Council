@@ -4,10 +4,11 @@ const { init, q } = require('../_lib/db');
 const { cors, send, body, str } = require('../_lib/http');
 const { guard } = require('../_lib/auth');
 
-const MAX_PER_DEPARTMENT = 5;
+const MAX_PER_GENDER = 3; // each faculty may have up to 3 male + 3 female members
 
 // GET: list council members (admin: all; council: all). POST: council or admin
-// add a member (max 5 per department; council additions are pending admin approval).
+// add a member (max 3 male + 3 female per department; council additions are
+// pending admin approval).
 module.exports = async (req, res) => {
   cors(res);
   if (req.method === 'OPTIONS') return res.end();
@@ -19,7 +20,7 @@ module.exports = async (req, res) => {
 
     if (req.method === 'GET') {
       const { rows } = await q('SELECT * FROM council_members ORDER BY department, created_at');
-      return send(res, 200, { members: rows, maxPerDepartment: MAX_PER_DEPARTMENT });
+      return send(res, 200, { members: rows, maxPerGender: MAX_PER_GENDER });
     }
 
     if (req.method === 'POST') {
@@ -28,13 +29,17 @@ module.exports = async (req, res) => {
       const department = str(b.department, 160) || str(b.faculty, 160);
       if (!name || !department) return send(res, 400, { error: 'Member name and department are required.' });
 
-      // Enforce the per-department cap (count everything not rejected).
+      // Gender is required so we can enforce the 3 male + 3 female cap.
+      const gender = (b.gender === 'Female') ? 'Female' : (b.gender === 'Male' ? 'Male' : null);
+      if (!gender) return send(res, 400, { error: 'Please select the member gender (Male or Female).' });
+
+      // Enforce the per-gender, per-department cap (count everything not rejected).
       const { rows: cnt } = await q(
-        `SELECT count(*)::int AS n FROM council_members WHERE department = $1 AND status <> 'rejected'`,
-        [department]
+        `SELECT count(*)::int AS n FROM council_members WHERE department = $1 AND gender = $2 AND status <> 'rejected'`,
+        [department, gender]
       );
-      if (cnt[0].n >= MAX_PER_DEPARTMENT) {
-        return send(res, 400, { error: 'This department already has the maximum of ' + MAX_PER_DEPARTMENT + ' members.' });
+      if (cnt[0].n >= MAX_PER_GENDER) {
+        return send(res, 400, { error: 'This department already has the maximum of ' + MAX_PER_GENDER + ' ' + (gender === 'Female' ? 'female' : 'male') + ' members.' });
       }
 
       const skills = Array.isArray(b.skills) ? b.skills.join(', ') : str(b.skills, 600);
@@ -47,7 +52,7 @@ module.exports = async (req, res) => {
            (name, department, position, email, phone, details, nationality, regno, gender, level, program, semester, cgpa, skills, hobbies, socials, status, created_by)
          VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18) RETURNING *`,
         [name, department, str(b.position, 120) || null, str(b.email, 160) || null, str(b.phone, 40) || null,
-         str(b.details, 1000) || null, str(b.nationality, 80) || null, str(b.regno, 60) || null, str(b.gender, 20) || null,
+         str(b.details, 1000) || null, str(b.nationality, 80) || null, str(b.regno, 60) || null, gender,
          str(b.level, 40) || null, str(b.program, 120) || null, str(b.semester, 40) || null, str(b.cgpa, 20) || null,
          skills || null, hobbies || null, socials || null, status, me.id]
       );

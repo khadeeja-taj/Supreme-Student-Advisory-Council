@@ -81,6 +81,7 @@ async function init() {
     await q(`ALTER TABLE competitions ADD COLUMN IF NOT EXISTS requirements TEXT`);
     await q(`ALTER TABLE competitions ADD COLUMN IF NOT EXISTS requirements_ar TEXT`);
     await q(`ALTER TABLE competitions ADD COLUMN IF NOT EXISTS image TEXT`);
+    await q(`ALTER TABLE competitions ADD COLUMN IF NOT EXISTS featured BOOLEAN NOT NULL DEFAULT FALSE`);
     await q(`ALTER TABLE competitions DROP CONSTRAINT IF EXISTS competitions_status_check`);
 
     // Public competition registrations (no account) — the existing registration form.
@@ -135,6 +136,7 @@ async function init() {
     await q(`ALTER TABLE council_members ADD COLUMN IF NOT EXISTS hobbies TEXT`);
     await q(`ALTER TABLE council_members ADD COLUMN IF NOT EXISTS socials TEXT`);
     await q(`ALTER TABLE competition_entries ADD COLUMN IF NOT EXISTS socials TEXT`);
+    await q(`ALTER TABLE competition_entries ADD COLUMN IF NOT EXISTS level TEXT`);
 
     // Seed the first admin so there is always a way in.
     const { rows } = await q(`SELECT 1 FROM users WHERE role = 'admin' LIMIT 1`);

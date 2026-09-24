@@ -660,3 +660,62 @@ html[dir="rtl"] h1, html[dir="rtl"] h2, html[dir="rtl"] h3, html[dir="rtl"] .her
 .social-row{ display:flex; gap:8px; align-items:center; margin-bottom:8px; }
 .social-input{ flex:1; padding:12px 14px; border:1px solid rgba(2,48,71,.18); border-radius:10px; font-size:.92rem; }
 .social-del{ width:34px; height:34px; min-width:34px; border:1px solid rgba(2,48,71,.2); background:#fff; border-radius:8px; font-size:1.1rem; color:#b33b3b; line-height:1; }
+
+/* ============================================================
+   Competition flow + detail two-column + admin analytics + home popup
+   ============================================================ */
+/* Competitor wizard: hide the academic & skills stepper dots (combined page) */
+html.flow-competition .stepper .st[data-step="2"],
+html.flow-competition .stepper .st[data-step="3"]{ display:none; }
+
+/* Competition detail — image on the right, text on the left */
+.comp-detail-2col{ display:flex; gap:24px; align-items:flex-start; background:#fff; border:1px solid rgba(2,48,71,.10); border-radius:16px; padding:26px; margin-top:16px; box-shadow:0 8px 26px rgba(2,48,71,.06); }
+html[dir="rtl"] .comp-detail-2col{ flex-direction:row-reverse; }
+.cd-text{ flex:1.15; min-width:0; }
+.cd-media{ flex:.85; min-width:0; }
+.cd-text h2{ margin:.2rem 0 6px; color:var(--navy); display:inline-block; margin-inline-end:10px; }
+.cd-text h3{ margin:16px 0 6px; color:var(--navy); font-size:1.05rem; }
+.cd-text p{ color:#4a6270; line-height:1.7; margin:6px 0; }
+.cd-media img{ width:100%; object-fit:cover; border-radius:14px; box-shadow:0 8px 22px rgba(2,48,71,.10); }
+.cd-media .comp-noimg{ width:100%; aspect-ratio:4/3; border-radius:14px; background:linear-gradient(135deg,#8ECAE6,#219EBC); display:flex; align-items:center; justify-content:center; color:#fff; font-size:2.4rem; }
+.cd-foot{ margin-top:20px; }
+.comp-msg{ display:inline-block; background:#fff4d6; color:#8a6d1a; border:1px solid #f3dc9b; padding:10px 16px; border-radius:10px; font-weight:700; }
+.comp-msg.closed{ background:#fde3e3; color:#9c3232; border-color:#f3bdbd; }
+@media (max-width:760px){ .comp-detail-2col, html[dir="rtl"] .comp-detail-2col{ flex-direction:column; } .cd-media{ order:-1; width:100%; } }
+
+/* Admin overview — attractive stat tiles */
+.stat-tiles{ display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:14px; margin-bottom:8px; }
+.tile{ border-radius:16px; padding:18px 18px 16px; color:#fff; position:relative; overflow:hidden; box-shadow:0 10px 26px rgba(2,48,71,.12); }
+.tile b{ font-size:1.9rem; font-weight:800; line-height:1; display:block; }
+.tile span{ display:block; margin-top:6px; font-size:.82rem; opacity:.95; font-weight:600; }
+.tile .ti{ position:absolute; inset-inline-end:12px; top:12px; opacity:.28; }
+.tile .ti svg{ width:34px; height:34px; }
+.tile.t1{ background:linear-gradient(135deg,#219EBC,#126782); }
+.tile.t2{ background:linear-gradient(135deg,#2a9d63,#1c7c4a); }
+.tile.t3{ background:linear-gradient(135deg,#FB8500,#e36414); }
+.tile.t4{ background:linear-gradient(135deg,#8E5079,#6d3a5c); }
+.tile.t5{ background:linear-gradient(135deg,#3d5a80,#293f5c); }
+.tile.t6{ background:linear-gradient(135deg,#FFB703,#e6960a); }
+
+/* Admin per-competition analytics */
+.comp-analytics{ background:#f5fafc; border:1px solid rgba(2,48,71,.10); border-radius:12px; padding:14px; margin-top:10px; }
+.mini-tiles{ display:grid; grid-template-columns:repeat(auto-fit,minmax(90px,1fr)); gap:10px; margin-bottom:12px; }
+.mini-tile{ background:#fff; border:1px solid rgba(2,48,71,.10); border-radius:10px; padding:10px; text-align:center; }
+.mini-tile b{ display:block; font-size:1.3rem; color:var(--navy); font-weight:800; }
+.mini-tile span{ font-size:.72rem; color:#5a7480; }
+.entry-name-btn{ background:none; border:none; padding:0; color:var(--navy); font-weight:700; cursor:pointer; text-align:start; text-decoration:underline dotted; }
+.export-row{ display:flex; gap:10px; flex-wrap:wrap; margin:6px 0 14px; }
+
+/* Home featured announcement popup */
+.home-pop-scrim{ position:fixed; inset:0; background:rgba(2,39,51,.55); display:flex; align-items:center; justify-content:center; z-index:120; padding:20px; animation:popfade .3s ease; }
+@keyframes popfade{ from{opacity:0} to{opacity:1} }
+@keyframes poprise{ from{opacity:0; transform:translateY(30px) scale(.96)} to{opacity:1; transform:none} }
+.home-pop{ background:#fff; border-radius:18px; max-width:440px; width:100%; overflow:hidden; box-shadow:0 24px 60px rgba(2,48,71,.35); animation:poprise .4s cubic-bezier(.2,.9,.3,1.2); position:relative; }
+.home-pop .hp-badge{ position:absolute; top:14px; inset-inline-start:14px; background:var(--amber); color:var(--navy); font-weight:800; font-size:.72rem; padding:5px 12px; border-radius:999px; z-index:2; animation:pulse 2s infinite; }
+@keyframes pulse{ 0%,100%{ transform:scale(1) } 50%{ transform:scale(1.08) } }
+.home-pop .hp-close{ position:absolute; top:12px; inset-inline-end:12px; width:32px; height:32px; border:none; border-radius:50%; background:rgba(0,0,0,.4); color:#fff; font-size:1.2rem; cursor:pointer; z-index:2; }
+.home-pop .hp-img{ height:180px; background-size:cover; background-position:center; background-color:#219EBC; }
+.home-pop .hp-body{ padding:20px 22px 24px; }
+.home-pop .hp-body h3{ margin:0 0 8px; color:var(--navy); font-size:1.25rem; }
+.home-pop .hp-body p{ margin:0 0 16px; color:#4a6270; font-size:.92rem; line-height:1.6; max-height:120px; overflow:hidden; }
+.home-pop .hp-actions{ display:flex; gap:10px; flex-wrap:wrap; }

@@ -126,8 +126,8 @@
   <div class="wrap-narrow">
     <div class="dept-grid" id="deptGrid"></div>
     <div class="continue-bar">
-      <button class="btn-outline" onclick="go('home')" data-i18n="btn.back">← Back</button>
-      <button class="btn-teal" id="deptContinue" disabled onclick="go('gender')" data-i18n="btn.continue">Next →</button>
+      <button class="btn-outline" onclick="backFromDept()" data-i18n="btn.back">← Back</button>
+      <button class="btn-teal" id="deptContinue" disabled onclick="afterDept()" data-i18n="btn.continue">Next →</button>
     </div>
   </div>
 </section>
@@ -136,7 +136,7 @@
 <section class="page" id="page-gender">
   <div class="stepheader">
     <div class="chevron-motif"></div>
-    <div class="breadcrumb"><button onclick="go('departments')" data-i18n="crumb.dept">← Change faculty</button><span id="genderFacultyCrumb"></span></div>
+    <div class="breadcrumb"><button onclick="backFromGender()" data-i18n="crumb.dept">← Change faculty</button><span id="genderFacultyCrumb"></span></div>
     <div class="sh-panel"><div class="kicker" data-i18n="gender.kicker">STEP 2 OF 3</div>
     <h2 data-i18n="gender.title">Select Your Council</h2>
     <p data-i18n="gender.sub">The Supreme Student Advisory Council operates as two parallel wings</p></div>
@@ -168,8 +168,8 @@
       </button>
     </div>
     <div class="continue-bar">
-      <button class="btn-outline" onclick="go('departments')" data-i18n="btn.back">← Back</button>
-      <button class="btn-teal" id="genderContinue" disabled onclick="go('register')" data-i18n="btn.continue">Next →</button>
+      <button class="btn-outline" onclick="backFromGender()" data-i18n="btn.back">← Back</button>
+      <button class="btn-teal" id="genderContinue" disabled onclick="afterGender()" data-i18n="btn.continue">Next →</button>
     </div>
   </div>
 </section>
@@ -178,7 +178,7 @@
 <section class="page" id="page-register">
   <div class="stepheader">
     <div class="chevron-motif"></div>
-    <div class="breadcrumb"><button onclick="go('gender')" data-i18n="crumb.gender">← Change council</button><span id="registerCrumb"></span></div>
+    <div class="breadcrumb"><button onclick="backFromRegister()" data-i18n="crumb.gender">← Change council</button><span id="registerCrumb"></span></div>
     <div class="sh-panel"><div class="kicker" data-i18n="reg.kicker">STEP 3 OF 3</div>
     <h2 data-i18n="reg.title">Student Registration</h2>
     <p data-i18n="reg.sub">Complete the form below to join the Supreme Student Advisory Council</p></div>
@@ -219,13 +219,13 @@
           <label data-i18n="f.reg">Registration Number</label>
           <input type="text" id="f_regno" autocomplete="off">
         </div>
-        <div class="field">
+        <div class="field" id="socialField">
           <label data-i18n="f.social">Social media accounts (optional)</label>
           <div id="socialAccounts"></div>
           <button type="button" class="btn-outline sm" onclick="addSocialAccount()" data-i18n="f.socialadd">+ Add account</button>
         </div>
-        <div class="form-actions">
-          <button class="btn-outline" onclick="go('gender')" data-i18n="btn.back">← Back</button>
+        <div class="form-actions" id="step1Actions">
+          <button class="btn-outline" onclick="backFromRegister()" data-i18n="btn.back">← Back</button>
           <button class="btn-teal" onclick="nextStep(1)" data-i18n="btn.next">Next →</button>
         </div>
       </div>
@@ -256,8 +256,8 @@
         </div>
         <div class="field-row">
           <div class="field">
-            <label data-i18n="f.semester">Current Semester</label>
-            <input type="text" id="f_semester" autocomplete="off">
+            <label data-i18n="f.semester">Academic Level</label>
+            <select id="f_semester"></select>
           </div>
           <div class="field">
             <label data-i18n="f.cgpa">CGPA <span class="opt" data-i18n="f.optional">(optional)</span></label>
@@ -265,7 +265,7 @@
           </div>
         </div>
         <div class="form-actions">
-          <button class="btn-outline" onclick="prevStep(2)" data-i18n="btn.back">← Back</button>
+          <button class="btn-outline" onclick="backAcademic()" data-i18n="btn.back">← Back</button>
           <button class="btn-teal" onclick="nextStep(2)" data-i18n="btn.next">Next →</button>
         </div>
       </div>
@@ -496,6 +496,7 @@
       <div class="atab-panel" id="apanel-regs" hidden>
         <div class="panel-actions">
           <button class="btn-outline" onclick="loadAdminData()" data-i18n="admin.refresh">Refresh</button>
+          <button class="btn-outline" onclick="exportRegs()">⬇ <span data-i18n="admin.export">Export CSV</span></button>
           <button class="btn-outline" onclick="clearAllRegistrations()" data-i18n="admin.clear">Clear All</button>
         </div>
         <div class="admin-table-wrap">
@@ -576,11 +577,11 @@
       <a href="#" onclick="go('reps');return false;" data-i18n="nav.reps">Representatives</a>
       <a href="#" onclick="go('news');return false;" data-i18n="footer.news">News &amp; Announcements</a>
       <a href="#" onclick="go('contact');return false;" data-i18n="nav.contact">Contact</a>
-      <a href="#" onclick="state.mode='';state.competition=null;go('departments');return false;" data-i18n="footer.reg">Student Registration</a>
+      <a href="#" onclick="startStudentReg();return false;" data-i18n="footer.reg">Student Registration</a>
     </div>
     <div class="footer-col">
       <h4 data-i18n="footer.council">The Council</h4>
-      <a href="#" onclick="state.mode='';state.competition=null;go('departments');return false;" data-i18n="footer.faculties">Twelve Faculties</a>
+      <a href="#" onclick="startStudentReg();return false;" data-i18n="footer.faculties">Twelve Faculties</a>
       <a href="#" onclick="go('gender');return false;" data-i18n="footer.wings">Male &amp; Female Councils</a>
       <a href="#" onclick="go('reps');return false;" data-i18n="footer.reps">Faculty Representatives</a>
       <a href="#" onclick="go('admin');return false;" data-i18n="nav.admin">Admin</a>

@@ -56,6 +56,7 @@ module.exports = async (req, res) => {
         sets.push(`status = $${i++}`); vals.push(b.status);
       }
       if (b.active != null) { sets.push(`active = $${i++}`); vals.push(!!b.active); }
+      if (b.featured != null) { sets.push(`featured = $${i++}`); vals.push(!!b.featured); }
       if (!sets.length) return send(res, 400, { error: 'Nothing to update.' });
       vals.push(id);
       const { rows } = await q(`UPDATE competitions SET ${sets.join(', ')} WHERE id = $${i} RETURNING *`, vals);
