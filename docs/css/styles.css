@@ -115,7 +115,7 @@
     /* Smaller portrait circle on phones so more of the building shows around it.
        !important because the desktop .hero-photo rule appears later in the file
        and would otherwise override this mobile size. Stays centered (margin auto). */
-    .hero-photo{ width:120px !important; height:120px !important; margin:-56px auto 16px !important; }
+    .hero-photo{ width:120px !important; height:120px !important; margin:-56px auto 16px !important; border:none !important; box-shadow:none !important; }
     .stepheader h2{ font-size:1.5rem; }
     .success-wrap, .admin-wrap{ padding-top:130px; }
   }
