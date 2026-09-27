@@ -209,17 +209,25 @@
   }
   html[dir="rtl"] .stepheader{ text-align:right; }
   @media (max-width: 640px){
-    /* Match the desktop hero: the banner image fills the whole section as the
-       background with the title/description overlaid on top of it — one
-       continuous banner, no separate block, no solid blue box behind the text.
-       cover keeps the central building undistorted; only the far side panels
-       are trimmed to fit the narrow screen. */
+    /* Mobile: show the FULL banner image (no crop, no zoom, original aspect
+       ratio). aspect-ratio makes the container height derive from its width
+       exactly like width:100%;height:auto on the image, so the whole
+       composition (left & right sides included) stays visible. The base
+       background-size:100% 100% then fills it with no distortion because the
+       container's ratio equals the image's. The title/description are overlaid
+       on the lower part of the image; there is no separate block below it. */
     .stepheader{
       --collage:url("../assets/section-collage-m.jpg");
-      min-height:300px; margin-top:60px; padding:0 5vw 22px;
-      background-size:cover;
-      background-position:center;
+      margin-top:60px;
+      min-height:0;
+      aspect-ratio: 1600 / 600;   /* the banner image's own ratio (8:3) */
+      padding:0 5vw 10px;
+      overflow:hidden;            /* the image box never grows past its ratio */
     }
+    /* keep the overlaid title/description compact so they sit within the image
+       (its lower part) and never force the box taller than the image */
+    .stepheader .sh-panel h2{ font-size:1.35rem; margin:0 0 3px; }
+    .stepheader .sh-panel p, .stepheader > p{ font-size:.8rem; line-height:1.35; }
   }
   .stepheader > *{ position:relative; z-index:2; }
   .stepheader .kicker{ display:none; }
