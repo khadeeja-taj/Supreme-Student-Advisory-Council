@@ -102,7 +102,10 @@
     .topnav .brand span{ font-size:.92rem; line-height:1.1; }
     .topnav .brand small{ font-size:.5rem; }
     .hero{ padding:1px 5vw 44px; }
-    .hero-banner{ margin-top:60px; }
+    /* MOBILE HERO IMAGE: show the whole building, scaled down proportionally.
+       Forced so no cached/other rule can crop or zoom it. */
+    .hero-banner{ margin-top:60px; height:auto !important; min-height:0 !important; overflow:visible !important; }
+    .hero-banner img.bg{ width:100% !important; height:auto !important; max-height:none !important; object-fit:contain !important; object-position:center !important; transform:none !important; display:block !important; }
     .hero-banner .banner-logo.l{ height:30%; top:10%; left:2%; }
     .hero-banner .banner-logo.r{ height:34%; top:8%; right:2%; }
     .hero h1{ font-size:1.72rem; }
