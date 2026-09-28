@@ -119,7 +119,7 @@
        drops the rest (~60%) into the dark section, leaving the building clearly
        visible above. margin auto keeps it centered. !important because the
        desktop .hero-photo rule appears later in the file. */
-    .hero-photo{ width:180px !important; height:180px !important; margin:-70px auto 20px !important; border:5px solid #fff !important; box-shadow:var(--shadow) !important; }
+    .hero-photo{ width:132px !important; height:132px !important; margin:-50px auto 18px !important; border:4px solid #fff !important; box-shadow:var(--shadow) !important; }
     .stepheader h2{ font-size:1.5rem; }
     .success-wrap, .admin-wrap{ padding-top:130px; }
   }
