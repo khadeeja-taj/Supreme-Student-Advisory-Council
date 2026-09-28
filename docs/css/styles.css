@@ -112,12 +112,14 @@
     .hero .arabic-title{ font-size:1.28rem; }
     .hero p.lead{ font-size:1.04rem; line-height:1.7; }
     .hero .iiu-tag{ font-size:.64rem; padding:6px 12px; line-height:1.3; }
-    /* Portrait circle on phones: keep it LARGE and overlapping the building like
-       the desktop design — same size, white ring and negative-margin overlap so
-       the circle straddles the boundary between the building image and the dark
-       section. !important because the desktop .hero-photo rule appears later in
-       the file and would otherwise win on mobile. Stays centered (margin auto). */
-    .hero-photo{ width:180px !important; height:180px !important; margin:-107px auto 20px !important; border:5px solid #fff !important; box-shadow:var(--shadow) !important; }
+    /* Portrait circle on phones: keep it LARGE (180px, white ring) but overlap
+       ONLY the building's lower edge — like the desktop composition. It stays in
+       normal flow (so the text below it flows past automatically); a gentle
+       -70px top margin lifts ~40% of the circle over the building's bottom and
+       drops the rest (~60%) into the dark section, leaving the building clearly
+       visible above. margin auto keeps it centered. !important because the
+       desktop .hero-photo rule appears later in the file. */
+    .hero-photo{ width:180px !important; height:180px !important; margin:-70px auto 20px !important; border:5px solid #fff !important; box-shadow:var(--shadow) !important; }
     .stepheader h2{ font-size:1.5rem; }
     .success-wrap, .admin-wrap{ padding-top:130px; }
   }
