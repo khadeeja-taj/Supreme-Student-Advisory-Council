@@ -672,9 +672,10 @@ html[dir="rtl"] .comp-detail h2{ margin-right:0; margin-left:10px; }
 #page-council-add .dept-grid{ margin-top:6px; }
 
 /* competition image */
-/* Show the full competition poster (no crop). As an <img> the card grows to the
-   poster's natural aspect ratio instead of cropping it to a fixed height. */
-.comp-thumb{ width:100%; height:auto; display:block; border-radius:12px; margin-bottom:12px; background:#f1f5f7; }
+/* Show the FULL competition poster (no crop), but capped to a tidy height and
+   centered so the title/status/button below it stay visible. width/height auto
+   with max-width/max-height keeps the whole poster at its natural aspect. */
+.comp-thumb{ display:block; width:auto; height:auto; max-width:100%; max-height:400px; margin:0 auto 14px; border-radius:12px; background:#f1f5f7; }
 .comp-detail-img{ width:100%; max-height:340px; object-fit:cover; border-radius:14px; margin:6px 0 16px; }
 
 /* Arabic: use Cairo everywhere for a clearer, bolder look */
