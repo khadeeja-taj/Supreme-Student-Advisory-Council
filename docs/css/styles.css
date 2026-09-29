@@ -678,11 +678,9 @@ html[dir="rtl"] .comp-detail h2{ margin-right:0; margin-left:10px; }
 .comp-thumb{ display:block; width:auto; height:auto; max-width:100%; max-height:400px; margin:0 auto 14px; border-radius:12px; background:#f1f5f7; }
 .comp-detail-img{ width:100%; max-height:340px; object-fit:cover; border-radius:14px; margin:6px 0 16px; }
 
-/* Arabic: use Cairo everywhere for a clearer, bolder look */
-html[dir="rtl"] body, html[dir="rtl"] h1, html[dir="rtl"] h2, html[dir="rtl"] h3, html[dir="rtl"] h4,
-html[dir="rtl"] .serif, html[dir="rtl"] .arabic, html[dir="rtl"] input, html[dir="rtl"] select,
-html[dir="rtl"] textarea, html[dir="rtl"] button, html[dir="rtl"] p, html[dir="rtl"] span,
-html[dir="rtl"] a, html[dir="rtl"] label, html[dir="rtl"] small{ font-family:'Cairo','Segoe UI',sans-serif !important; }
+/* Arabic: ONE font everywhere (Cairo) — every element, so the Arabic font type
+   and its apparent size never change from one place to another. */
+html[dir="rtl"], html[dir="rtl"] *{ font-family:'Cairo','Segoe UI',sans-serif !important; }
 html[dir="rtl"] body{ font-weight:500; }
 html[dir="rtl"] h1, html[dir="rtl"] h2, html[dir="rtl"] h3, html[dir="rtl"] .hero h1, html[dir="rtl"] .stepheader h2{ font-weight:800 !important; }
 
@@ -782,10 +780,19 @@ html[dir="rtl"] .comp-detail-2col{ flex-direction:row-reverse; }
    the whole poster shows and the title/buttons below stay visible. */
 .home-pop .hp-img{ display:block; width:auto; height:auto; max-width:100%; max-height:62vh; margin:0 auto; background:#eef3f6; }
 .home-pop .hp-img-empty{ height:170px; width:100%; background:#219EBC; }
-.home-pop .hp-body{ padding:20px 22px 24px; }
+/* Announcement text stays centered so it never jumps sides when the language
+   (and page direction) changes. */
+.home-pop .hp-body{ padding:20px 22px 24px; text-align:center; }
 .home-pop .hp-body h3{ margin:0 0 8px; color:var(--navy); font-size:1.25rem; }
 .home-pop .hp-body p{ margin:0 0 16px; color:#4a6270; font-size:.92rem; line-height:1.6; max-height:120px; overflow:hidden; }
-.home-pop .hp-actions{ display:flex; gap:10px; flex-wrap:wrap; }
+.home-pop .hp-actions{ display:flex; gap:10px; flex-wrap:wrap; justify-content:center; }
+
+/* admin: analytics scope bar + registrations export picker */
+.ana-scope{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin:0 0 14px; }
+.ana-scope-lbl{ font-weight:700; color:var(--navy); font-size:.9rem; }
+.reg-export{ display:inline-flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.reg-bulk{ display:inline-flex; align-items:center; gap:8px; flex-wrap:wrap; }
+#adminTable .reg-check{ width:16px; height:16px; cursor:pointer; }
 .hp-dots{ display:flex; gap:6px; justify-content:center; margin-top:14px; }
 .hp-dot{ width:8px; height:8px; border-radius:50%; background:#cdd9e0; cursor:pointer; transition:all .2s; }
 .hp-dot.on{ background:var(--teal); width:22px; border-radius:5px; }

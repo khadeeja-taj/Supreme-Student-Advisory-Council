@@ -692,10 +692,25 @@ function exportEntries(id){
   var cols=[['name','Name'],['email','Email'],['phone','Phone'],['nationality','Nationality'],['regno','Reg #'],['faculty','Faculty'],['gender','Council'],['level','Degree'],['program','Program'],['semester','Academic Level'],['cgpa','CGPA'],['status','Status'],['created_at','Submitted']];
   exportCSV((comp.title||'competition')+'-registrations', list, cols);
 }
+/* Export controls with a scope picker: all / council members / a specific
+   competition — so the admin exports exactly the group they want. */
+function buildRegExportControls(rows){
+  var ctr=document.getElementById('regExportControls'); if(!ctr) return;
+  var compMap={}; (rows||[]).forEach(function(r){ if(r.kind==='competitor'&&r.compId!=null) compMap[r.compId]=r.type; });
+  var opts='<option value="all">'+tr('All registrations','كل التسجيلات')+'</option>'
+    +'<option value="members">'+tr('Council members','أعضاء المجلس')+'</option>'
+    +Object.keys(compMap).map(function(id){return '<option value="c:'+id+'">'+esc(compMap[id])+'</option>';}).join('');
+  ctr.innerHTML='<select id="regExportPick" class="sm-select">'+opts+'</select>'
+    +'<button class="btn-outline" onclick="exportRegs()">⬇ '+tr('Export CSV','تصدير CSV')+'</button>';
+}
 function exportRegs(){
-  var rows=(_adminRows||[]).map(function(r){ var x=r.raw||{}; return { type:r.type, name:r.name, email:r.email, phone:x.phone, faculty:r.faculty, gender:r.gender, regno:r.regno, program:x.program, semester:x.semester, cgpa:x.cgpa, status:r.status, submittedAt:r.submittedAt }; });
+  var pick=(document.getElementById('regExportPick')||{}).value||'all';
+  var src=_adminRows||[]; var name='registrations';
+  if(pick==='members'){ src=src.filter(function(r){return r.kind==='member';}); name='council-members'; }
+  else if(pick.indexOf('c:')===0){ var id=pick.slice(2); src=src.filter(function(r){return r.kind==='competitor'&&String(r.compId)===id;}); name=(src[0]&&src[0].type)||'competition'; }
+  var rows=src.map(function(r){ var x=r.raw||{}; return { type:r.type, name:r.name, email:r.email, phone:x.phone, faculty:r.faculty, gender:r.gender, regno:r.regno, program:x.program, semester:x.semester, cgpa:x.cgpa, status:r.status, submittedAt:r.submittedAt }; });
   var cols=[['type','Type'],['name','Name'],['email','Email'],['phone','Phone'],['faculty','Faculty'],['gender','Gender'],['regno','Reg #'],['program','Program'],['semester','Academic Level'],['cgpa','CGPA'],['status','Status'],['submittedAt','Submitted']];
-  exportCSV('registrations', rows, cols);
+  exportCSV(name, rows, cols);
 }
 function exportMembers(){
   var cols=[['name','Name'],['department','Faculty'],['gender','Council'],['position','Position'],['email','Email'],['phone','Phone'],['status','Status']];
@@ -1290,14 +1305,14 @@ async function getDashboardRows(){
   var rows=[];
   try{
     var m=await api('/api/council-members',{headers:authHeaders()});
-    (m.members||[]).forEach(function(x){ rows.push({faculty:x.department, gender:x.gender, status:x.status, submittedAt:x.created_at}); });
+    (m.members||[]).forEach(function(x){ rows.push({src:'member', compId:null, faculty:x.department, gender:x.gender, status:x.status, submittedAt:x.created_at}); });
   }catch(e){ if(e&&e.status===401){ doLogout(); return rows; } }
   try{
     var comps=await getAdminCompetitions();
     var lists=await Promise.all(comps.map(function(c){
-      return api('/api/competitions/'+c.id+'/registrations',{headers:authHeaders()}).then(function(r){return r.entries||[];}).catch(function(){return [];});
+      return api('/api/competitions/'+c.id+'/registrations',{headers:authHeaders()}).then(function(r){return {c:c,entries:r.entries||[]};}).catch(function(){return {c:c,entries:[]};});
     }));
-    lists.forEach(function(list){ list.forEach(function(x){ rows.push({faculty:x.faculty, gender:x.gender, status:x.status, submittedAt:x.created_at}); }); });
+    lists.forEach(function(g){ (g.entries||[]).forEach(function(x){ rows.push({src:'competition', compId:g.c.id, compTitle:(lang==='ar'&&g.c.title_ar)?g.c.title_ar:g.c.title, faculty:x.faculty, gender:x.gender, status:x.status, submittedAt:x.created_at}); }); });
   }catch(e){}
   return rows;
 }
@@ -1313,13 +1328,29 @@ function tile(cls,icon,num,label){
   return '<div class="tile '+cls+'"><span class="ti"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+TILE_ICONS[icon]+'</svg></span><b>'+num+'</b><span>'+label+'</span></div>';
 }
 async function renderAnalytics(){
-  var rows=await getDashboardRows();
+  var allRows=await getDashboardRows();
+  // ---- scope selector: All / Council members / a specific competition ----
+  var prev=(document.getElementById('anaScope')||{}).value||'all';
+  var compMap={}; allRows.forEach(function(r){ if(r.src==='competition'&&r.compId!=null) compMap[r.compId]=r.compTitle||tr('Competition','مسابقة'); });
+  var scopeIds=['all','members'].concat(Object.keys(compMap).map(function(id){return 'c:'+id;}));
+  var scope=scopeIds.indexOf(prev)>=0?prev:'all';
+  var bar=document.getElementById('anaScopeBar');
+  if(bar){
+    var opts='<option value="all">'+tr('All registrations','كل التسجيلات')+'</option>'
+      +'<option value="members">'+tr('Council members','أعضاء المجلس')+'</option>'
+      +Object.keys(compMap).map(function(id){return '<option value="c:'+id+'">'+esc(compMap[id])+'</option>';}).join('');
+    bar.innerHTML='<span class="ana-scope-lbl">'+tr('Analytics for','التحليلات حسب')+':</span> <select id="anaScope" class="sm-select" onchange="renderAnalytics()">'+opts+'</select>';
+    var sc=document.getElementById('anaScope'); if(sc) sc.value=scope;
+  }
+  var rows = scope==='all' ? allRows
+    : (scope==='members' ? allRows.filter(function(r){return r.src==='member';})
+                         : allRows.filter(function(r){return r.src==='competition' && String(r.compId)===scope.slice(2);}));
   var total=rows.length;
   var male=rows.filter(function(r){return r.gender==='Male';}).length;
   var female=rows.filter(function(r){return r.gender==='Female';}).length;
   var approved=rows.filter(function(r){return r.status==='approved';}).length;
   var pending=total-approved;
-  // extra counts across the whole site for the overview tiles
+  // extra counts across the whole site for the overview tiles (always global)
   var comps=[],msgs=[],anns=[],members=[];
   try{ comps=await getAdminCompetitions(); }catch(e){}
   try{ var rm=await api('/api/messages',{headers:authHeaders()}); msgs=rm.items||[]; }catch(e){}
@@ -1343,7 +1374,7 @@ async function renderAnalytics(){
     pts.push({label:d.toLocaleDateString(undefined,{month:'short',day:'numeric'}), value:cnt}); }
   document.getElementById('chartTrend').innerHTML=svgArea(pts);
 
-  document.getElementById('chartCouncilDonut').innerHTML=svgDonut([{label:tr('Male council','مجلس الطلاب'),value:male,color:'#219EBC'},{label:tr('Female council','مجلس الطالبات'),value:female,color:'#FB8500'}], total, tr('members','عضو'));
+  document.getElementById('chartCouncilDonut').innerHTML=svgDonut([{label:tr('Male','ذكور'),value:male,color:'#219EBC'},{label:tr('Female','إناث'),value:female,color:'#FB8500'}], total, tr('total','الإجمالي'));
   document.getElementById('chartStatusDonut').innerHTML=svgDonut([{label:tr('Approved','موافق عليها'),value:approved,color:'#2a9d63'},{label:tr('Pending','قيد الانتظار'),value:pending,color:'#FFB703'}], total, tr('total','الإجمالي'));
   document.getElementById('chartGauge').innerHTML=svgGauge(total?approved/total*100:0);
 
@@ -1377,7 +1408,7 @@ async function getAllRegistrations(){
         .catch(function(){ return {c:c, entries:[]}; });
     }));
     lists.forEach(function(g){ (g.entries||[]).forEach(function(e){
-      out.push({ uid:'c-'+e.id, kind:'competitor', id:e.id,
+      out.push({ uid:'c-'+e.id, kind:'competitor', id:e.id, compId:g.c.id,
         type:(lang==='ar'&&g.c.title_ar)?g.c.title_ar:(g.c.title||tr('Competition','مسابقة')),
         name:e.name, email:e.email, faculty:e.faculty, gender:e.gender, regno:e.regno,
         status:e.status||'pending', submittedAt:e.created_at, raw:e });
@@ -1403,11 +1434,18 @@ function regStatusBadge(s){
 async function loadAdminData(){
   var tbody=document.getElementById('adminTbody'); if(!tbody) return;
   var thr=document.querySelector('#adminTable thead tr');
-  if(thr){ thr.innerHTML='<th>'+tr('Name','الاسم')+'</th><th>'+tr('Email','البريد')+'</th><th>'+tr('Faculty','الكلية')
+  if(thr){ thr.innerHTML='<th style="width:34px"><input type="checkbox" id="regCheckAll" onclick="regToggleAll(this)" title="'+tr('Select all','تحديد الكل')+'"></th>'
+    +'<th>'+tr('Name','الاسم')+'</th><th>'+tr('Email','البريد')+'</th><th>'+tr('Faculty','الكلية')
     +'</th><th>'+tr('Type','النوع')+'</th><th>'+tr('Reg #','الرقم الجامعي')+'</th><th>'+tr('Status','الحالة')+'</th><th>'+tr('Actions','إجراءات')+'</th>'; }
-  tbody.innerHTML='<tr><td colspan="7" style="text-align:center;color:#7c94a0;padding:22px">'+tr('Loading…','جارٍ التحميل…')+'</td></tr>';
+  tbody.innerHTML='<tr><td colspan="8" style="text-align:center;color:#7c94a0;padding:22px">'+tr('Loading…','جارٍ التحميل…')+'</td></tr>';
   var rows=await getAllRegistrations();
   _adminRows=rows;
+  buildRegExportControls(rows);
+  var bulk=document.getElementById('regBulkControls');
+  if(bulk){ bulk.innerHTML = rows.length
+    ? '<button class="btn-outline sm danger" onclick="deleteSelectedRegs()">'+tr('Delete selected','حذف المحدد')+'</button>'
+      +'<button class="btn-outline sm danger" onclick="deleteAllRegs()">'+tr('Delete all','حذف الكل')+'</button>'
+    : ''; }
   var empty=document.getElementById('adminEmpty'), table=document.getElementById('adminTable');
   if(empty){ empty.textContent=tr('No registrations yet.','لا توجد تسجيلات بعد.'); empty.style.display=rows.length?'none':'block'; }
   if(table) table.style.display=rows.length?'table':'none';
@@ -1415,11 +1453,32 @@ async function loadAdminData(){
   tbody.innerHTML=rows.map(function(d){
     var approve=d.status!=='approved'?'<button class="mini ok" onclick="regAct(\''+d.kind+'\','+d.id+',\'approved\')">'+tr('Approve','قبول')+'</button>':'';
     var reject =d.status!=='rejected'?'<button class="mini" onclick="regAct(\''+d.kind+'\','+d.id+',\'rejected\')">'+tr('Reject','رفض')+'</button>':'';
-    return '<tr><td>'+esc(d.name)+'</td><td>'+esc(d.email)+'</td><td>'+esc(facLabel(d.faculty))+'</td>'
+    return '<tr><td><input type="checkbox" class="reg-check" value="'+d.uid+'"></td>'
+      +'<td>'+esc(d.name)+'</td><td>'+esc(d.email)+'</td><td>'+esc(facLabel(d.faculty))+'</td>'
       +'<td>'+esc(d.type)+'</td><td>'+esc(d.regno)+'</td><td>'+regStatusBadge(d.status)+'</td>'
       +'<td class="row-actions"><button class="mini" onclick="viewReg(\''+d.uid+'\')">'+tr('View','عرض')+'</button>'+approve+reject
       +'<button class="mini danger" onclick="regAct(\''+d.kind+'\','+d.id+',\'delete\')">'+tr('Delete','حذف')+'</button></td></tr>';
   }).join('');
+}
+function regToggleAll(cb){ [].slice.call(document.querySelectorAll('#adminTbody .reg-check')).forEach(function(c){ c.checked=cb.checked; }); }
+async function bulkDeleteRegs(uids){
+  var map={}; (_adminRows||[]).forEach(function(r){ map[r.uid]=r; });
+  var jobs=uids.map(function(uid){ var r=map[uid]; if(!r) return null; var url=r.kind==='member'?'/api/council-members/'+r.id:'/api/entries/'+r.id; return api(url,{method:'DELETE',headers:authHeaders()}).catch(function(){}); }).filter(Boolean);
+  try{ await Promise.all(jobs); }catch(e){}
+  try{ invalidateComps(); }catch(e){}
+  loadAdminData();
+}
+async function deleteSelectedRegs(){
+  var checked=[].slice.call(document.querySelectorAll('#adminTbody .reg-check:checked')).map(function(c){return c.value;});
+  if(!checked.length){ alert(tr('Select at least one registration first.','اختر تسجيلاً واحداً على الأقل.')); return; }
+  if(!confirm(tr('Delete the selected registrations?','حذف التسجيلات المحددة؟')+' ('+checked.length+')')) return;
+  await bulkDeleteRegs(checked);
+}
+async function deleteAllRegs(){
+  var all=(_adminRows||[]).map(function(r){return r.uid;});
+  if(!all.length) return;
+  if(!confirm(tr('Delete ALL registrations shown here? This cannot be undone.','حذف كل التسجيلات المعروضة هنا؟ لا يمكن التراجع.')+' ('+all.length+')')) return;
+  await bulkDeleteRegs(all);
 }
 async function regAct(kind,id,act){
   try{
@@ -1472,7 +1531,13 @@ async function deleteAnnouncement(id){ if(!confirm('Delete this announcement?'))
 async function renderAdminMessages(){
   var box=document.getElementById('adminMsgList'); if(!box) return;
   var items=[]; try{ var r=await api('/api/messages',{headers:authHdr()}); items=r.items||[]; }catch(e){ if(e.status===401){ adminLogout(); return; } }
-  box.innerHTML=items.length?items.map(function(m){ return '<div class="mng-row"><div class="mng-body"><b>'+esc(m.name)+'</b> <span class="muted">&lt;'+esc(m.email)+'&gt; · '+fmtDate(m.date)+'</span>'+(m.subject?'<div class="msg-subj">'+esc(m.subject)+'</div>':'')+'<p>'+esc(m.message)+'</p></div><button class="mini danger" onclick="deleteMessage(\''+m.id+'\')">Delete</button></div>'; }).join(''):'<div class="empty-card">No messages yet.</div>';
+  window._msgs=items;
+  var head=items.length?'<div class="export-row"><button class="btn-outline sm" onclick="exportMessages()">⬇ '+tr('Export CSV (Excel)','تصدير CSV (إكسل)')+'</button></div>':'';
+  box.innerHTML=head+(items.length?items.map(function(m){ return '<div class="mng-row"><div class="mng-body"><b>'+esc(m.name)+'</b> <span class="muted">&lt;'+esc(m.email)+'&gt; · '+fmtDate(m.date)+'</span>'+(m.subject?'<div class="msg-subj">'+esc(m.subject)+'</div>':'')+'<p>'+esc(m.message)+'</p></div><button class="mini danger" onclick="deleteMessage(\''+m.id+'\')">'+tr('Delete','حذف')+'</button></div>'; }).join(''):'<div class="empty-card">'+tr('No messages yet.','لا توجد رسائل بعد.')+'</div>');
+}
+function exportMessages(){
+  var cols=[['name','Name'],['email','Email'],['subject','Subject'],['message','Message'],['date','Date']];
+  exportCSV('messages', window._msgs||[], cols);
 }
 async function deleteMessage(id){ if(!confirm('Delete this message?')) return; try{ await api('/api/messages/delete',{method:'POST',headers:authHdr(),body:JSON.stringify({id:id})}); renderAdminMessages(); }catch(e){ alert(e.message); } }
 
