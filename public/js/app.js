@@ -199,17 +199,24 @@ function applyLang(){
     document.getElementById('f_faculty').value = deptLabel(state.department);
   }
   try{
+    // Re-rendering a section can briefly shrink the page (e.g. a "Loading…"
+    // placeholder), which makes the browser clamp the scroll position toward
+    // the top. Remember where the reader was and restore it so switching the
+    // language keeps them on the same spot / page — it never jumps home.
+    var _keepY = window.pageYOffset || document.documentElement.scrollTop || 0;
+    var _restoreScroll = function(){ try{ window.scrollTo(0, _keepY); }catch(e){} };
     var ap=document.getElementById('adminPanel');
     if(ap && ap.style.display==='block'){ var at=document.querySelector('.atab.active'); if(at) showAdminTab(at.dataset.tab); }
     function _active(id){ var e=document.getElementById(id); return e && e.classList.contains('active'); }
     if(_active('page-news')) renderNews();
     if(_active('page-reps')) renderReps();
-    if(_active('page-competitions')) renderCompetitions();
-    if(_active('page-compdetail') && window._lastCompId) openCompetition(window._lastCompId);
+    if(_active('page-competitions')){ var _rc=renderCompetitions(); if(_rc&&_rc.then) _rc.then(_restoreScroll); }
+    if(_active('page-compdetail') && window._lastCompId){ var _oc=openCompetition(window._lastCompId); if(_oc&&_oc.then) _oc.then(_restoreScroll); }
     if(_active('page-gender')) setGenderPageLabels();
     if(_active('page-register')){ refreshRegisterLabels(); var s4=document.getElementById('formstep-4'); if(s4 && s4.style.display!=='none') buildReview(); }
     if(document.getElementById('homePopCard')) renderPopCard();
-    if(_active('page-home')) renderHomeCompetitions();
+    if(_active('page-home')){ var _rh=renderHomeCompetitions(true); if(_rh&&_rh.then) _rh.then(_restoreScroll); }
+    _restoreScroll();
   }catch(e){}
 }
 
@@ -360,12 +367,14 @@ function doLogout(){
    and the existing register wizard (startCompetitionEntry) / detail view
    (openCompetition). Admins open/close a competition from the Admin panel
    (setCompStatus); only status==='open' shows here as registerable. */
-async function renderHomeCompetitions(){
+async function renderHomeCompetitions(keep){
   var box=document.getElementById('homeCompBody'); if(!box) return;
   var h2=document.getElementById('homeCompH2'), sub=document.getElementById('homeCompSub');
   if(h2) h2.textContent=tr('Competitions','المسابقات');
   if(sub) sub.textContent=tr('The competition currently open for registration','المسابقة المفتوحة للتسجيل حاليًا');
-  box.innerHTML='<div class="empty-card">'+tr('Loading…','جارٍ التحميل…')+'</div>';
+  // On a language switch (keep=true) the cards are already on screen; leaving
+  // them in place avoids collapsing the section and losing the scroll position.
+  if(!(keep && box.children.length)) box.innerHTML='<div class="empty-card">'+tr('Loading…','جارٍ التحميل…')+'</div>';
   var comps=[];
   try{ comps=await getCompetitions(); }
   catch(e){ box.innerHTML='<div class="empty-card">'+tr('Could not load competitions.','تعذّر تحميل المسابقات.')+'</div>'; return; }
