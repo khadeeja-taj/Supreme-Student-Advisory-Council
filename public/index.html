@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/styles.css?v=20260928i">
+<link rel="stylesheet" href="css/styles.css?v=20260928l">
 </head>
 <body>
 <div class="scrim" id="scrim" onclick="closeDrawer()"></div>
@@ -404,15 +404,17 @@
 
 <!-- ================= COMPETITIONS (public) ================= -->
 <section class="page" id="page-competitions">
-  <div class="stepheader">
-    <div class="chevron-motif"></div>
-    <div class="sh-panel">
-      <h2 data-i18n="comp.title">Competitions</h2>
-      <p data-i18n="comp.sub">Browse the competitions and register to take part.</p>
+  <div class="comp-split">
+    <aside class="comp-split-banner">
+      <img class="csb-img" src="assets/section-collage.jpg" alt="">
+      <div class="sh-panel">
+        <h2 data-i18n="comp.title">Competitions</h2>
+        <p data-i18n="comp.sub">Browse the competitions and register to take part.</p>
+      </div>
+    </aside>
+    <div class="comp-split-main">
+      <div id="competitionsBody" class="comp-grid"></div>
     </div>
-  </div>
-  <div class="portal-wrap">
-    <div id="competitionsBody" class="comp-grid"></div>
   </div>
 </section>
 
