@@ -379,7 +379,7 @@ async function renderHomeCompetitions(){
     var title=(lang==='ar'&&c.title_ar)?c.title_ar:c.title;
     var desc=(lang==='ar'&&c.description_ar)?c.description_ar:(c.description||'');
     return '<article class="comp-card">'
-      + (c.image?'<div class="comp-thumb" style="background-image:url(\''+esc(c.image)+'\')"></div>':'')
+      + (c.image?'<img class="comp-thumb" src="'+esc(c.image)+'" alt="" loading="lazy">':'')
       + '<div class="comp-body">'
       + (c.category?'<span class="comp-cat">'+esc(c.category)+'</span>':'')
       + '<h3>'+esc(title)+'</h3>'
@@ -430,7 +430,7 @@ async function renderCompetitions(){
     window._comps[c.id] = c;
     var title = (lang==='ar' && c.title_ar) ? c.title_ar : c.title;
     return '<article class="comp-card comp-click" onclick="openCompetition('+c.id+')">'
-      + (c.image ? '<div class="comp-thumb" style="background-image:url(\''+c.image+'\')"></div>' : '')
+      + (c.image ? '<img class="comp-thumb" src="'+esc(c.image)+'" alt="" loading="lazy">' : '')
       + '<div class="comp-body">'
       + (c.category ? '<span class="comp-cat">'+esc(c.category)+'</span>' : '')
       + '<h3>'+esc(title)+'</h3>' + compStatusBadge(c.status)
