@@ -467,7 +467,7 @@
 .chart-card h4{ margin:0 0 16px; color:var(--navy); font-size:.95rem; }
 .bars{ display:flex; flex-direction:column; gap:10px; }
 .bar-row{ display:flex; align-items:center; gap:10px; font-size:.82rem; }
-.bar-label{ flex:0 0 42%; color:#3a545f; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.bar-label{ flex:0 0 46%; color:#3a545f; line-height:1.35; word-break:break-word; }
 .bar-track{ flex:1; height:12px; background:var(--paper); border-radius:999px; overflow:hidden; }
 .bar-fill{ display:block; height:100%; background:linear-gradient(90deg,var(--teal),var(--sky)); border-radius:999px; transition:width .5s ease; }
 .bar-fill.male{ background:linear-gradient(90deg,#1c6f8c,#4aa3c3); }
