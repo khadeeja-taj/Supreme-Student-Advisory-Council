@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/styles.css?v=20260928e">
+<link rel="stylesheet" href="css/styles.css?v=20260928f">
 </head>
 <body>
 <div class="scrim" id="scrim" onclick="closeDrawer()"></div>
@@ -101,6 +101,14 @@
         <button class="btn-primary" onclick="go('competitions')"><span data-i18n="hero.cta">Get Started</span> →</button>
       </div>
     </div>
+  </div>
+
+  <!-- Currently open competition(s), shown directly on the homepage. Filled by
+       renderHomeCompetitions(); admins open/close a competition from the Admin panel. -->
+  <div class="section" id="home-comp-section">
+    <h2 id="homeCompH2">Competitions</h2>
+    <p class="subtitle" id="homeCompSub">The competition currently open for registration</p>
+    <div id="homeCompBody" class="comp-grid"></div>
   </div>
 
   <div class="section">
@@ -497,7 +505,6 @@
         <div class="panel-actions">
           <button class="btn-outline" onclick="loadAdminData()" data-i18n="admin.refresh">Refresh</button>
           <button class="btn-outline" onclick="exportRegs()">⬇ <span data-i18n="admin.export">Export CSV</span></button>
-          <button class="btn-outline" onclick="clearAllRegistrations()" data-i18n="admin.clear">Clear All</button>
         </div>
         <div class="admin-table-wrap">
           <table id="adminTable">

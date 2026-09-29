@@ -209,6 +209,7 @@ function applyLang(){
     if(_active('page-gender')) setGenderPageLabels();
     if(_active('page-register')){ refreshRegisterLabels(); var s4=document.getElementById('formstep-4'); if(s4 && s4.style.display!=='none') buildReview(); }
     if(document.getElementById('homePopCard')) renderPopCard();
+    if(_active('page-home')) renderHomeCompetitions();
   }catch(e){}
 }
 
@@ -352,6 +353,43 @@ function doLogout(){
   document.getElementById('htmlRoot').classList.remove('admin-authed');
   applyRoleUI();
   go('home');
+}
+
+/* ---- Homepage: show the competition(s) currently OPEN for registration ----
+   Additive: reuses the public getCompetitions() feed, the shared _comps cache,
+   and the existing register wizard (startCompetitionEntry) / detail view
+   (openCompetition). Admins open/close a competition from the Admin panel
+   (setCompStatus); only status==='open' shows here as registerable. */
+async function renderHomeCompetitions(){
+  var box=document.getElementById('homeCompBody'); if(!box) return;
+  var h2=document.getElementById('homeCompH2'), sub=document.getElementById('homeCompSub');
+  if(h2) h2.textContent=tr('Competitions','المسابقات');
+  if(sub) sub.textContent=tr('The competition currently open for registration','المسابقة المفتوحة للتسجيل حاليًا');
+  box.innerHTML='<div class="empty-card">'+tr('Loading…','جارٍ التحميل…')+'</div>';
+  var comps=[];
+  try{ comps=await getCompetitions(); }
+  catch(e){ box.innerHTML='<div class="empty-card">'+tr('Could not load competitions.','تعذّر تحميل المسابقات.')+'</div>'; return; }
+  window._comps=window._comps||{}; comps.forEach(function(c){ window._comps[c.id]=c; });
+  var open=comps.filter(function(c){ return c.status==='open'; });
+  if(!open.length){
+    box.innerHTML='<div class="empty-card">'+tr('No competitions are currently open for registration.','لا توجد مسابقات مفتوحة للتسجيل حاليًا.')+'</div>';
+    return;
+  }
+  box.innerHTML=open.map(function(c){
+    var title=(lang==='ar'&&c.title_ar)?c.title_ar:c.title;
+    var desc=(lang==='ar'&&c.description_ar)?c.description_ar:(c.description||'');
+    return '<article class="comp-card">'
+      + (c.image?'<div class="comp-thumb" style="background-image:url(\''+esc(c.image)+'\')"></div>':'')
+      + '<div class="comp-body">'
+      + (c.category?'<span class="comp-cat">'+esc(c.category)+'</span>':'')
+      + '<h3>'+esc(title)+'</h3>'
+      + '<span class="rbac-badge s-open">'+tr('Open for registration','مفتوحة للتسجيل')+'</span>'
+      + (desc?'<p class="comp-desc">'+esc(desc)+'</p>':'')
+      + '<div class="comp-foot" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">'
+      + '<button class="btn-primary sm" onclick="startCompetitionEntry('+c.id+')">'+tr('Register now','سجّل الآن')+' →</button>'
+      + '<button class="btn-outline sm" onclick="openCompetition('+c.id+')">'+tr('View details','عرض التفاصيل')+'</button>'
+      + '</div></div></article>';
+  }).join('');
 }
 
 /* ---- Competitions: PUBLIC browse → detail → register (no login) ---- */
@@ -655,8 +693,9 @@ function exportEntries(id){
   exportCSV((comp.title||'competition')+'-registrations', list, cols);
 }
 function exportRegs(){
-  var cols=[['name','Name'],['email','Email'],['phone','Phone'],['faculty','Faculty'],['gender','Council'],['regno','Reg #'],['program','Program'],['semester','Academic Level'],['cgpa','CGPA'],['status','Status'],['submittedAt','Submitted']];
-  exportCSV('council-registrations', _adminRows||[], cols);
+  var rows=(_adminRows||[]).map(function(r){ var x=r.raw||{}; return { type:r.type, name:r.name, email:r.email, phone:x.phone, faculty:r.faculty, gender:r.gender, regno:r.regno, program:x.program, semester:x.semester, cgpa:x.cgpa, status:r.status, submittedAt:r.submittedAt }; });
+  var cols=[['type','Type'],['name','Name'],['email','Email'],['phone','Phone'],['faculty','Faculty'],['gender','Gender'],['regno','Reg #'],['program','Program'],['semester','Academic Level'],['cgpa','CGPA'],['status','Status'],['submittedAt','Submitted']];
+  exportCSV('registrations', rows, cols);
 }
 function exportMembers(){
   var cols=[['name','Name'],['department','Faculty'],['gender','Council'],['position','Position'],['email','Email'],['phone','Phone'],['status','Status']];
@@ -1321,43 +1360,99 @@ async function renderAnalytics(){
     '<div class="flow-step ok"><b>'+approved+'</b><span>'+tr('Approved','موافق عليها')+'</span></div></div>';
 }
 
-/* ---- ADMIN: registrations table (approve / delete) ---- */
+/* ---- ADMIN: registrations table — REAL data ----
+   Shows everyone who registered: competition entrants (competition_entries)
+   AND council members (council_members), pulled live from the database via the
+   already-routed admin endpoints. Approve / reject / delete hit the real
+   endpoints too (/api/entries/:id, /api/council-members/:id). */
 var _adminRows=[];
-async function loadAdminData(){
-  var tbody=document.getElementById('adminTbody'); if(!tbody) return; tbody.innerHTML='';
-  var rows=await getRegs();
-  rows.sort(function(a,b){ return new Date(b.submittedAt)-new Date(a.submittedAt); });
-  _adminRows=rows;
-  document.getElementById('adminEmpty').style.display=rows.length?'none':'block';
-  document.getElementById('adminTable').style.display=rows.length?'table':'none';
-  rows.forEach(function(d){
-    var trEl=document.createElement('tr');
-    var st = d.status==='approved' ? '<span class="tag ok">'+tr('Approved','موافق')+'</span>' : '<span class="tag pend">'+tr('Pending','قيد الانتظار')+'</span>';
-    var approveBtn = d.status==='approved' ? '' : '<button class="mini ok" onclick="approveReg(\''+d.id+'\')">'+tr('Approve','موافقة')+'</button>';
-    trEl.innerHTML='<td>'+esc(d.name)+'</td><td>'+esc(d.email)+'</td><td>'+esc(facLabel(d.faculty))+'</td>'+
-      '<td><span class="tag '+(d.gender==='Female'?'female':'male')+'">'+esc(councilLabel(d.gender))+'</span></td>'+
-      '<td>'+esc(d.regno)+'</td><td>'+st+'</td>'+
-      '<td class="row-actions"><button class="mini" onclick="viewReg(\''+d.id+'\')">'+tr('View','عرض')+'</button>'+approveBtn+'<button class="mini danger" onclick="deleteReg(\''+d.id+'\')">'+tr('Delete','حذف')+'</button></td>';
-    tbody.appendChild(trEl);
-  });
+async function getAllRegistrations(){
+  var out=[];
+  // Competition registrations (competitors)
+  try{
+    var comps=await getAdminCompetitions(true);
+    var lists=await Promise.all((comps||[]).map(function(c){
+      return api('/api/competitions/'+c.id+'/registrations',{headers:authHeaders()})
+        .then(function(r){ return {c:c, entries:r.entries||[]}; })
+        .catch(function(){ return {c:c, entries:[]}; });
+    }));
+    lists.forEach(function(g){ (g.entries||[]).forEach(function(e){
+      out.push({ uid:'c-'+e.id, kind:'competitor', id:e.id,
+        type:(lang==='ar'&&g.c.title_ar)?g.c.title_ar:(g.c.title||tr('Competition','مسابقة')),
+        name:e.name, email:e.email, faculty:e.faculty, gender:e.gender, regno:e.regno,
+        status:e.status||'pending', submittedAt:e.created_at, raw:e });
+    }); });
+  }catch(e){ if(e&&e.status===401){ doLogout(); return out; } }
+  // Council-member registrations
+  try{
+    var rm=await api('/api/council-members',{headers:authHeaders()});
+    (rm.members||[]).forEach(function(m){
+      out.push({ uid:'m-'+m.id, kind:'member', id:m.id, type:tr('Council member','عضو مجلس'),
+        name:m.name, email:m.email, faculty:m.department, gender:m.gender, regno:m.regno,
+        status:m.status||'pending', submittedAt:m.created_at, raw:m });
+    });
+  }catch(e){ if(e&&e.status===401){ doLogout(); return out; } }
+  out.sort(function(a,b){ return new Date(b.submittedAt||0)-new Date(a.submittedAt||0); });
+  return out;
 }
-function viewReg(id){
-  var d=_adminRows.filter(function(r){return String(r.id)===String(id);})[0]; if(!d) return;
+function regStatusBadge(s){
+  var cls=s==='approved'?'s-open':(s==='rejected'?'s-closed':'s-draft');
+  var lbl=s==='approved'?tr('Approved','مقبول'):(s==='rejected'?tr('Rejected','مرفوض'):tr('Pending','قيد المراجعة'));
+  return '<span class="rbac-badge '+cls+'">'+lbl+'</span>';
+}
+async function loadAdminData(){
+  var tbody=document.getElementById('adminTbody'); if(!tbody) return;
+  var thr=document.querySelector('#adminTable thead tr');
+  if(thr){ thr.innerHTML='<th>'+tr('Name','الاسم')+'</th><th>'+tr('Email','البريد')+'</th><th>'+tr('Faculty','الكلية')
+    +'</th><th>'+tr('Type','النوع')+'</th><th>'+tr('Reg #','الرقم الجامعي')+'</th><th>'+tr('Status','الحالة')+'</th><th>'+tr('Actions','إجراءات')+'</th>'; }
+  tbody.innerHTML='<tr><td colspan="7" style="text-align:center;color:#7c94a0;padding:22px">'+tr('Loading…','جارٍ التحميل…')+'</td></tr>';
+  var rows=await getAllRegistrations();
+  _adminRows=rows;
+  var empty=document.getElementById('adminEmpty'), table=document.getElementById('adminTable');
+  if(empty){ empty.textContent=tr('No registrations yet.','لا توجد تسجيلات بعد.'); empty.style.display=rows.length?'none':'block'; }
+  if(table) table.style.display=rows.length?'table':'none';
+  if(!rows.length){ tbody.innerHTML=''; return; }
+  tbody.innerHTML=rows.map(function(d){
+    var approve=d.status!=='approved'?'<button class="mini ok" onclick="regAct(\''+d.kind+'\','+d.id+',\'approved\')">'+tr('Approve','قبول')+'</button>':'';
+    var reject =d.status!=='rejected'?'<button class="mini" onclick="regAct(\''+d.kind+'\','+d.id+',\'rejected\')">'+tr('Reject','رفض')+'</button>':'';
+    return '<tr><td>'+esc(d.name)+'</td><td>'+esc(d.email)+'</td><td>'+esc(facLabel(d.faculty))+'</td>'
+      +'<td>'+esc(d.type)+'</td><td>'+esc(d.regno)+'</td><td>'+regStatusBadge(d.status)+'</td>'
+      +'<td class="row-actions"><button class="mini" onclick="viewReg(\''+d.uid+'\')">'+tr('View','عرض')+'</button>'+approve+reject
+      +'<button class="mini danger" onclick="regAct(\''+d.kind+'\','+d.id+',\'delete\')">'+tr('Delete','حذف')+'</button></td></tr>';
+  }).join('');
+}
+async function regAct(kind,id,act){
+  try{
+    var url=kind==='member'?'/api/council-members/'+id:'/api/entries/'+id;
+    if(act==='delete'){
+      if(!confirm(tr('Delete this registration?','حذف هذا التسجيل؟'))) return;
+      await api(url,{method:'DELETE',headers:authHeaders()});
+    } else {
+      await api(url,{method:'PATCH',headers:authHeaders(),body:JSON.stringify({status:act})});
+    }
+    try{ invalidateComps(); }catch(e){}
+    loadAdminData();
+  }catch(e){ if(e&&e.status===401){ doLogout(); return; } alert(e&&e.message||'Error'); }
+}
+function viewReg(uid){
+  var d=_adminRows.filter(function(r){return r.uid===uid;})[0]; if(!d) return;
+  var x=d.raw||{};
   document.getElementById('regModalName').textContent=d.name||'—';
-  var st=d.status==='approved'?'<span class="tag ok">'+tr('Approved','موافق')+'</span>':'<span class="tag pend">'+tr('Pending','قيد الانتظار')+'</span>';
-  document.getElementById('regModalStatus').innerHTML=st;
-  var ab=d.status==='approved'?'':'<button class="btn-teal" onclick="approveReg(\''+d.id+'\');closeRegModal()">'+tr('Approve','موافقة')+'</button>';
-  document.getElementById('regModalActions').innerHTML=ab+'<button class="btn-outline" style="color:#b13a63;border-color:#f3c6d3" onclick="deleteReg(\''+d.id+'\');closeRegModal()">'+tr('Delete','حذف')+'</button>'+'<button class="btn-outline" onclick="closeRegModal();go(\'home\')">'+tr('Home','الرئيسية')+'</button>';
-  function rf(label,val,full){ return '<div class="rf'+(full?' full':'')+'"><span>'+label+'</span><b>'+(esc(val)||'—')+'</b></div>'; }
-  var date=d.submittedAt?new Date(d.submittedAt).toLocaleString():'';
+  document.getElementById('regModalStatus').innerHTML=regStatusBadge(d.status);
+  document.getElementById('regModalActions').innerHTML=
+    (d.status!=='approved'?'<button class="btn-teal" onclick="regAct(\''+d.kind+'\','+d.id+',\'approved\');closeRegModal()">'+tr('Approve','قبول')+'</button>':'')
+    +(d.status!=='rejected'?'<button class="btn-outline" onclick="regAct(\''+d.kind+'\','+d.id+',\'rejected\');closeRegModal()">'+tr('Reject','رفض')+'</button>':'')
+    +'<button class="btn-outline" style="color:#b13a63;border-color:#f3c6d3" onclick="regAct(\''+d.kind+'\','+d.id+',\'delete\');closeRegModal()">'+tr('Delete','حذف')+'</button>';
+  function rf(label,v,full){ return '<div class="rf'+(full?' full':'')+'"><span>'+label+'</span><b>'+(esc(v)||'—')+'</b></div>'; }
+  var date=x.created_at?new Date(x.created_at).toLocaleString():'';
   document.getElementById('regModalBody').innerHTML=
-    rf(tr('Full Name','الاسم'),d.name)+rf(tr('Email','البريد الإلكتروني'),d.email)+rf(tr('Phone','الهاتف'),d.phone)+
-    rf(tr('Nationality','الجنسية'),d.nationality)+rf(tr('Registration No.','الرقم الجامعي'),d.regno)+
-    rf(tr('Gender','الجنس'),genderLabel(d.gender))+rf(tr('Faculty','الكلية'),facLabel(d.faculty),true)+
-    rf(tr('Degree','الدرجة العلمية'),levelLabel(d.level))+rf(tr('Degree Program','البرنامج'),d.program)+
-    rf(tr('Academic Level','المستوى الأكاديمي'),semLabel(d.semester))+rf(tr('CGPA','المعدل التراكمي'),d.cgpa)+
-    rf(tr('Skills','المهارات'),(d.skills||[]).join(', '),true)+rf(tr('Hobbies & Interests','الهوايات والاهتمامات'),(d.hobbies||[]).join(', '),true)+
-    rf(tr('Submitted','تاريخ الإرسال'),date,true);
+    rf(tr('Type','النوع'),d.type,true)+
+    rf(tr('Full Name','الاسم'),x.name)+rf(tr('Email','البريد الإلكتروني'),x.email)+rf(tr('Phone','الهاتف'),x.phone)+
+    rf(tr('Nationality','الجنسية'),x.nationality)+rf(tr('Registration No.','الرقم الجامعي'),x.regno)+
+    rf(tr('Gender','الجنس'),genderLabel(x.gender))+rf(tr('Faculty','الكلية'),facLabel(x.faculty||x.department),true)+
+    rf(tr('Degree','الدرجة العلمية'),levelLabel(x.level))+rf(tr('Degree Program','البرنامج'),x.program)+
+    rf(tr('Academic Level','المستوى الأكاديمي'),semLabel(x.semester))+rf(tr('CGPA','المعدل التراكمي'),x.cgpa)+
+    (x.note?rf(tr('Note','ملاحظة'),x.note,true):'')+rf(tr('Submitted','تاريخ الإرسال'),date,true);
   document.getElementById('regModal').hidden=false;
 }
 function closeRegModal(){ var m=document.getElementById('regModal'); if(m) m.hidden=true; }
@@ -1435,7 +1530,7 @@ function openFeatured(id){ closeHomePop(); openCompetition(id); }
     _go(pageId);
     if(pageId==='news') renderNews();
     if(pageId==='reps') renderReps();
-    if(pageId==='home') maybeShowHomePopup();
+    if(pageId==='home'){ maybeShowHomePopup(); renderHomeCompetitions(); }
   };
 })();
 
@@ -1516,8 +1611,10 @@ try{
 try{ applyRoleUI(); }catch(e){}
 try{ applyLang(); }catch(e){}
 
-/* show the featured competition popup on first load (home is the default page) */
+/* show the featured competition popup + the open-competition homepage section
+   on first load (home is the default page) */
 try{ maybeShowHomePopup(); }catch(e){}
+try{ renderHomeCompetitions(); }catch(e){}
 
 /* If a token is stored, confirm it with the backend; drop it if it's expired/invalid. */
 (function(){
