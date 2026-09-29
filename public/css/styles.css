@@ -688,33 +688,6 @@ html[dir="rtl"] h1, html[dir="rtl"] h2, html[dir="rtl"] h3, html[dir="rtl"] .her
 /* pages that now have a section banner header don't need the big top padding */
 #page-competitions .portal-wrap, #page-council .portal-wrap{ padding-top:36px; }
 
-/* Competitions page (laptop/desktop): split layout — the banner image fully
-   COVERS a tall side panel (no background showing), title overlaid; the
-   competition cards fill the other side. On phones it collapses back to the
-   original full-width banner + cards below. */
-#page-competitions .comp-split{ display:flex; align-items:stretch; min-height:calc(100vh - 78px); margin-top:78px; }
-#page-competitions .comp-split-banner{
-  flex:0 0 34%; position:relative; overflow:hidden; color:#fff; background:var(--navy);
-  display:flex; flex-direction:column; justify-content:flex-end; padding:36px 32px;
-}
-#page-competitions .comp-split-banner .csb-pic{ position:absolute; inset:0; z-index:0; }
-#page-competitions .comp-split-banner .csb-img{ width:100%; height:100%; object-fit:cover; object-position:center; display:block; }
-#page-competitions .comp-split-banner::after{ content:""; position:absolute; inset:0; z-index:1; pointer-events:none;
-  background:linear-gradient(0deg, rgba(2,39,51,.82) 0%, rgba(2,39,51,.15) 45%, rgba(2,39,51,.05) 100%); }
-#page-competitions .comp-split-banner .sh-panel{ position:relative; z-index:2; }
-#page-competitions .comp-split-banner .sh-panel h2{ font-size:2.1rem; margin:0 0 8px; text-shadow:0 2px 12px rgba(0,0,0,.75); }
-#page-competitions .comp-split-banner .sh-panel p{ color:var(--amber); font-weight:700; font-size:1rem; margin:0; text-shadow:0 2px 12px rgba(0,0,0,.75); }
-#page-competitions .comp-split-main{ flex:1; min-width:0; padding:40px 4vw 60px; }
-#page-competitions .comp-split-main .comp-grid{ grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); }
-html[dir="rtl"] #page-competitions .comp-split{ flex-direction:row-reverse; }
-@media (max-width:760px){
-  /* phones: original full-width banner (mobile collage, title overlaid) + cards below */
-  #page-competitions .comp-split, html[dir="rtl"] #page-competitions .comp-split{ flex-direction:column; min-height:0; margin-top:60px; }
-  #page-competitions .comp-split-banner{ flex:none; aspect-ratio:1600/600; padding:14px 5vw; }
-  #page-competitions .comp-split-banner .sh-panel h2{ font-size:1.35rem; margin:0 0 3px; }
-  #page-competitions .comp-split-banner .sh-panel p{ font-size:.8rem; line-height:1.35; }
-  #page-competitions .comp-split-main{ padding:22px 5vw 44px; }
-}
 
 /* social media accounts (repeatable) */
 .social-row{ display:flex; gap:8px; align-items:center; margin-bottom:8px; }
