@@ -45,8 +45,9 @@ module.exports = async (req, res) => {
       const skills = Array.isArray(b.skills) ? b.skills.join(', ') : str(b.skills, 600);
       const hobbies = Array.isArray(b.hobbies) ? b.hobbies.join(', ') : str(b.hobbies, 600);
       const socials = Array.isArray(b.socials) ? b.socials.join(' , ') : str(b.socials, 800);
-      // Admin additions are approved immediately; council additions await approval.
-      const status = me.role === 'admin' ? 'approved' : 'pending';
+      // Every new member registration awaits explicit admin approval — it is
+      // never auto-approved, even when an admin submits the form.
+      const status = 'pending';
       const { rows } = await q(
         `INSERT INTO council_members
            (name, department, position, email, phone, details, nationality, regno, gender, level, program, semester, cgpa, skills, hobbies, socials, status, created_by)
