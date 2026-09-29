@@ -1512,7 +1512,7 @@ function renderPopCard(){
   var dots = list.length>1 ? '<div class="hp-dots">'+list.map(function(_,i){return '<span class="hp-dot'+(i===window._popIdx?' on':'')+'" onclick="popGo('+i+')"></span>';}).join('')+'</div>' : '';
   card.innerHTML='<span class="hp-badge">🔔 '+tr('Latest announcement','أحدث إعلان')+'</span>'
     +'<button class="hp-close" aria-label="close" onclick="closeHomePop()">×</button>'
-    +'<div class="hp-img"'+(f.image?(' style="background-image:url(\''+f.image+'\')"'):'')+'></div>'
+    +(f.image?'<img class="hp-img" src="'+esc(f.image)+'" alt="">':'<div class="hp-img hp-img-empty"></div>')
     +'<div class="hp-body"><h3>'+esc(title)+'</h3>'
     +(desc?'<p>'+esc(desc)+'</p>':'')
     +'<div class="hp-actions"><button class="btn-primary" onclick="openFeatured('+f.id+')">'+tr('View details','عرض التفاصيل')+' →</button>'
