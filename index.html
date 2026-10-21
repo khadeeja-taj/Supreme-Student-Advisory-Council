@@ -2147,6 +2147,7 @@ async function renderAdminCompetitions(){
       + (c.days_enabled?' <span class="rbac-badge s-draft">'+tr('Days','الأيام')+'</span>':'')
       + '<span class="rbac-sub">'+(c.entries||0)+' '+tr('registered','مسجّل')+'</span></div>'
       + '<div class="rbac-actions">'
+      + (sortMode?'<button class="btn-outline sm" onclick="copyChooseLink('+c.id+')">🔗 '+tr('Copy share link','نسخ رابط المشاركة')+'</button>':'')
       + (sortMode?'<button class="btn-outline sm" onclick="emailRegistrants('+c.id+')">📧 '+tr('Send link to all (when you want)','إرسال الرابط للجميع (وقتما تريد)')+'</button>':'')
       + '<select class="sm-select" onchange="setCompStatus('+c.id+',this.value)">'
         + '<option value="soon"'+(c.status==='soon'?' selected':'')+'>'+tr('Coming soon','قريبًا')+'</option>'
@@ -2206,6 +2207,14 @@ async function toggleFeatured(id){
     invalidateComps();
     renderAdminCompetitions();
   }catch(e){ alert(e&&e.message||'Error'); }
+}
+// One shared link for a competition's "choose level & day" page. Anyone who
+// opens it types their own registration number. Good for WhatsApp / manual.
+function copyChooseLink(id){
+  var link=window.location.origin+'/?choose='+id;
+  var done=function(){ alert(tr('Link copied:\n','تم نسخ الرابط:\n')+link); };
+  try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(link).then(done,function(){ prompt(tr('Copy this link:','انسخ هذا الرابط:'), link); }); return; } }catch(e){}
+  prompt(tr('Copy this link:','انسخ هذا الرابط:'), link);
 }
 // Email every registrant of a competition their private "choose level & day"
 // link. The server sends in batches; we loop until it reports done, showing a
