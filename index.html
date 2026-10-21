@@ -3383,11 +3383,15 @@ try{ applyLang(); }catch(e){}
 try{ maybeShowHomePopup(); }catch(e){}
 try{ renderHomeCompetitions(); }catch(e){}
 
-/* Deep link from the "choose your level & day" email: ?pick=TOKEN&c=COMP_ID */
+/* Deep links to the "choose your level & day" page:
+   - ?pick=TOKEN&c=COMP_ID  : personal link from the email (identifies the student)
+   - ?choose=COMP_ID        : one shared link for everyone (student types reg no.) */
 try{
   var _q=new URLSearchParams(window.location.search);
   var _pk=_q.get('pick'), _pc=parseInt(_q.get('c'),10);
+  var _ch=parseInt(_q.get('choose'),10);
   if(_pk && _pc){ openChoose(_pc, _pk); }
+  else if(_ch){ openChoose(_ch, ''); }
 }catch(e){}
 
 /* If a token is stored, confirm it with the backend; drop it if it's expired/invalid. */
