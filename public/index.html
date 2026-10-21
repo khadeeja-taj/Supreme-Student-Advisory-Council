@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/styles.css?v=20260928v">
+<link rel="stylesheet" href="css/styles.css?v=20260928w">
 </head>
 <body>
 <div class="scrim" id="scrim" onclick="closeDrawer()"></div>
@@ -321,6 +321,63 @@
     <div class="success-card" id="successCard"></div>
     <div class="cta-row" style="justify-content:center;">
       <button class="btn-primary" onclick="resetAndGoHome()" data-i18n="success.home">Back to Home</button>
+    </div>
+  </div>
+</section>
+
+<!-- ========= CHOOSE LEVEL & DAY (for already-registered students) ========= -->
+<section class="page" id="page-choose">
+  <div class="stepheader">
+    <div class="chevron-motif"></div>
+    <div class="sh-panel">
+      <h2 data-i18n="choose.title">Choose your level &amp; day</h2>
+      <p data-i18n="choose.sub">Confirm your competition track and preferred day.</p>
+    </div>
+  </div>
+  <div class="wrap-narrow" style="padding-top:34px;">
+    <div class="formcard">
+      <!-- Step A: identify -->
+      <div id="chooseLookup">
+        <h3 class="stephead" data-i18n="choose.idhead">Enter your registration number</h3>
+        <p class="stepsub" data-i18n="choose.idsub">We'll find your existing registration.</p>
+        <div class="field">
+          <label data-i18n="f.reg">Registration Number</label>
+          <input type="text" id="chooseReg" autocomplete="off">
+        </div>
+        <div class="note-box" id="chooseMsg" style="display:none"></div>
+        <div class="form-actions" style="justify-content:flex-end">
+          <button class="btn-teal" onclick="pickLookup()" data-i18n="btn.continue">Continue →</button>
+        </div>
+      </div>
+      <!-- Step B: choose -->
+      <div id="chooseForm" style="display:none">
+        <h3 class="stephead" id="chooseHello"></h3>
+        <div class="field" id="chooseLevelWrap">
+          <label class="group-label" data-i18n="choose.level">Level</label>
+          <div class="chips" id="chooseLevels"></div>
+        </div>
+        <div class="field" id="chooseDayWrap">
+          <label class="group-label" data-i18n="choose.day">Day</label>
+          <div class="chips" id="chooseDays"></div>
+        </div>
+        <div class="note-box" id="chooseSaveMsg" style="display:none"></div>
+        <div class="form-actions" style="justify-content:flex-end">
+          <button class="btn-teal" onclick="pickSave()" data-i18n="btn.save">Save</button>
+        </div>
+      </div>
+      <!-- Step C: done -->
+      <div id="chooseDone" style="display:none">
+        <div class="submit-panel">
+          <div class="checkwrap">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#219EBC" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+          </div>
+          <h3 data-i18n="choose.done">Saved</h3>
+          <p id="chooseDoneMsg"></p>
+        </div>
+        <div class="cta-row" style="justify-content:center;">
+          <button class="btn-primary" onclick="go('home')" data-i18n="success.home">Back to Home</button>
+        </div>
+      </div>
     </div>
   </div>
 </section>

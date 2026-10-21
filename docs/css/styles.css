@@ -788,3 +788,9 @@ html[dir="rtl"] .field label, html[dir="rtl"] .stephead{ font-weight:700; }
 html[dir="rtl"] .btn-primary, html[dir="rtl"] .btn-teal, html[dir="rtl"] .btn-outline, html[dir="rtl"] .pill-btn{ font-size:1.02rem; font-weight:700; }
 html[dir="rtl"] .stepheader .sh-panel h2{ font-size:2.05rem; }
 html[dir="rtl"] .info-card h3, html[dir="rtl"] .council-card h3{ font-size:1.14rem; }
+
+/* ---- Competition eligibility / level-day admin controls + choose page ---- */
+.day-picker{ display:flex; flex-wrap:wrap; gap:8px; margin:4px 0 10px; }
+.day-chk{ display:inline-flex; align-items:center; gap:6px; font-size:.9rem; color:#2a3f49; background:#f1f5f7; border:1px solid #dce6ea; border-radius:8px; padding:6px 10px; cursor:pointer; }
+.day-chk input{ width:15px; height:15px; cursor:pointer; }
+.reg-leveldar .chips{ display:flex; flex-wrap:wrap; gap:6px; }

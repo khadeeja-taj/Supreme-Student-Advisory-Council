@@ -78,6 +78,16 @@ async function init() {
       ALTER TABLE competitions ADD COLUMN IF NOT EXISTS requirements_ar TEXT;
       ALTER TABLE competitions ADD COLUMN IF NOT EXISTS image TEXT;
       ALTER TABLE competitions ADD COLUMN IF NOT EXISTS featured BOOLEAN NOT NULL DEFAULT FALSE;
+      -- Per-competition eligibility + level/day options (all additive, default off
+      -- so every existing competition keeps behaving exactly as before).
+      -- eligibility: 'everyone' (anyone may register) or 'competition' (only people
+      -- whose registration number already exists in eligibility_source may enter).
+      ALTER TABLE competitions ADD COLUMN IF NOT EXISTS eligibility TEXT NOT NULL DEFAULT 'everyone';
+      ALTER TABLE competitions ADD COLUMN IF NOT EXISTS eligibility_source INTEGER;
+      ALTER TABLE competitions ADD COLUMN IF NOT EXISTS levels_enabled BOOLEAN NOT NULL DEFAULT FALSE;
+      ALTER TABLE competitions ADD COLUMN IF NOT EXISTS days_enabled BOOLEAN NOT NULL DEFAULT FALSE;
+      ALTER TABLE competitions ADD COLUMN IF NOT EXISTS boys_days TEXT;
+      ALTER TABLE competitions ADD COLUMN IF NOT EXISTS girls_days TEXT;
       ALTER TABLE competitions DROP CONSTRAINT IF EXISTS competitions_status_check;
 
       CREATE TABLE IF NOT EXISTS competition_entries (
@@ -102,6 +112,11 @@ async function init() {
       );
       ALTER TABLE competition_entries ADD COLUMN IF NOT EXISTS socials TEXT;
       ALTER TABLE competition_entries ADD COLUMN IF NOT EXISTS level TEXT;
+      -- Quran competition sorting: chosen memorisation track + preferred day, plus a
+      -- private token used for the per-student "choose your level & day" email link.
+      ALTER TABLE competition_entries ADD COLUMN IF NOT EXISTS track TEXT;
+      ALTER TABLE competition_entries ADD COLUMN IF NOT EXISTS chosen_day TEXT;
+      ALTER TABLE competition_entries ADD COLUMN IF NOT EXISTS edit_token TEXT;
 
       CREATE TABLE IF NOT EXISTS council_members (
         id           SERIAL PRIMARY KEY,

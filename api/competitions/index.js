@@ -26,6 +26,8 @@ module.exports = async (req, res) => {
           `SELECT c.id, c.title, c.title_ar, c.description, c.description_ar,
                   c.requirements, c.requirements_ar, c.category, c.status, c.active,
                   c.featured, c.created_at,
+                  c.eligibility, c.eligibility_source, c.levels_enabled,
+                  c.days_enabled, c.boys_days, c.girls_days,
                   (c.image IS NOT NULL) AS has_image,
                   (SELECT count(*) FROM competition_entries e WHERE e.competition_id = c.id)::int AS entries
              FROM competitions c
@@ -33,7 +35,8 @@ module.exports = async (req, res) => {
         )).rows;
       } else {
         rows = (await q(
-          `SELECT id, title, title_ar, description, description_ar, requirements, requirements_ar, category, status, image, featured
+          `SELECT id, title, title_ar, description, description_ar, requirements, requirements_ar, category, status, image, featured,
+                  eligibility, eligibility_source, levels_enabled, days_enabled, boys_days, girls_days
              FROM competitions
             WHERE active = TRUE AND status IN ('soon','open')
             ORDER BY created_at DESC`
@@ -50,10 +53,13 @@ module.exports = async (req, res) => {
       if (!title) return send(res, 400, { error: 'Title is required.' });
       const status = ['soon', 'open', 'closed'].includes(b.status) ? b.status : 'soon';
       const image = (typeof b.image === 'string' && b.image.length > 0 && b.image.length < 3000000) ? b.image : null;
+      const eligibility = b.eligibility === 'competition' ? 'competition' : 'everyone';
+      const eligSource = (eligibility === 'competition' && parseInt(b.eligibility_source, 10)) ? parseInt(b.eligibility_source, 10) : null;
       const { rows } = await q(
         `INSERT INTO competitions
-           (title, title_ar, description, description_ar, requirements, requirements_ar, category, status, active, image)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
+           (title, title_ar, description, description_ar, requirements, requirements_ar, category, status, active, image,
+            eligibility, eligibility_source, levels_enabled, days_enabled, boys_days, girls_days)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)
          RETURNING *`,
         [
           title,
@@ -65,7 +71,13 @@ module.exports = async (req, res) => {
           str(b.category, 80) || null,
           status,
           b.active !== false,
-          image
+          image,
+          eligibility,
+          eligSource,
+          b.levels_enabled === true,
+          b.days_enabled === true,
+          str(b.boys_days, 200) || null,
+          str(b.girls_days, 200) || null
         ]
       );
       return send(res, 201, { ok: true, competition: rows[0] });

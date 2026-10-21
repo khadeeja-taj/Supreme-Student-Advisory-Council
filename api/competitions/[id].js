@@ -57,6 +57,19 @@ module.exports = async (req, res) => {
       }
       if (b.active != null) { sets.push(`active = $${i++}`); vals.push(!!b.active); }
       if (b.featured != null) { sets.push(`featured = $${i++}`); vals.push(!!b.featured); }
+      // Eligibility + level/day sorting settings (all optional, per competition).
+      if (b.eligibility != null) {
+        const elig = b.eligibility === 'competition' ? 'competition' : 'everyone';
+        sets.push(`eligibility = $${i++}`); vals.push(elig);
+        const src = (elig === 'competition' && parseInt(b.eligibility_source, 10)) ? parseInt(b.eligibility_source, 10) : null;
+        sets.push(`eligibility_source = $${i++}`); vals.push(src);
+      } else if (b.eligibility_source != null) {
+        sets.push(`eligibility_source = $${i++}`); vals.push(parseInt(b.eligibility_source, 10) || null);
+      }
+      if (b.levels_enabled != null) { sets.push(`levels_enabled = $${i++}`); vals.push(!!b.levels_enabled); }
+      if (b.days_enabled != null) { sets.push(`days_enabled = $${i++}`); vals.push(!!b.days_enabled); }
+      if (b.boys_days != null) setCol('boys_days', b.boys_days, 200);
+      if (b.girls_days != null) setCol('girls_days', b.girls_days, 200);
       if (!sets.length) return send(res, 400, { error: 'Nothing to update.' });
       vals.push(id);
       const { rows } = await q(`UPDATE competitions SET ${sets.join(', ')} WHERE id = $${i} RETURNING *`, vals);
