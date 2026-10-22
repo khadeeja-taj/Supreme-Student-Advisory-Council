@@ -20,20 +20,30 @@ module.exports = async (req, res) => {
   const id = parseInt(req.query.id, 10);
   if (!id) return send(res, 400, { error: 'Invalid competition id' });
 
-  // Two supported providers, both free and both usable WITHOUT owning a domain:
-  //   • Brevo  (BREVO_API_KEY)  — verify just your sender email; ~300/day free.
-  //   • Resend (RESEND_API_KEY) — needs a verified domain.
-  // Brevo is preferred when both are present.
+  // Three supported providers, all free and all usable WITHOUT owning a domain:
+  //   • Gmail  (GMAIL_USER + GMAIL_APP_PASSWORD) — your own Gmail; ~500/day free.
+  //   • Brevo  (BREVO_API_KEY)                   — verify your sender; ~300/day.
+  //   • Resend (RESEND_API_KEY)                  — needs a verified domain.
+  const gmailUser = process.env.GMAIL_USER;
+  const gmailPass = process.env.GMAIL_APP_PASSWORD;
   const brevoKey = process.env.BREVO_API_KEY;
   const resendKey = process.env.RESEND_API_KEY;
-  const provider = brevoKey ? 'brevo' : (resendKey ? 'resend' : null);
+  const provider = (gmailUser && gmailPass) ? 'gmail' : (brevoKey ? 'brevo' : (resendKey ? 'resend' : null));
   if (!provider) {
-    return send(res, 400, { error: 'Email service is not connected yet. Add BREVO_API_KEY (and FROM_EMAIL) in Netlify to enable automatic emails.' });
+    return send(res, 400, { error: 'Email service is not connected yet. Add GMAIL_USER + GMAIL_APP_PASSWORD (or BREVO_API_KEY + FROM_EMAIL) in Netlify to enable automatic emails.' });
   }
-  const fromEmail = process.env.FROM_EMAIL || 'onboarding@resend.dev';
   const fromName = process.env.FROM_NAME || 'Supreme Student Advisory Council';
+  const fromEmail = process.env.FROM_EMAIL || gmailUser || 'onboarding@resend.dev';
   if (provider === 'brevo' && !process.env.FROM_EMAIL) {
     return send(res, 400, { error: 'Please also add FROM_EMAIL in Netlify (your verified Brevo sender email).' });
+  }
+
+  // Gmail uses SMTP (nodemailer); keep batches small so each call stays within
+  // the serverless time budget.
+  let mailer = null;
+  if (provider === 'gmail') {
+    const nodemailer = require('nodemailer');
+    mailer = nodemailer.createTransport({ service: 'gmail', auth: { user: gmailUser, pass: gmailPass } });
   }
 
   try {
@@ -41,7 +51,9 @@ module.exports = async (req, res) => {
     const b = await body(req);
     let base = str(b.base, 300).replace(/\/+$/, '');
     if (!/^https?:\/\//.test(base)) base = '';
-    const limit = Math.min(Math.max(parseInt(b.limit, 10) || 25, 1), 50);
+    // Gmail SMTP is slower per message, so cap its batch tighter.
+    const maxBatch = provider === 'gmail' ? 8 : 50;
+    const limit = Math.min(Math.max(parseInt(b.limit, 10) || 25, 1), maxBatch);
     const offset = Math.max(parseInt(b.offset, 10) || 0, 0);
 
     const compRows = await q(`SELECT title, title_ar FROM competitions WHERE id = $1`, [id]);
@@ -68,6 +80,11 @@ module.exports = async (req, res) => {
       const html = emailHtml(e.name || '', title, link);
       const subject = 'اختر مستواك ويومك • Choose your level & day';
       try {
+        if (provider === 'gmail') {
+          await mailer.sendMail({ from: fromName + ' <' + gmailUser + '>', to: e.email, subject: subject, html: html });
+          sent++;
+          continue;
+        }
         let r;
         if (provider === 'brevo') {
           r = await fetch('https://api.brevo.com/v3/smtp/email', {
