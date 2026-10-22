@@ -20,11 +20,21 @@ module.exports = async (req, res) => {
   const id = parseInt(req.query.id, 10);
   if (!id) return send(res, 400, { error: 'Invalid competition id' });
 
-  const apiKey = process.env.RESEND_API_KEY;
-  if (!apiKey) {
-    return send(res, 400, { error: 'Email service is not connected yet. Add RESEND_API_KEY in Netlify to enable automatic emails.' });
+  // Two supported providers, both free and both usable WITHOUT owning a domain:
+  //   • Brevo  (BREVO_API_KEY)  — verify just your sender email; ~300/day free.
+  //   • Resend (RESEND_API_KEY) — needs a verified domain.
+  // Brevo is preferred when both are present.
+  const brevoKey = process.env.BREVO_API_KEY;
+  const resendKey = process.env.RESEND_API_KEY;
+  const provider = brevoKey ? 'brevo' : (resendKey ? 'resend' : null);
+  if (!provider) {
+    return send(res, 400, { error: 'Email service is not connected yet. Add BREVO_API_KEY (and FROM_EMAIL) in Netlify to enable automatic emails.' });
   }
   const fromEmail = process.env.FROM_EMAIL || 'onboarding@resend.dev';
+  const fromName = process.env.FROM_NAME || 'Supreme Student Advisory Council';
+  if (provider === 'brevo' && !process.env.FROM_EMAIL) {
+    return send(res, 400, { error: 'Please also add FROM_EMAIL in Netlify (your verified Brevo sender email).' });
+  }
 
   try {
     await init();
@@ -56,17 +66,27 @@ module.exports = async (req, res) => {
       const link = base + '/?pick=' + encodeURIComponent(token) + '&c=' + id;
       const title = comp.title_ar || comp.title || 'the competition';
       const html = emailHtml(e.name || '', title, link);
+      const subject = 'اختر مستواك ويومك • Choose your level & day';
       try {
-        const r = await fetch('https://api.resend.com/emails', {
-          method: 'POST',
-          headers: { 'Authorization': 'Bearer ' + apiKey, 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            from: fromEmail,
-            to: [e.email],
-            subject: 'اختر مستواك ويومك • Choose your level & day',
-            html: html
-          })
-        });
+        let r;
+        if (provider === 'brevo') {
+          r = await fetch('https://api.brevo.com/v3/smtp/email', {
+            method: 'POST',
+            headers: { 'api-key': brevoKey, 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            body: JSON.stringify({
+              sender: { email: fromEmail, name: fromName },
+              to: [{ email: e.email, name: e.name || undefined }],
+              subject: subject,
+              htmlContent: html
+            })
+          });
+        } else {
+          r = await fetch('https://api.resend.com/emails', {
+            method: 'POST',
+            headers: { 'Authorization': 'Bearer ' + resendKey, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ from: fromEmail, to: [e.email], subject: subject, html: html })
+          });
+        }
         if (r.ok) { sent++; } else { const t = await r.text(); failed.push({ email: e.email, error: t.slice(0, 200) }); }
       } catch (err) {
         failed.push({ email: e.email, error: String(err && err.message || err).slice(0, 200) });
