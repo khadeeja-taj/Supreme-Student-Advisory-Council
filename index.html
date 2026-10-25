@@ -2026,22 +2026,14 @@ function buildSchedule(boysCsv, girlsCsv){
 }
 // Render day choices: the student's own days are clickable; the other group's
 // days are shown DISABLED with a "not your day" note, so it's clear why.
+// Show ONLY the student's own dates (the other gender's dates are hidden).
 function renderDayOptions(containerId, schedule, allowed, selected, onclickFn, gender){
   var box=document.getElementById(containerId); if(!box) return;
-  if(!schedule.length){ box.innerHTML='<span class="muted">'+tr('No dates have been set yet.','لم تُحدَّد التواريخ بعد.')+'</span>'; return; }
-  var g=String(gender||'').toLowerCase();
-  var mine = g==='female'?tr('You are a female student — pick one of your dates. The other dates are for male students.','أنتِ طالبة — اختاري أحد تواريخك. التواريخ الأخرى للطلاب.')
-            : g==='male'?tr('You are a male student — pick one of your dates. The other dates are for female students.','أنت طالب — اختر أحد تواريخك. التواريخ الأخرى للطالبات.')
-            : tr('Pick one of your dates.','اختر أحد تواريخك.');
-  var note='<div class="note-box" style="margin:0 0 10px">'+mine+'</div>';
-  var btns=schedule.map(function(s){
-    var isMine=allowed.indexOf(s.day)!==-1;
-    if(isMine){
-      var on=(String(selected)===String(s.day));
-      return '<button type="button" class="'+(on?'btn-teal':'btn-outline')+' sm" style="margin:4px" onclick="'+onclickFn+'(\'day\',\''+s.day+'\')">'+esc(dayLabel(s.day))+'</button>';
-    }
-    var who = s.groups.indexOf('boys')!==-1 ? tr('boys only','للطلاب فقط') : tr('girls only','للطالبات فقط');
-    return '<button type="button" class="btn-outline sm" disabled style="margin:4px;opacity:.45;cursor:not-allowed" title="'+tr('Not your date','ليس تاريخك')+'">'+esc(dayLabel(s.day))+' · '+who+' • '+tr('not your date','ليس تاريخك')+'</button>';
+  if(!allowed || !allowed.length){ box.innerHTML='<span class="muted">'+tr('No dates available for your group yet.','لا توجد تواريخ متاحة لمجموعتك بعد.')+'</span>'; return; }
+  var note='<div class="note-box" style="margin:0 0 10px">'+tr('Pick one of your available dates.','اختر أحد التواريخ المتاحة لك.')+'</div>';
+  var btns=allowed.map(function(d){
+    var on=(String(selected)===String(d));
+    return '<button type="button" class="'+(on?'btn-teal':'btn-outline')+' sm" style="margin:4px" onclick="'+onclickFn+'(\'day\',\''+d+'\')">'+esc(dayLabel(d))+'</button>';
   }).join('');
   box.innerHTML=note+btns;
 }
