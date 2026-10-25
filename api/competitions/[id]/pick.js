@@ -2,7 +2,7 @@
 
 const { init, q } = require('../../_lib/db');
 const { cors, send, body, str } = require('../../_lib/http');
-const { isValidTrack, normReg, REG_SQL, daysForGender } = require('../../_lib/comp');
+const { isValidTrack, normReg, REG_SQL, daysForGender, todayInTZ } = require('../../_lib/comp');
 
 // PUBLIC — the "choose your level & day" flow for students who are ALREADY in a
 // competition (e.g. the 307 who registered before these options existed).
@@ -46,17 +46,22 @@ module.exports = async (req, res) => {
     }
 
     const allowedDays = daysForGender(c, entry.gender);
+    const today = todayInTZ();
+    const openToday = c.days_enabled ? (allowedDays.indexOf(today) !== -1) : true;
     const info = {
       found: true,
       title: c.title, title_ar: c.title_ar,
       name: entry.name, gender: entry.gender,
       track: entry.track || '', day: entry.chosen_day || '',
       levels_enabled: !!c.levels_enabled, days_enabled: !!c.days_enabled,
-      allowedDays: allowedDays,
+      allowedDays: allowedDays, today: today, openToday: openToday,
       boys_days: c.boys_days || '', girls_days: c.girls_days || ''
     };
 
     if (b.action === 'save') {
+      if (c.days_enabled && !openToday) {
+        return send(res, 403, { error: 'Registration is not open for you today. Your date(s): ' + allowedDays.join(' / ') });
+      }
       const track = str(b.track, 20);
       const day = str(b.day, 40);
       if (c.levels_enabled) {
@@ -64,8 +69,8 @@ module.exports = async (req, res) => {
         if (!isValidTrack(track)) return send(res, 400, { error: 'Invalid level selected.' });
       }
       if (c.days_enabled) {
-        if (!day) return send(res, 400, { error: 'Please choose a day.' });
-        if (allowedDays.indexOf(day) === -1) return send(res, 400, { error: 'The selected day is not available for your group.' });
+        if (!day) return send(res, 400, { error: 'Please choose a date.' });
+        if (allowedDays.indexOf(day) === -1) return send(res, 400, { error: 'The selected date is not available for your group.' });
       }
       await q(
         `UPDATE competition_entries SET track = $1, chosen_day = $2 WHERE id = $3`,

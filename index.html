@@ -814,6 +814,10 @@ html[dir="rtl"] .info-card h3, html[dir="rtl"] .council-card h3{ font-size:1.14r
 .date-chip button{ border:none; background:#cfe6ee; color:#15586b; width:18px; height:18px; border-radius:50%; cursor:pointer; line-height:1; font-size:.95rem; }
 .date-chip button:hover{ background:#b23b57; color:#fff; }
 
+/* Locked date message (student's day hasn't arrived yet) */
+.note-box.locked{ border-left-color:#d9822b; background:#fff6ec; color:#9a5a12; }
+html[dir="rtl"] .note-box.locked{ border-left:none; border-right:4px solid #d9822b; }
+
 </style>
 </head>
 <body>
@@ -1998,15 +2002,24 @@ function renderChooseForm(r){
   var fm=document.getElementById('chooseForm'); if(fm) fm.style.display='block';
   var title=(lang==='ar'&&r.title_ar)?r.title_ar:(r.title||'');
   var hello=document.getElementById('chooseHello'); if(hello) hello.textContent=(tr('Hello, ','مرحبًا، ')+(r.name||'')+(title?(' — '+title):''));
+  // Locked when today is NOT one of this student's own dates.
+  var locked = r.days_enabled && !r.openToday;
   var lw=document.getElementById('chooseLevelWrap');
-  if(lw){ if(r.levels_enabled){ lw.style.display='block'; renderChooseChips('chooseLevels', TRACK_OPTIONS.map(function(t){return [t[0], lang==='ar'?t[2]:t[1]];}), (window._pickSel||{}).track, 'track'); } else { lw.style.display='none'; } }
+  if(lw){ if(r.levels_enabled && !locked){ lw.style.display='block'; renderChooseChips('chooseLevels', TRACK_OPTIONS.map(function(t){return [t[0], lang==='ar'?t[2]:t[1]];}), (window._pickSel||{}).track, 'track'); } else { lw.style.display='none'; } }
   var dw=document.getElementById('chooseDayWrap');
   if(dw){
     if(r.days_enabled){
       dw.style.display='block';
-      renderDayOptions('chooseDays', buildSchedule(r.boys_days, r.girls_days), r.allowedDays||[], (window._pickSel||{}).day, 'pickSelect', r.gender);
+      var dc=document.getElementById('chooseDays');
+      if(locked){
+        if(dc) dc.innerHTML='<div class="note-box locked" style="margin:0">'+tr('Registration is not open for you today. Your date: ','التسجيل غير متاح لك اليوم. موعدك: ')+(r.allowedDays||[]).map(dayLabel).join(' / ')+'</div>';
+      } else {
+        renderDayOptions('chooseDays', buildSchedule(r.boys_days, r.girls_days), r.allowedDays||[], (window._pickSel||{}).day, 'pickSelect', r.gender);
+      }
     } else { dw.style.display='none'; }
   }
+  // Hide the Save button when it's not the student's day.
+  var sv=document.querySelector('#chooseForm .btn-teal'); if(sv) sv.style.display=locked?'none':'';
 }
 function renderChooseChips(containerId, opts, selected, kind){
   var box=document.getElementById(containerId); if(!box) return;
@@ -2039,6 +2052,7 @@ function renderDayOptions(containerId, schedule, allowed, selected, onclickFn, g
 }
 async function pickSave(){
   var ctx=window._pickCtx||{}, info=window._pickInfo||{}, sel=window._pickSel||{};
+  if(info.days_enabled && !info.openToday){ pickMsg('chooseSaveMsg', tr('Registration is not open for you today.','التسجيل غير متاح لك اليوم.')); return; }
   if(info.levels_enabled && !sel.track){ pickMsg('chooseSaveMsg', tr('Please choose a level.','يرجى اختيار المستوى.')); return; }
   if(info.days_enabled && !sel.day){ pickMsg('chooseSaveMsg', tr('Please choose a date.','يرجى اختيار التاريخ.')); return; }
   try{
@@ -2726,11 +2740,17 @@ function regDaysForGender(){
   var csv = (g==='female')?comp.girls_days:(g==='male')?comp.boys_days:'';
   return parseDaysCsv(csv);
 }
+// Today's date (YYYY-MM-DD) in the viewer's local time.
+function todayStr(){ try{ var d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }catch(e){ return ''; } }
 function renderRegLevelDay(){
   var comp=state.competition||{}; window._regSel=window._regSel||{track:'',day:''};
-  if(comp.levels_enabled){ renderRegChips('regLevels', TRACK_OPTIONS.map(function(t){return [t[0], lang==='ar'?t[2]:t[1]];}), window._regSel.track, 'track'); }
+  var allowed=regDaysForGender(); var locked=comp.days_enabled && allowed.indexOf(todayStr())===-1;
+  var lw=document.getElementById('regLevels'); if(lw && lw.parentNode) lw.parentNode.style.display=(comp.levels_enabled && !locked)?'':'none';
+  if(comp.levels_enabled && !locked){ renderRegChips('regLevels', TRACK_OPTIONS.map(function(t){return [t[0], lang==='ar'?t[2]:t[1]];}), window._regSel.track, 'track'); }
   if(comp.days_enabled){
-    renderDayOptions('regDays', buildSchedule(comp.boys_days, comp.girls_days), regDaysForGender(), window._regSel.day, 'regSelect', state.gender);
+    var dc=document.getElementById('regDays');
+    if(locked){ if(dc) dc.innerHTML='<div class="note-box locked" style="margin:0">'+tr('Registration is not open for you today. Your date: ','التسجيل غير متاح لك اليوم. موعدك: ')+allowed.map(dayLabel).join(' / ')+'</div>'; }
+    else { renderDayOptions('regDays', buildSchedule(comp.boys_days, comp.girls_days), allowed, window._regSel.day, 'regSelect', state.gender); }
   }
 }
 function renderRegChips(containerId, opts, selected, kind){
@@ -2759,8 +2779,12 @@ async function submitForm(){
   var _comp = isComp() ? (state.competition||{}) : {};
   var _sel = window._regSel||{};
   if(_comp.levels_enabled || _comp.days_enabled){
+    if(_comp.days_enabled){
+      var _allowed=regDaysForGender();
+      if(_allowed.indexOf(todayStr())===-1){ alert(tr('Registration is not open for you today. Your date: ','التسجيل غير متاح لك اليوم. موعدك: ')+_allowed.map(dayLabel).join(' / ')); return; }
+    }
     if(_comp.levels_enabled && !_sel.track){ alert(tr('Please choose a level.','يرجى اختيار المستوى.')); return; }
-    if(_comp.days_enabled && !_sel.day){ alert(tr('Please choose a day.','يرجى اختيار اليوم.')); return; }
+    if(_comp.days_enabled && !_sel.day){ alert(tr('Please choose a date.','يرجى اختيار التاريخ.')); return; }
     data.track=_sel.track||''; data.day=_sel.day||'';
   }
   const btn = document.querySelector('#formstep-4 .btn-teal');

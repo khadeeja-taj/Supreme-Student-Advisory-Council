@@ -2,7 +2,7 @@
 
 const { init, q } = require('../_lib/db');
 const { cors, send, body, str } = require('../_lib/http');
-const { isValidTrack, normReg, daysForGender } = require('../_lib/comp');
+const { isValidTrack, normReg, daysForGender, todayInTZ } = require('../_lib/comp');
 
 // PUBLIC — "choose your level & date" WITHOUT needing a competition id.
 // The student just enters their registration number; we find them in whichever
@@ -43,17 +43,24 @@ module.exports = async (req, res) => {
     if (wantComp) { const m = rows.filter(function (r) { return r.competition_id === wantComp; })[0]; if (m) entry = m; }
 
     const allowedDays = daysForGender(entry, entry.gender);
+    // Access is locked unless TODAY is one of this student's own dates.
+    const today = todayInTZ();
+    const openToday = entry.days_enabled ? (allowedDays.indexOf(today) !== -1) : true;
     const info = {
       found: true, compId: entry.competition_id,
       title: entry.title, title_ar: entry.title_ar,
       name: entry.name, gender: entry.gender,
       track: entry.track || '', day: entry.chosen_day || '',
       levels_enabled: !!entry.levels_enabled, days_enabled: !!entry.days_enabled,
-      allowedDays: allowedDays, boys_days: entry.boys_days || '', girls_days: entry.girls_days || '',
+      allowedDays: allowedDays, today: today, openToday: openToday,
+      boys_days: entry.boys_days || '', girls_days: entry.girls_days || '',
       options: rows.length > 1 ? rows.map(function (r) { return { compId: r.competition_id, title: r.title_ar || r.title }; }) : undefined
     };
 
     if (b.action === 'save') {
+      if (entry.days_enabled && !openToday) {
+        return send(res, 403, { error: 'Registration is not open for you today. Your date(s): ' + allowedDays.join(' / ') });
+      }
       const track = str(b.track, 20);
       const day = str(b.day, 40);
       if (entry.levels_enabled) {
