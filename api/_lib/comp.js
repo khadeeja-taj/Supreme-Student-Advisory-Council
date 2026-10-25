@@ -15,11 +15,14 @@ function isValidTrack(t) {
   return TRACKS.indexOf(String(t || '')) !== -1;
 }
 
-// Registration numbers are compared case-insensitively and trimmed, but the
-// student's originally stored value is never altered.
+// Registration numbers are matched leniently: lower-cased and with ALL
+// whitespace removed, so "4572 / Foc" and "4572/Foc" match. The student's
+// originally stored value is never altered. REG_SQL applies the same
+// normalisation to the stored column inside a query.
 function normReg(s) {
-  return String(s == null ? '' : s).trim().toLowerCase();
+  return String(s == null ? '' : s).toLowerCase().replace(/\s+/g, '');
 }
+const REG_SQL = "regexp_replace(lower(regno), '\\s+', '', 'g')";
 
 // Days are stored as a comma-separated list, e.g. "Monday,Tuesday".
 function parseDays(csv) {
@@ -41,4 +44,4 @@ function genToken() {
   return crypto.randomBytes(16).toString('hex');
 }
 
-module.exports = { TRACKS, isValidTrack, normReg, parseDays, daysForGender, genToken };
+module.exports = { TRACKS, isValidTrack, normReg, REG_SQL, parseDays, daysForGender, genToken };

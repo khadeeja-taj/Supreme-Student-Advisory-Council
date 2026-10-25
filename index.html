@@ -805,6 +805,15 @@ html[dir="rtl"] .info-card h3, html[dir="rtl"] .council-card h3{ font-size:1.14r
 .day-chk input{ width:15px; height:15px; cursor:pointer; }
 .reg-leveldar .chips{ display:flex; flex-wrap:wrap; gap:6px; }
 
+/* ---- Admin calendar date picker (boys/girls dates) ---- */
+.date-picker{ margin:4px 0 12px; }
+.date-add{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+.date-input{ padding:8px 10px; border:1px solid #dce6ea; border-radius:8px; font:inherit; }
+.date-chips{ display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }
+.date-chip{ display:inline-flex; align-items:center; gap:6px; background:#e8f4f8; border:1px solid #bfe0ea; color:#15586b; border-radius:16px; padding:5px 10px; font-size:.86rem; }
+.date-chip button{ border:none; background:#cfe6ee; color:#15586b; width:18px; height:18px; border-radius:50%; cursor:pointer; line-height:1; font-size:.95rem; }
+.date-chip button:hover{ background:#b23b57; color:#fff; }
+
 </style>
 </head>
 <body>
@@ -1583,7 +1592,7 @@ const I18N = {
     "btn.continue":"Next →","btn.next":"Next →","btn.back":"← Back","btn.submit":"Submit Registration",
     "success.title":"Registration Submitted","success.sub":"Thank you for joining the Supreme Student Advisory Council. Your application has been recorded and will be reviewed by the Council team.",
     "success.home":"Back to Home","success.admin":"Go to Admin",
-    "choose.title":"Choose your level & day","choose.sub":"Confirm your competition track and preferred day.","choose.idhead":"Enter your registration number","choose.idsub":"We'll find your existing registration.","choose.level":"Level","choose.day":"Day","choose.done":"Saved","btn.save":"Save",
+    "choose.title":"Choose your level & date","choose.sub":"Confirm your competition track and preferred date.","choose.idhead":"Enter your registration number","choose.idsub":"We'll find your existing registration.","choose.level":"Level","choose.day":"Date","choose.done":"Saved","btn.save":"Save",
     "admin.back":"← Back to Home","admin.title":"Admin Control","admin.sub":"Enter the admin password to view submitted registrations.","admin.hint":"Authorized council staff only.","admin.login":"Log In",
     "admin.regs":"Council Registrations","admin.refresh":"Refresh","admin.clear":"Clear All","admin.logout":"Log Out","admin.empty":"No registrations yet.",
     "reps.kicker":"COUNCIL MEMBERS","reps.title":"Council Members","reps.sub":"The selected student members serving on the Supreme Student Advisory Council, organized by faculty", "news.kicker":"UPDATES","news.title":"News & Announcements","news.sub":"Upcoming events, deadlines, and important notices from the Council", "contact.kicker":"GET IN TOUCH","contact.title":"Contact Us","contact.sub":"We would be honored to answer your questions", "c.phone":"PHONE","c.email":"EMAIL","c.address":"ADDRESS","c.addressv":"International Islamic University, Islamabad, Pakistan","c.map":"Open location in Google Maps →","c.name":"Your Name *","c.emaill":"Email *","c.subject":"Subject","c.message":"Message *","c.thanks":"✓ Thank you — your message has been sent to the Council.","c.send":"Send Message", "footer.about":"The Supreme Student Advisory Council — a platform for students across every faculty of the International Islamic University, Islamabad to represent, advise and shape campus life.","footer.quick":"Quick Links","footer.council":"The Council","footer.connect":"Connect","footer.news":"News & Announcements","footer.reg":"Student Registration","footer.faculties":"Twelve Faculties","footer.wings":"Male & Female Councils","footer.reps":"Faculty Members","footer.addr":"International Islamic University, Islamabad, Pakistan","footer.bottom":"© 2026 Supreme Student Advisory Council · International Islamic University, Islamabad", "atab.overview":"Overview","atab.regs":"Registrations","atab.reps":"Members","atab.news":"Announcements","atab.messages":"Messages", "chart.trend":"Registrations over time","chart.trendsub":"last 7 days","chart.council":"Council split","chart.status":"Approval status","chart.rate":"Approval rate","chart.faculty":"Registrations by faculty","chart.flow":"Approval flow", "th.name":"Name","th.email":"Email","th.faculty":"Faculty","th.council":"Council","th.reg":"Reg #","th.status":"Status","th.actions":"Actions",
@@ -1620,7 +1629,7 @@ const I18N = {
     "btn.continue":"التالي ←","btn.next":"التالي ←","btn.back":"→ رجوع","btn.submit":"إرسال التسجيل",
     "success.title":"تم إرسال التسجيل","success.sub":"شكرًا لانضمامك إلى المجلس الاستشاري الطلابي الأعلى. تم تسجيل طلبك وسيتم مراجعته من قبل فريق المجلس.",
     "success.home":"العودة للرئيسية","success.admin":"الذهاب إلى الإدارة",
-    "choose.title":"اختر المستوى واليوم","choose.sub":"أكّد مستواك في المسابقة واليوم المناسب لك.","choose.idhead":"أدخل رقمك الجامعي","choose.idsub":"سنعثر على تسجيلك الحالي.","choose.level":"المستوى","choose.day":"اليوم","choose.done":"تم الحفظ","btn.save":"حفظ",
+    "choose.title":"اختر المستوى والتاريخ","choose.sub":"أكّد مستواك في المسابقة والتاريخ المناسب لك.","choose.idhead":"أدخل رقمك الجامعي","choose.idsub":"سنعثر على تسجيلك الحالي.","choose.level":"المستوى","choose.day":"التاريخ","choose.done":"تم الحفظ","btn.save":"حفظ",
     "admin.back":"← العودة للرئيسية","admin.title":"لوحة تحكم الإدارة","admin.sub":"أدخل كلمة مرور الإدارة لعرض التسجيلات المقدمة.","admin.hint":"للموظفين المصرح لهم فقط.","admin.login":"تسجيل الدخول",
     "admin.regs":"تسجيلات المجلس","admin.refresh":"تحديث","admin.clear":"مسح الكل","admin.logout":"تسجيل الخروج","admin.empty":"لا توجد تسجيلات بعد.",
     "reps.kicker":"أعضاء المجلس","reps.title":"أعضاء المجلس","reps.sub":"الطلاب الأعضاء المختارون في المجلس الاستشاري الطلابي الأعلى، مرتبون حسب الكلية", "news.kicker":"تحديثات","news.title":"الأخبار والإعلانات","news.sub":"الفعاليات القادمة والمواعيد النهائية والإشعارات المهمة من المجلس", "contact.kicker":"تواصل معنا","contact.title":"اتصل بنا","contact.sub":"يشرفنا الإجابة عن أسئلتكم", "c.phone":"الهاتف","c.email":"البريد الإلكتروني","c.address":"العنوان","c.addressv":"الجامعة الإسلامية العالمية، إسلام آباد، باكستان","c.map":"افتح الموقع في خرائط جوجل ←","c.name":"الاسم *","c.emaill":"البريد الإلكتروني *","c.subject":"الموضوع","c.message":"الرسالة *","c.thanks":"✓ شكرًا — تم إرسال رسالتك إلى المجلس.","c.send":"إرسال الرسالة", "footer.about":"المجلس الاستشاري الطلابي الأعلى — منصة لطلاب جميع كليات الجامعة الإسلامية العالمية بإسلام آباد لتمثيل الطلاب وتقديم المشورة وتطوير الحياة الجامعية.","footer.quick":"روابط سريعة","footer.council":"المجلس","footer.connect":"تواصل","footer.news":"الأخبار والإعلانات","footer.reg":"تسجيل الطالب","footer.faculties":"اثنتا عشرة كلية","footer.wings":"مجلسا الطلاب والطالبات","footer.reps":"أعضاء الكليات","footer.addr":"الجامعة الإسلامية العالمية، إسلام آباد، باكستان","footer.bottom":"© 2026 المجلس الاستشاري الطلابي الأعلى · الجامعة الإسلامية العالمية بإسلام آباد", "atab.overview":"نظرة عامة","atab.regs":"التسجيلات","atab.reps":"الأعضاء","atab.news":"الإعلانات","atab.messages":"الرسائل", "chart.trend":"التسجيلات عبر الوقت","chart.trendsub":"آخر ٧ أيام","chart.council":"توزيع المجلس","chart.status":"حالة الموافقة","chart.rate":"معدل الموافقة","chart.faculty":"التسجيلات حسب الكلية","chart.flow":"مسار الموافقة", "th.name":"الاسم","th.email":"البريد","th.faculty":"الكلية","th.council":"المجلس","th.reg":"الرقم الجامعي","th.status":"الحالة","th.actions":"إجراءات",
@@ -2000,23 +2009,23 @@ function renderChooseChips(containerId, opts, selected, kind){
   }).join('');
 }
 function pickSelect(kind,v){ window._pickSel=window._pickSel||{}; window._pickSel[kind]=v; renderChooseForm(window._pickInfo); }
-// Build the full day schedule (both groups) in weekday order, tagging each day
+// Build the full schedule (both groups) sorted by date, tagging each date
 // with which group(s) it belongs to.
 function buildSchedule(boysCsv, girlsCsv){
   var map={};
   parseDaysCsv(girlsCsv).forEach(function(d){ (map[d]=map[d]||[]).push('girls'); });
   parseDaysCsv(boysCsv).forEach(function(d){ (map[d]=map[d]||[]).push('boys'); });
-  return WEEK_DAYS.filter(function(w){ return map[w[0]]; }).map(function(w){ return { day:w[0], groups:map[w[0]] }; });
+  return Object.keys(map).sort().map(function(d){ return { day:d, groups:map[d] }; });
 }
 // Render day choices: the student's own days are clickable; the other group's
 // days are shown DISABLED with a "not your day" note, so it's clear why.
 function renderDayOptions(containerId, schedule, allowed, selected, onclickFn, gender){
   var box=document.getElementById(containerId); if(!box) return;
-  if(!schedule.length){ box.innerHTML='<span class="muted">'+tr('No days have been set yet.','لم تُحدَّد الأيام بعد.')+'</span>'; return; }
+  if(!schedule.length){ box.innerHTML='<span class="muted">'+tr('No dates have been set yet.','لم تُحدَّد التواريخ بعد.')+'</span>'; return; }
   var g=String(gender||'').toLowerCase();
-  var mine = g==='female'?tr('You are a female student — pick one of your days. The other days are for male students.','أنتِ طالبة — اختاري أحد أيامك. الأيام الأخرى للطلاب.')
-            : g==='male'?tr('You are a male student — pick one of your days. The other days are for female students.','أنت طالب — اختر أحد أيامك. الأيام الأخرى للطالبات.')
-            : tr('Pick one of your days.','اختر أحد أيامك.');
+  var mine = g==='female'?tr('You are a female student — pick one of your dates. The other dates are for male students.','أنتِ طالبة — اختاري أحد تواريخك. التواريخ الأخرى للطلاب.')
+            : g==='male'?tr('You are a male student — pick one of your dates. The other dates are for female students.','أنت طالب — اختر أحد تواريخك. التواريخ الأخرى للطالبات.')
+            : tr('Pick one of your dates.','اختر أحد تواريخك.');
   var note='<div class="note-box" style="margin:0 0 10px">'+mine+'</div>';
   var btns=schedule.map(function(s){
     var isMine=allowed.indexOf(s.day)!==-1;
@@ -2025,7 +2034,7 @@ function renderDayOptions(containerId, schedule, allowed, selected, onclickFn, g
       return '<button type="button" class="'+(on?'btn-teal':'btn-outline')+' sm" style="margin:4px" onclick="'+onclickFn+'(\'day\',\''+s.day+'\')">'+esc(dayLabel(s.day))+'</button>';
     }
     var who = s.groups.indexOf('boys')!==-1 ? tr('boys only','للطلاب فقط') : tr('girls only','للطالبات فقط');
-    return '<button type="button" class="btn-outline sm" disabled style="margin:4px;opacity:.45;cursor:not-allowed" title="'+tr('Not your day','ليس يومك')+'">'+esc(dayLabel(s.day))+' · '+who+' • '+tr('not your day','ليس يومك')+'</button>';
+    return '<button type="button" class="btn-outline sm" disabled style="margin:4px;opacity:.45;cursor:not-allowed" title="'+tr('Not your date','ليس تاريخك')+'">'+esc(dayLabel(s.day))+' · '+who+' • '+tr('not your date','ليس تاريخك')+'</button>';
   }).join('');
   box.innerHTML=note+btns;
 }
@@ -2074,18 +2083,48 @@ function startAddMember(){
 var WEEK_DAYS = [['Monday','الإثنين'],['Tuesday','الثلاثاء'],['Wednesday','الأربعاء'],['Thursday','الخميس'],['Friday','الجمعة'],['Saturday','السبت'],['Sunday','الأحد']];
 var TRACK_OPTIONS = [['full','Full Quran','القرآن كاملاً'],['20','20 Juz','20 جزء'],['10','10 Juz','10 أجزاء']];
 function trackLabel(v){ for(var i=0;i<TRACK_OPTIONS.length;i++){ if(TRACK_OPTIONS[i][0]===v) return lang==='ar'?TRACK_OPTIONS[i][2]:TRACK_OPTIONS[i][1]; } return v||''; }
-function dayLabel(v){ for(var i=0;i<WEEK_DAYS.length;i++){ if(WEEK_DAYS[i][0]===v) return lang==='ar'?WEEK_DAYS[i][1]:WEEK_DAYS[i][0]; } return v||''; }
 function parseDaysCsv(csv){ return String(csv||'').split(',').map(function(s){return s.trim();}).filter(Boolean); }
-// A compact row of day checkboxes for the admin (one group = boys or girls).
+// Format a stored value. Dates (YYYY-MM-DD) become a readable calendar date;
+// anything else (old weekday names) falls back to its label.
+function fmtDate(d){
+  if(/^\d{4}-\d{2}-\d{2}$/.test(d)){
+    try{ var dt=new Date(d+'T00:00:00'); if(!isNaN(dt)) return dt.toLocaleDateString(lang==='ar'?'ar-EG':'en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric'}); }catch(e){}
+  }
+  return d;
+}
+function dayLabel(v){
+  if(/^\d{4}-\d{2}-\d{2}$/.test(v)) return fmtDate(v);
+  for(var i=0;i<WEEK_DAYS.length;i++){ if(WEEK_DAYS[i][0]===v) return lang==='ar'?WEEK_DAYS[i][1]:WEEK_DAYS[i][0]; }
+  return v||'';
+}
+/* ---- Admin date picker (calendar). Dates are kept per form+group in
+   window._dateState and saved as a comma-separated list. ---- */
 function dayPickerHtml(prefix, group, selectedCsv){
-  var sel=parseDaysCsv(selectedCsv);
-  return '<div class="day-picker">'+WEEK_DAYS.map(function(d){
-    var on=sel.indexOf(d[0])!==-1;
-    return '<label class="day-chk"><input type="checkbox" id="'+prefix+'_'+group+'_'+d[0]+'"'+(on?' checked':'')+'> '+(lang==='ar'?d[1]:d[0].slice(0,3))+'</label>';
-  }).join('')+'</div>';
+  var key=prefix+'_'+group;
+  window._dateState=window._dateState||{};
+  window._dateState[key]=parseDaysCsv(selectedCsv);
+  return '<div class="date-picker">'
+    + '<div class="date-add"><input type="date" id="'+key+'_input" class="date-input"><button type="button" class="btn-outline sm" onclick="addDate(\''+prefix+'\',\''+group+'\')">'+tr('Add date','إضافة تاريخ')+'</button></div>'
+    + '<div class="date-chips" id="'+key+'_chips">'+dateChipsHtml(key)+'</div></div>';
+}
+function dateChipsHtml(key){
+  var arr=(window._dateState&&window._dateState[key])||[];
+  if(!arr.length) return '<span class="muted">'+tr('No dates added yet.','لم تُضف تواريخ بعد.')+'</span>';
+  return arr.map(function(d,i){ return '<span class="date-chip">'+esc(fmtDate(d))+'<button type="button" aria-label="remove" onclick="removeDate(\''+key+'\','+i+')">×</button></span>'; }).join('');
+}
+function addDate(prefix,group){
+  var key=prefix+'_'+group;
+  var inp=document.getElementById(key+'_input'); if(!inp||!inp.value) return;
+  window._dateState=window._dateState||{}; window._dateState[key]=window._dateState[key]||[];
+  if(window._dateState[key].indexOf(inp.value)===-1){ window._dateState[key].push(inp.value); window._dateState[key].sort(); }
+  inp.value='';
+  var box=document.getElementById(key+'_chips'); if(box) box.innerHTML=dateChipsHtml(key);
+}
+function removeDate(key,i){
+  if(window._dateState&&window._dateState[key]){ window._dateState[key].splice(i,1); var box=document.getElementById(key+'_chips'); if(box) box.innerHTML=dateChipsHtml(key); }
 }
 function gatherDays(prefix, group){
-  return WEEK_DAYS.filter(function(d){ var el=document.getElementById(prefix+'_'+group+'_'+d[0]); return el&&el.checked; }).map(function(d){return d[0];}).join(',');
+  return ((window._dateState||{})[prefix+'_'+group]||[]).join(',');
 }
 // Dropdown of OTHER competitions, used as the "existing students" source.
 function compSourceOptions(comps, selectedId){
@@ -2121,8 +2160,8 @@ async function renderAdminCompetitions(){
     + '<select id="cmp_elig" onchange="toggleEligSource(\'cmp\')"><option value="everyone">'+tr('Open to everyone','مفتوح للجميع')+'</option><option value="competition">'+tr('Only students already registered in another competition','فقط المسجّلون مسبقًا في مسابقة أخرى')+'</option></select>'
     + '<div id="cmp_elig_src_wrap" style="display:none"><label class="fld-label">'+tr('Allowed from this competition:','المسموح لهم من هذه المسابقة:')+'</label><select id="cmp_elig_src">'+compSourceOptions(comps,'')+'</select></div>'
     + '<label class="day-chk" style="margin-top:6px"><input type="checkbox" id="cmp_levels"> '+tr('Let students choose a level (Full Quran / 20 / 10)','السماح باختيار المستوى (كامل / 20 / 10)')+'</label>'
-    + '<label class="day-chk"><input type="checkbox" id="cmp_days" onchange="toggleDayBox(\'cmp\')"> '+tr('Let students choose a day (by gender)','السماح باختيار اليوم (حسب الجنس)')+'</label>'
-    + '<div id="cmp_days_box" style="display:none"><label class="fld-label">'+tr('Boys days','أيام الطلاب')+'</label>'+dayPickerHtml('cmp','boy','')+'<label class="fld-label">'+tr('Girls days','أيام الطالبات')+'</label>'+dayPickerHtml('cmp','girl','')+'</div>'
+    + '<label class="day-chk"><input type="checkbox" id="cmp_days" onchange="toggleDayBox(\'cmp\')"> '+tr('Let students choose a date (by gender)','السماح باختيار التاريخ (حسب الجنس)')+'</label>'
+    + '<div id="cmp_days_box" style="display:none"><label class="fld-label">'+tr('Boys dates','تواريخ الطلاب')+'</label>'+dayPickerHtml('cmp','boy','')+'<label class="fld-label">'+tr('Girls dates','تواريخ الطالبات')+'</label>'+dayPickerHtml('cmp','girl','')+'</div>'
     + '<label class="fld-label">'+tr('Image (optional)','صورة (اختياري)')+'</label>'
     + '<input type="file" id="cmp_image" accept="image/*">'
     + '<button class="btn-teal" type="submit">'+tr('Add competition','إضافة مسابقة')+'</button></form>';
@@ -2178,8 +2217,8 @@ function editCompetition(id){
     +'<select id="ec_'+id+'_elig" onchange="toggleEligSource(\'ec_'+id+'\')"><option value="everyone"'+(c.eligibility!=='competition'?' selected':'')+'>'+tr('Open to everyone','مفتوح للجميع')+'</option><option value="competition"'+(c.eligibility==='competition'?' selected':'')+'>'+tr('Only students already registered in another competition','فقط المسجّلون مسبقًا في مسابقة أخرى')+'</option></select>'
     +'<div id="ec_'+id+'_elig_src_wrap" style="display:'+(c.eligibility==='competition'?'block':'none')+'"><label class="fld-label">'+tr('Allowed from this competition:','المسموح لهم من هذه المسابقة:')+'</label><select id="ec_'+id+'_elig_src">'+compSourceOptions((window._acomps?Object.keys(window._acomps).map(function(k){return window._acomps[k];}):[]),c.eligibility_source)+'</select></div>'
     +'<label class="day-chk" style="margin-top:6px"><input type="checkbox" id="ec_'+id+'_levels"'+(c.levels_enabled?' checked':'')+'> '+tr('Let students choose a level (Full Quran / 20 / 10)','السماح باختيار المستوى (كامل / 20 / 10)')+'</label>'
-    +'<label class="day-chk"><input type="checkbox" id="ec_'+id+'_days" onchange="toggleDayBox(\'ec_'+id+'\')"'+(c.days_enabled?' checked':'')+'> '+tr('Let students choose a day (by gender)','السماح باختيار اليوم (حسب الجنس)')+'</label>'
-    +'<div id="ec_'+id+'_days_box" style="display:'+(c.days_enabled?'block':'none')+'"><label class="fld-label">'+tr('Boys days','أيام الطلاب')+'</label>'+dayPickerHtml('ec_'+id,'boy',c.boys_days||'')+'<label class="fld-label">'+tr('Girls days','أيام الطالبات')+'</label>'+dayPickerHtml('ec_'+id,'girl',c.girls_days||'')+'</div>'
+    +'<label class="day-chk"><input type="checkbox" id="ec_'+id+'_days" onchange="toggleDayBox(\'ec_'+id+'\')"'+(c.days_enabled?' checked':'')+'> '+tr('Let students choose a date (by gender)','السماح باختيار التاريخ (حسب الجنس)')+'</label>'
+    +'<div id="ec_'+id+'_days_box" style="display:'+(c.days_enabled?'block':'none')+'"><label class="fld-label">'+tr('Boys dates','تواريخ الطلاب')+'</label>'+dayPickerHtml('ec_'+id,'boy',c.boys_days||'')+'<label class="fld-label">'+tr('Girls dates','تواريخ الطالبات')+'</label>'+dayPickerHtml('ec_'+id,'girl',c.girls_days||'')+'</div>'
     +'<label class="fld-label">'+tr('Replace image (optional)','استبدال الصورة (اختياري)')+'</label>'
     +'<input type="file" id="ec_image_'+id+'" accept="image/*">'
     +'<div class="export-row"><button class="btn-teal" type="submit">'+tr('Save changes','حفظ التعديلات')+'</button>'
@@ -2338,7 +2377,7 @@ function showEntryDetail(cid, eid){
     rf(tr('Gender','الجنس'),genderLabel(d.gender))+rf(tr('Faculty','الكلية'),facLabel(d.faculty),true)+
     rf(tr('Degree','الدرجة العلمية'),levelLabel(d.level))+rf(tr('Degree Program','البرنامج'),d.program)+rf(tr('Academic Level','المستوى الأكاديمي'),semLabel(d.semester))+
     rf(tr('CGPA','المعدل التراكمي'),d.cgpa)+
-    (d.track?rf(tr('Level','المستوى'),trackLabel(d.track)):'')+(d.chosen_day?rf(tr('Day','اليوم'),dayLabel(d.chosen_day)):'')+
+    (d.track?rf(tr('Level','المستوى'),trackLabel(d.track)):'')+(d.chosen_day?rf(tr('Date','التاريخ'),dayLabel(d.chosen_day)):'')+
     (d.note?rf(tr('Note','ملاحظة'),d.note,true):'')+rf(tr('Submitted','تاريخ الإرسال'),date,true);
   document.getElementById('regModal').hidden=false;
 }
@@ -2357,7 +2396,7 @@ function exportEntries(id){
   var list=(window._entries||{})[id]||[]; var comp=(window._acomps||{})[id]||{};
   // Export the readable Level/Day labels rather than the stored codes.
   var out=list.map(function(e){ var x=Object.assign({},e); x.track_label=e.track?trackLabel(e.track):''; x.day_label=e.chosen_day||''; return x; });
-  var cols=[['name','Name'],['email','Email'],['phone','Phone'],['nationality','Nationality'],['regno','Reg #'],['faculty','Faculty'],['gender','Council'],['track_label','Level'],['day_label','Day'],['level','Degree'],['program','Program'],['semester','Academic Level'],['cgpa','CGPA'],['status','Status'],['created_at','Submitted']];
+  var cols=[['name','Name'],['email','Email'],['phone','Phone'],['nationality','Nationality'],['regno','Reg #'],['faculty','Faculty'],['gender','Council'],['track_label','Level'],['day_label','Date'],['level','Degree'],['program','Program'],['semester','Academic Level'],['cgpa','CGPA'],['status','Status'],['created_at','Submitted']];
   exportCSV((comp.title||'competition')+'-registrations', out, cols);
 }
 /* Export controls with a scope picker: all / council members / a specific
@@ -2673,7 +2712,7 @@ function buildReview(){
       html+='<div class="field"><label class="group-label">'+tr('Level','المستوى')+'</label><div class="chips" id="regLevels"></div></div>';
     }
     if(comp.days_enabled){
-      html+='<div class="field"><label class="group-label">'+tr('Day','اليوم')+'</label><div class="chips" id="regDays"></div></div>';
+      html+='<div class="field"><label class="group-label">'+tr('Date','التاريخ')+'</label><div class="chips" id="regDays"></div></div>';
     }
     html+='</div>';
     box.insertAdjacentHTML('beforeend', html);

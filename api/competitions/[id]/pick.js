@@ -2,7 +2,7 @@
 
 const { init, q } = require('../../_lib/db');
 const { cors, send, body, str } = require('../../_lib/http');
-const { isValidTrack, normReg, daysForGender } = require('../../_lib/comp');
+const { isValidTrack, normReg, REG_SQL, daysForGender } = require('../../_lib/comp');
 
 // PUBLIC — the "choose your level & day" flow for students who are ALREADY in a
 // competition (e.g. the 307 who registered before these options existed).
@@ -36,7 +36,7 @@ module.exports = async (req, res) => {
     if (token) {
       entry = (await q(`SELECT * FROM competition_entries WHERE competition_id = $1 AND edit_token = $2 LIMIT 1`, [id, token])).rows[0] || null;
     } else if (regno) {
-      entry = (await q(`SELECT * FROM competition_entries WHERE competition_id = $1 AND lower(trim(regno)) = $2 LIMIT 1`, [id, normReg(regno)])).rows[0] || null;
+      entry = (await q(`SELECT * FROM competition_entries WHERE competition_id = $1 AND ${REG_SQL} = $2 LIMIT 1`, [id, normReg(regno)])).rows[0] || null;
     } else {
       return send(res, 400, { error: 'Please enter your registration number.' });
     }

@@ -2,7 +2,7 @@
 
 const { init, q } = require('../../_lib/db');
 const { cors, send, body, str, isEmail } = require('../../_lib/http');
-const { isValidTrack, normReg, daysForGender, genToken } = require('../../_lib/comp');
+const { isValidTrack, normReg, REG_SQL, daysForGender, genToken } = require('../../_lib/comp');
 
 // PUBLIC — no login. A competitor submits the registration form for an OPEN
 // competition. Saved to competition_entries (pending) for the admin to review.
@@ -43,7 +43,7 @@ module.exports = async (req, res) => {
     if (c.eligibility === 'competition' && c.eligibility_source) {
       if (!data.regno) return send(res, 400, { error: 'A registration number is required for this competition.' });
       const src = await q(
-        `SELECT 1 FROM competition_entries WHERE competition_id = $1 AND lower(trim(regno)) = $2 LIMIT 1`,
+        `SELECT 1 FROM competition_entries WHERE competition_id = $1 AND ${REG_SQL} = $2 LIMIT 1`,
         [c.eligibility_source, normReg(data.regno)]
       );
       if (!src.rows.length) {
@@ -54,7 +54,7 @@ module.exports = async (req, res) => {
     // --- No duplicate registration in the SAME competition (by reg number). -----
     if (data.regno) {
       const dup = await q(
-        `SELECT 1 FROM competition_entries WHERE competition_id = $1 AND lower(trim(regno)) = $2 LIMIT 1`,
+        `SELECT 1 FROM competition_entries WHERE competition_id = $1 AND ${REG_SQL} = $2 LIMIT 1`,
         [id, normReg(data.regno)]
       );
       if (dup.rows.length) {

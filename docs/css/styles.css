@@ -794,3 +794,12 @@ html[dir="rtl"] .info-card h3, html[dir="rtl"] .council-card h3{ font-size:1.14r
 .day-chk{ display:inline-flex; align-items:center; gap:6px; font-size:.9rem; color:#2a3f49; background:#f1f5f7; border:1px solid #dce6ea; border-radius:8px; padding:6px 10px; cursor:pointer; }
 .day-chk input{ width:15px; height:15px; cursor:pointer; }
 .reg-leveldar .chips{ display:flex; flex-wrap:wrap; gap:6px; }
+
+/* ---- Admin calendar date picker (boys/girls dates) ---- */
+.date-picker{ margin:4px 0 12px; }
+.date-add{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+.date-input{ padding:8px 10px; border:1px solid #dce6ea; border-radius:8px; font:inherit; }
+.date-chips{ display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }
+.date-chip{ display:inline-flex; align-items:center; gap:6px; background:#e8f4f8; border:1px solid #bfe0ea; color:#15586b; border-radius:16px; padding:5px 10px; font-size:.86rem; }
+.date-chip button{ border:none; background:#cfe6ee; color:#15586b; width:18px; height:18px; border-radius:50%; cursor:pointer; line-height:1; font-size:.95rem; }
+.date-chip button:hover{ background:#b23b57; color:#fff; }
