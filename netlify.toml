@@ -67,6 +67,12 @@
   force = true
 
 [[redirects]]
+  from = "/api/choose"
+  to = "/.netlify/functions/choose"
+  status = 200
+  force = true
+
+[[redirects]]
   from = "/api/competitions/:id/pick"
   to = "/.netlify/functions/competition-pick?id=:id"
   status = 200

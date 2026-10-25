@@ -497,7 +497,10 @@ function clearRegForm(){
    Opened from an email link (?pick=TOKEN&c=ID) or by entering a reg number.
    Only updates the student's existing entry — never creates a new one. */
 function openChoose(compId, token){
-  window._pickCtx = { compId: compId, token: token || '' };
+  // token => personal email link (identifies the exact entry in one competition).
+  // no token => shared link: we find the student by reg number automatically,
+  // whichever competition has level/date sorting on — the number stops mattering.
+  window._pickCtx = { compId: compId, token: token || '', auto: !token };
   window._pickSel = { track:'', day:'' };
   window._pickInfo = null;
   var lk=document.getElementById('chooseLookup'), fm=document.getElementById('chooseForm'), dn=document.getElementById('chooseDone');
@@ -511,12 +514,16 @@ function openChoose(compId, token){
 }
 function pickMsg(id,msg){ var b=document.getElementById(id); if(b){ b.textContent=msg; b.style.display='block'; } }
 async function pickLookup(){
-  var ctx=window._pickCtx||{}; if(!ctx.compId) return;
-  var payload={ action:'lookup' };
-  if(ctx.token){ payload.token=ctx.token; }
-  else { var reg=val('chooseReg'); if(!reg){ pickMsg('chooseMsg', tr('Please enter your registration number.','يرجى إدخال الرقم الجامعي.')); return; } payload.regno=reg; }
+  var ctx=window._pickCtx||{};
   try{
-    var r=await api('/api/competitions/'+ctx.compId+'/pick',{method:'POST',body:JSON.stringify(payload)});
+    var r;
+    if(ctx.token){
+      r=await api('/api/competitions/'+ctx.compId+'/pick',{method:'POST',body:JSON.stringify({action:'lookup',token:ctx.token})});
+    } else {
+      var reg=val('chooseReg'); if(!reg){ pickMsg('chooseMsg', tr('Please enter your registration number.','يرجى إدخال الرقم الجامعي.')); return; }
+      r=await api('/api/choose',{method:'POST',body:JSON.stringify({action:'lookup',regno:reg})});
+      ctx.compId=r.compId;   // the competition we found them in
+    }
     window._pickInfo=r; window._pickSel={ track:r.track||'', day:r.day||'' };
     renderChooseForm(r);
   }catch(e){ pickMsg('chooseMsg', (e&&e.message)||tr('No registration found.','لم يتم العثور على تسجيل.')); }
@@ -577,11 +584,13 @@ function renderDayOptions(containerId, schedule, allowed, selected, onclickFn, g
 async function pickSave(){
   var ctx=window._pickCtx||{}, info=window._pickInfo||{}, sel=window._pickSel||{};
   if(info.levels_enabled && !sel.track){ pickMsg('chooseSaveMsg', tr('Please choose a level.','يرجى اختيار المستوى.')); return; }
-  if(info.days_enabled && !sel.day){ pickMsg('chooseSaveMsg', tr('Please choose a day.','يرجى اختيار اليوم.')); return; }
-  var payload={ action:'save', track:sel.track, day:sel.day };
-  if(ctx.token){ payload.token=ctx.token; } else { payload.regno=val('chooseReg'); }
+  if(info.days_enabled && !sel.day){ pickMsg('chooseSaveMsg', tr('Please choose a date.','يرجى اختيار التاريخ.')); return; }
   try{
-    await api('/api/competitions/'+ctx.compId+'/pick',{method:'POST',body:JSON.stringify(payload)});
+    if(ctx.token){
+      await api('/api/competitions/'+ctx.compId+'/pick',{method:'POST',body:JSON.stringify({action:'save',token:ctx.token,track:sel.track,day:sel.day})});
+    } else {
+      await api('/api/choose',{method:'POST',body:JSON.stringify({action:'save',regno:val('chooseReg'),compId:info.compId,track:sel.track,day:sel.day})});
+    }
     var fm=document.getElementById('chooseForm'); if(fm) fm.style.display='none';
     var dn=document.getElementById('chooseDone'); if(dn) dn.style.display='block';
     var parts=[]; if(info.levels_enabled&&sel.track) parts.push(trackLabel(sel.track)); if(info.days_enabled&&sel.day) parts.push(dayLabel(sel.day));
