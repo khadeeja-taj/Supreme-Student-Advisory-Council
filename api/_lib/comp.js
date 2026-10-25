@@ -44,4 +44,15 @@ function genToken() {
   return crypto.randomBytes(16).toString('hex');
 }
 
-module.exports = { TRACKS, isValidTrack, normReg, REG_SQL, parseDays, daysForGender, genToken };
+// Today's date (YYYY-MM-DD) in the competition's timezone — the university is in
+// Islamabad, so default to Asia/Karachi. Used to gate access to a student's day.
+function todayInTZ(tz) {
+  tz = tz || process.env.COMP_TZ || 'Asia/Karachi';
+  try {
+    return new Intl.DateTimeFormat('en-CA', { timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
+  } catch (e) {
+    return new Date().toISOString().slice(0, 10);
+  }
+}
+
+module.exports = { TRACKS, isValidTrack, normReg, REG_SQL, parseDays, daysForGender, genToken, todayInTZ };

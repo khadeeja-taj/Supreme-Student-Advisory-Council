@@ -2,7 +2,7 @@
 
 const { init, q } = require('../../_lib/db');
 const { cors, send, body, str, isEmail } = require('../../_lib/http');
-const { isValidTrack, normReg, REG_SQL, daysForGender, genToken } = require('../../_lib/comp');
+const { isValidTrack, normReg, REG_SQL, daysForGender, genToken, todayInTZ } = require('../../_lib/comp');
 
 // PUBLIC — no login. A competitor submits the registration form for an OPEN
 // competition. Saved to competition_entries (pending) for the admin to review.
@@ -68,9 +68,14 @@ module.exports = async (req, res) => {
       if (!isValidTrack(data.track)) return send(res, 400, { error: 'Invalid level selected.' });
     } else { data.track = ''; }
     if (c.days_enabled) {
+      // Locked to the student's own date: registration only opens on one of
+      // their allowed dates, and the recorded date is today.
       const allowed = daysForGender(c, data.gender);
-      if (!data.day) return send(res, 400, { error: 'Please choose a day.' });
-      if (allowed.indexOf(data.day) === -1) return send(res, 400, { error: 'The selected day is not available for your group.' });
+      const today = todayInTZ();
+      if (allowed.indexOf(today) === -1) {
+        return send(res, 403, { error: 'Registration is not open for you today. Your allowed date: ' + allowed.join(' / ') });
+      }
+      data.day = today;
     } else { data.day = ''; }
 
     await q(
