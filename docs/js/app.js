@@ -981,21 +981,27 @@ async function viewEntries(id){
   var female=entries.filter(function(e){return e.gender==='Female';}).length;
   var byFac={}; entries.forEach(function(e){ var f=e.faculty||'—'; byFac[f]=(byFac[f]||0)+1; });
   var facKeys=Object.keys(byFac).sort(function(a,b){return byFac[b]-byFac[a];});
-  // By chapter (level) and by date (with gender split).
-  var tc={full:0,'20':0,'10':0,none:0};
-  entries.forEach(function(e){ if(e.track==='full')tc.full++; else if(e.track==='20')tc['20']++; else if(e.track==='10')tc['10']++; else tc.none++; });
+  // By chapter (level) split by gender + by date (gender split).
+  var ecomp=(window._acomps||{})[id]||{};
+  function levelCounts(g){ var t={full:0,'20':0,'10':0,none:0}; entries.forEach(function(e){ if(e.gender!==g) return; var k=(e.track==='full'||e.track==='20'||e.track==='10')?e.track:'none'; t[k]++; }); return t; }
+  var tcM=levelCounts('Male'), tcF=levelCounts('Female');
+  function levelDonut(t,total){ return svgDonut([{label:tr('Full Quran','القرآن كاملاً'),value:t.full,color:'#2a9d63'},{label:'20 '+tr('Juz','جزء'),value:t['20'],color:'#219EBC'},{label:'10 '+tr('Juz','أجزاء'),value:t['10'],color:'#FB8500'},{label:tr('Not chosen','لم يُختر'),value:t.none,color:'#c9d4da'}], total, tr('total','الإجمالي')); }
   var dateMap={}; entries.forEach(function(e){ if(e.chosen_day){ var o=dateMap[e.chosen_day]||(dateMap[e.chosen_day]={total:0,male:0,female:0}); o.total++; if(e.gender==='Male')o.male++; else if(e.gender==='Female')o.female++; } });
+  // Export date options: the competition's configured dates (plus any chosen ones).
+  var cfgD={}; parseDaysCsv(ecomp.boys_days).forEach(function(d){cfgD[d]=1;}); parseDaysCsv(ecomp.girls_days).forEach(function(d){cfgD[d]=1;}); Object.keys(dateMap).forEach(function(d){cfgD[d]=1;});
+  var exportDateKeys=Object.keys(cfgD).sort();
   var dateKeys=Object.keys(dateMap).sort();
   var analytics='<div class="comp-analytics">'
     +'<div class="cc-charts">'
     +'<div class="cc-mini"><h5>'+tr('By status','حسب الحالة')+'</h5>'+svgDonut([{label:tr('Approved','مقبول'),value:approved,color:'#2a9d63'},{label:tr('Pending','قيد المراجعة'),value:pending,color:'#FFB703'},{label:tr('Rejected','مرفوض'),value:rejected,color:'#e05656'}], entries.length, tr('total','الإجمالي'))+'</div>'
     +'<div class="cc-mini"><h5>'+tr('By gender','حسب الجنس')+'</h5>'+svgDonut([{label:tr('Male','ذكور'),value:male,color:'#219EBC'},{label:tr('Female','إناث'),value:female,color:'#FB8500'}], entries.length, tr('total','الإجمالي'))+'</div>'
-    +'<div class="cc-mini"><h5>'+tr('By level','حسب المستوى')+'</h5>'+svgDonut([{label:tr('Full Quran','القرآن كاملاً'),value:tc.full,color:'#2a9d63'},{label:'20 '+tr('Juz','جزء'),value:tc['20'],color:'#219EBC'},{label:'10 '+tr('Juz','أجزاء'),value:tc['10'],color:'#FB8500'},{label:tr('Not chosen','لم يُختر'),value:tc.none,color:'#c9d4da'}], entries.length, tr('total','الإجمالي'))+'</div>'
+    +'<div class="cc-mini"><h5>'+tr('Level — Boys','المستوى — الطلاب')+'</h5>'+levelDonut(tcM, male)+'</div>'
+    +'<div class="cc-mini"><h5>'+tr('Level — Girls','المستوى — الطالبات')+'</h5>'+levelDonut(tcF, female)+'</div>'
     +'</div>'
     +'<h5 style="margin:6px 0 6px;color:var(--navy)">'+tr('By faculty','حسب الكلية')+'</h5><div class="bars">'+barRows(facKeys.map(function(f){return {label:facLabel(f),value:byFac[f]};}))+'</div>'
     +(dateKeys.length?('<h5 style="margin:10px 0 6px;color:var(--navy)">'+tr('By date','حسب التاريخ')+'</h5><div class="bars">'+barRows(dateKeys.map(function(d){var o=dateMap[d];return {label:dayLabel(d)+'  ('+tr('M','ذكور')+' '+o.male+' · '+tr('F','إناث')+' '+o.female+')', value:o.total};}))+'</div>'):'')
     +'<div class="export-row" style="flex-wrap:wrap;gap:8px;margin-top:10px">'
-      +'<select id="entExp_'+id+'" class="sm-select">'+entExportOptions(tc, dateKeys)+'</select>'
+      +'<select id="entExp_'+id+'" class="sm-select">'+entExportOptions(exportDateKeys)+'</select>'
       +'<button class="btn-outline sm" onclick="exportEntries('+id+')">⬇ '+tr('Export CSV (Excel)','تصدير CSV (إكسل)')+'</button>'
       +'<button class="btn-outline sm danger" onclick="resetAllChoices('+id+')">🧹 '+tr('Erase all choices','مسح كل الاختيارات')+'</button>'
     +'</div></div>';
@@ -1048,7 +1054,7 @@ function exportCSV(filename, rows, cols){
   document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
 }
 // Export filter options: all / each level / each date.
-function entExportOptions(tc, dateKeys){
+function entExportOptions(dateKeys){
   var opts='<option value="all">'+tr('All','الكل')+'</option>'
     +'<option value="t:full">'+tr('Level: Full Quran','المستوى: القرآن كاملاً')+'</option>'
     +'<option value="t:20">'+tr('Level: 20 Juz','المستوى: 20 جزء')+'</option>'
