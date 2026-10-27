@@ -619,7 +619,8 @@ async function pickSave(){
     // WhatsApp group join button — the invite link is hidden inside the button.
     var gb=document.getElementById('chooseGroupBtn');
     if(gb){
-      if(r&&r.groupLink){ gb.innerHTML='<a class="btn-primary" href="'+esc(r.groupLink)+'" target="_blank" rel="noopener">'+tr('Join your group on WhatsApp','انضم إلى قروب يومك على واتساب')+' →</a>'; gb.style.display='block'; }
+      var gl=cleanWaLink(r&&r.groupLink);
+      if(gl){ gb.innerHTML='<a class="btn-primary choose-join" href="'+esc(gl)+'" target="_blank" rel="noopener">'+tr('Join your group on WhatsApp','انضم إلى قروب يومك على واتساب')+' →</a>'; gb.style.display='block'; }
       else { gb.style.display='none'; }
     }
   }catch(e){ pickMsg('chooseSaveMsg', (e&&e.message)||tr('Could not save.','تعذّر الحفظ.')); }
@@ -725,8 +726,17 @@ function renderGroupLinks(prefix){
 }
 function gatherGroupLinks(prefix){
   var box=document.getElementById(prefix+'_glinks'); var out={};
-  if(box){ box.querySelectorAll('input[data-date]').forEach(function(i){ var v=(i.value||'').trim(); if(v) out[i.getAttribute('data-date')]=v; }); }
+  if(box){ box.querySelectorAll('input[data-date]').forEach(function(i){ var v=cleanWaLink(i.value||''); if(v) out[i.getAttribute('data-date')]=v; }); }
   return out;
+}
+// Extract a clean URL from whatever the admin pasted (people often paste the
+// whole "Follow this link to join…" share text; we keep only the URL).
+function cleanWaLink(s){
+  s=String(s||'').trim();
+  var m=s.match(/https?:\/\/[^\s]+/);
+  if(m) return m[0];
+  var w=s.match(/chat\.whatsapp\.com\/[^\s]+/);
+  return w ? ('https://'+w[0]) : '';
 }
 // Dropdown of OTHER competitions, used as the "existing students" source.
 function compSourceOptions(comps, selectedId){

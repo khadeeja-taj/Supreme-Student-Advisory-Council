@@ -807,3 +807,9 @@ html[dir="rtl"] .info-card h3, html[dir="rtl"] .council-card h3{ font-size:1.14r
 /* Locked date message (student's day hasn't arrived yet) */
 .note-box.locked{ border-left-color:#d9822b; background:#fff6ec; color:#9a5a12; }
 html[dir="rtl"] .note-box.locked{ border-left:none; border-right:4px solid #d9822b; }
+
+/* "Choose" done screen — join + home buttons, centered and aligned */
+.choose-actions{ display:flex; flex-direction:column; align-items:center; gap:14px; margin-top:20px; }
+.choose-actions > div, .choose-actions > button, .choose-actions .choose-join{ width:100%; max-width:340px; }
+.choose-actions .choose-join{ display:block; text-align:center; text-decoration:none; }
+.choose-actions > button{ display:block; }

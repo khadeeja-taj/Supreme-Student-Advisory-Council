@@ -818,6 +818,12 @@ html[dir="rtl"] .info-card h3, html[dir="rtl"] .council-card h3{ font-size:1.14r
 .note-box.locked{ border-left-color:#d9822b; background:#fff6ec; color:#9a5a12; }
 html[dir="rtl"] .note-box.locked{ border-left:none; border-right:4px solid #d9822b; }
 
+/* "Choose" done screen — join + home buttons, centered and aligned */
+.choose-actions{ display:flex; flex-direction:column; align-items:center; gap:14px; margin-top:20px; }
+.choose-actions > div, .choose-actions > button, .choose-actions .choose-join{ width:100%; max-width:340px; }
+.choose-actions .choose-join{ display:block; text-align:center; text-decoration:none; }
+.choose-actions > button{ display:block; }
+
 </style>
 </head>
 <body>
@@ -1185,8 +1191,8 @@ html[dir="rtl"] .note-box.locked{ border-left:none; border-right:4px solid #d982
           <h3 data-i18n="choose.done">Saved</h3>
           <p id="chooseDoneMsg"></p>
         </div>
-        <div id="chooseGroupBtn" class="cta-row" style="justify-content:center;display:none;"></div>
-        <div class="cta-row" style="justify-content:center;">
+        <div class="choose-actions">
+          <div id="chooseGroupBtn" style="display:none;"></div>
           <button class="btn-primary" onclick="go('home')" data-i18n="success.home">Back to Home</button>
         </div>
       </div>
@@ -2088,7 +2094,8 @@ async function pickSave(){
     // WhatsApp group join button — the invite link is hidden inside the button.
     var gb=document.getElementById('chooseGroupBtn');
     if(gb){
-      if(r&&r.groupLink){ gb.innerHTML='<a class="btn-primary" href="'+esc(r.groupLink)+'" target="_blank" rel="noopener">'+tr('Join your group on WhatsApp','انضم إلى قروب يومك على واتساب')+' →</a>'; gb.style.display='block'; }
+      var gl=cleanWaLink(r&&r.groupLink);
+      if(gl){ gb.innerHTML='<a class="btn-primary choose-join" href="'+esc(gl)+'" target="_blank" rel="noopener">'+tr('Join your group on WhatsApp','انضم إلى قروب يومك على واتساب')+' →</a>'; gb.style.display='block'; }
       else { gb.style.display='none'; }
     }
   }catch(e){ pickMsg('chooseSaveMsg', (e&&e.message)||tr('Could not save.','تعذّر الحفظ.')); }
@@ -2194,8 +2201,17 @@ function renderGroupLinks(prefix){
 }
 function gatherGroupLinks(prefix){
   var box=document.getElementById(prefix+'_glinks'); var out={};
-  if(box){ box.querySelectorAll('input[data-date]').forEach(function(i){ var v=(i.value||'').trim(); if(v) out[i.getAttribute('data-date')]=v; }); }
+  if(box){ box.querySelectorAll('input[data-date]').forEach(function(i){ var v=cleanWaLink(i.value||''); if(v) out[i.getAttribute('data-date')]=v; }); }
   return out;
+}
+// Extract a clean URL from whatever the admin pasted (people often paste the
+// whole "Follow this link to join…" share text; we keep only the URL).
+function cleanWaLink(s){
+  s=String(s||'').trim();
+  var m=s.match(/https?:\/\/[^\s]+/);
+  if(m) return m[0];
+  var w=s.match(/chat\.whatsapp\.com\/[^\s]+/);
+  return w ? ('https://'+w[0]) : '';
 }
 // Dropdown of OTHER competitions, used as the "existing students" source.
 function compSourceOptions(comps, selectedId){
