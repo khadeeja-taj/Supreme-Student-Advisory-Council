@@ -658,13 +658,19 @@ var WEEK_DAYS = [['Monday','الإثنين'],['Tuesday','الثلاثاء'],['We
 var TRACK_OPTIONS = [['full','Full Quran','القرآن كاملاً'],['20','20 Juz','20 جزء'],['10','10 Juz','10 أجزاء']];
 function trackLabel(v){ for(var i=0;i<TRACK_OPTIONS.length;i++){ if(TRACK_OPTIONS[i][0]===v) return lang==='ar'?TRACK_OPTIONS[i][2]:TRACK_OPTIONS[i][1]; } return v||''; }
 function parseDaysCsv(csv){ return String(csv||'').split(',').map(function(s){return s.trim();}).filter(Boolean); }
-// Format a stored value. Dates (YYYY-MM-DD) become a readable calendar date;
-// anything else (old weekday names) falls back to its label.
+// Deterministic Gregorian date formatting (never the device's Hijri calendar).
+var MONTHS_EN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+var MONTHS_AR=['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+var WEEKD_EN=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+var WEEKD_AR=['الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
 function fmtDate(d){
-  if(/^\d{4}-\d{2}-\d{2}$/.test(d)){
-    try{ var dt=new Date(d+'T00:00:00'); if(!isNaN(dt)) return dt.toLocaleDateString(lang==='ar'?'ar-EG':'en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric'}); }catch(e){}
-  }
-  return d;
+  if(d==null||d==='') return '';
+  var ar=(lang==='ar'), y,m,day,wd, plain=/^\d{4}-\d{2}-\d{2}$/.test(d);
+  if(plain){ var p=String(d).split('-'); y=+p[0]; m=+p[1]; day=+p[2]; wd=new Date(Date.UTC(y,m-1,day)).getUTCDay(); }
+  else { var dt=new Date(d); if(isNaN(dt)) return String(d); y=dt.getFullYear(); m=dt.getMonth()+1; day=dt.getDate(); wd=dt.getDay(); }
+  var mon=(ar?MONTHS_AR:MONTHS_EN)[m-1];
+  if(plain){ var week=(ar?WEEKD_AR:WEEKD_EN)[wd]; return ar?(week+'، '+day+' '+mon+' '+y):(week+', '+day+' '+mon+' '+y); }
+  return day+' '+mon+' '+y;
 }
 function dayLabel(v){
   if(/^\d{4}-\d{2}-\d{2}$/.test(v)) return fmtDate(v);
@@ -1566,7 +1572,6 @@ async function clearAllRegistrations(){
 /* ---- small helpers ---- */
 function val(id){ const el=document.getElementById(id); return el?el.value.trim():''; }
 function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
-function fmtDate(d){ try{ return new Date(d).toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'}); }catch(e){ return ''; } }
 function initials(n){ return String(n||'').split(/\s+/).filter(Boolean).slice(0,2).map(function(w){return w[0].toUpperCase();}).join(''); }
 function authHdr(){ return { Authorization: 'Bearer ' + adminToken }; }
 function tr(en,ar){ return lang==='ar'?ar:en; }
