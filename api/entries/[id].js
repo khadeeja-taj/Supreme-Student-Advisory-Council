@@ -18,6 +18,12 @@ module.exports = async (req, res) => {
     await init();
     if (req.method === 'PATCH') {
       const b = await body(req);
+      // Clear this ONE student's level/date choice (keeps the student & all data).
+      if (b.clear_choice) {
+        const { rows } = await q('UPDATE competition_entries SET track = NULL, chosen_day = NULL WHERE id = $1 RETURNING *', [id]);
+        if (!rows.length) return send(res, 404, { error: 'Entry not found' });
+        return send(res, 200, { ok: true, entry: rows[0] });
+      }
       if (!['pending', 'approved', 'rejected'].includes(b.status)) return send(res, 400, { error: 'Invalid status' });
       const { rows } = await q('UPDATE competition_entries SET status = $1 WHERE id = $2 RETURNING *', [b.status, id]);
       if (!rows.length) return send(res, 404, { error: 'Entry not found' });

@@ -981,13 +981,24 @@ async function viewEntries(id){
   var female=entries.filter(function(e){return e.gender==='Female';}).length;
   var byFac={}; entries.forEach(function(e){ var f=e.faculty||'—'; byFac[f]=(byFac[f]||0)+1; });
   var facKeys=Object.keys(byFac).sort(function(a,b){return byFac[b]-byFac[a];});
+  // By chapter (level) and by date (with gender split).
+  var tc={full:0,'20':0,'10':0,none:0};
+  entries.forEach(function(e){ if(e.track==='full')tc.full++; else if(e.track==='20')tc['20']++; else if(e.track==='10')tc['10']++; else tc.none++; });
+  var dateMap={}; entries.forEach(function(e){ if(e.chosen_day){ var o=dateMap[e.chosen_day]||(dateMap[e.chosen_day]={total:0,male:0,female:0}); o.total++; if(e.gender==='Male')o.male++; else if(e.gender==='Female')o.female++; } });
+  var dateKeys=Object.keys(dateMap).sort();
   var analytics='<div class="comp-analytics">'
     +'<div class="cc-charts">'
     +'<div class="cc-mini"><h5>'+tr('By status','حسب الحالة')+'</h5>'+svgDonut([{label:tr('Approved','مقبول'),value:approved,color:'#2a9d63'},{label:tr('Pending','قيد المراجعة'),value:pending,color:'#FFB703'},{label:tr('Rejected','مرفوض'),value:rejected,color:'#e05656'}], entries.length, tr('total','الإجمالي'))+'</div>'
     +'<div class="cc-mini"><h5>'+tr('By gender','حسب الجنس')+'</h5>'+svgDonut([{label:tr('Male','ذكور'),value:male,color:'#219EBC'},{label:tr('Female','إناث'),value:female,color:'#FB8500'}], entries.length, tr('total','الإجمالي'))+'</div>'
+    +'<div class="cc-mini"><h5>'+tr('By level','حسب المستوى')+'</h5>'+svgDonut([{label:tr('Full Quran','القرآن كاملاً'),value:tc.full,color:'#2a9d63'},{label:'20 '+tr('Juz','جزء'),value:tc['20'],color:'#219EBC'},{label:'10 '+tr('Juz','أجزاء'),value:tc['10'],color:'#FB8500'},{label:tr('Not chosen','لم يُختر'),value:tc.none,color:'#c9d4da'}], entries.length, tr('total','الإجمالي'))+'</div>'
     +'</div>'
     +'<h5 style="margin:6px 0 6px;color:var(--navy)">'+tr('By faculty','حسب الكلية')+'</h5><div class="bars">'+barRows(facKeys.map(function(f){return {label:facLabel(f),value:byFac[f]};}))+'</div>'
-    +'<div class="export-row"><button class="btn-outline sm" onclick="exportEntries('+id+')">⬇ '+tr('Export CSV (Excel)','تصدير CSV (إكسل)')+'</button></div></div>';
+    +(dateKeys.length?('<h5 style="margin:10px 0 6px;color:var(--navy)">'+tr('By date','حسب التاريخ')+'</h5><div class="bars">'+barRows(dateKeys.map(function(d){var o=dateMap[d];return {label:dayLabel(d)+'  ('+tr('M','ذكور')+' '+o.male+' · '+tr('F','إناث')+' '+o.female+')', value:o.total};}))+'</div>'):'')
+    +'<div class="export-row" style="flex-wrap:wrap;gap:8px;margin-top:10px">'
+      +'<select id="entExp_'+id+'" class="sm-select">'+entExportOptions(tc, dateKeys)+'</select>'
+      +'<button class="btn-outline sm" onclick="exportEntries('+id+')">⬇ '+tr('Export CSV (Excel)','تصدير CSV (إكسل)')+'</button>'
+      +'<button class="btn-outline sm danger" onclick="resetAllChoices('+id+')">🧹 '+tr('Erase all choices','مسح كل الاختيارات')+'</button>'
+    +'</div></div>';
   var rows=entries.map(function(en){
     var badge = en.status==='approved'?'open':(en.status==='rejected'?'closed':'draft');
     var ld=(en.track?' · '+esc(trackLabel(en.track)):'')+(en.chosen_day?' · '+esc(dayLabel(en.chosen_day)):'');
@@ -995,6 +1006,7 @@ async function viewEntries(id){
       + '<div class="rbac-actions">'
       + (en.status!=='approved'?'<button class="btn-outline sm" onclick="setEntry('+en.id+',\'approved\','+id+')">'+tr('Approve','قبول')+'</button>':'')
       + (en.status!=='rejected'?'<button class="btn-outline sm" onclick="setEntry('+en.id+',\'rejected\','+id+')">'+tr('Reject','رفض')+'</button>':'')
+      + ((en.track||en.chosen_day)?'<button class="btn-outline sm" onclick="clearEntryChoice('+en.id+','+id+')">🧹 '+tr('Clear choice','مسح الاختيار')+'</button>':'')
       + '<button class="btn-outline sm danger" onclick="delEntry('+en.id+','+id+')">'+tr('Delete','حذف')+'</button>'
       + '</div></div>';
   }).join('');
@@ -1010,6 +1022,7 @@ function showEntryDetail(cid, eid){
   document.getElementById('regModalActions').innerHTML=
     (d.status!=='approved'?'<button class="btn-teal" onclick="setEntry('+d.id+',\'approved\','+cid+');closeRegModal()">'+tr('Approve','قبول')+'</button>':'')
     +(d.status!=='rejected'?'<button class="btn-outline" onclick="setEntry('+d.id+',\'rejected\','+cid+');closeRegModal()">'+tr('Reject','رفض')+'</button>':'')
+    +((d.track||d.chosen_day)?'<button class="btn-outline" onclick="clearEntryChoice('+d.id+','+cid+');closeRegModal()">'+tr('Clear choice','مسح الاختيار')+'</button>':'')
     +'<button class="btn-outline" style="color:#b13a63;border-color:#f3c6d3" onclick="delEntry('+d.id+','+cid+');closeRegModal()">'+tr('Delete','حذف')+'</button>';
   function rf(label,v,full){ return '<div class="rf'+(full?' full':'')+'"><span>'+label+'</span><b>'+(esc(v)||'—')+'</b></div>'; }
   var date=d.created_at?new Date(d.created_at).toLocaleString():'';
@@ -1034,12 +1047,35 @@ function exportCSV(filename, rows, cols){
   var a=document.createElement('a'); a.href=url; a.download=(filename||'export').replace(/[^\w\-]+/g,'_')+'.csv';
   document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
 }
+// Export filter options: all / each level / each date.
+function entExportOptions(tc, dateKeys){
+  var opts='<option value="all">'+tr('All','الكل')+'</option>'
+    +'<option value="t:full">'+tr('Level: Full Quran','المستوى: القرآن كاملاً')+'</option>'
+    +'<option value="t:20">'+tr('Level: 20 Juz','المستوى: 20 جزء')+'</option>'
+    +'<option value="t:10">'+tr('Level: 10 Juz','المستوى: 10 أجزاء')+'</option>';
+  opts+=(dateKeys||[]).map(function(d){return '<option value="d:'+esc(d)+'">'+tr('Date: ','التاريخ: ')+esc(dayLabel(d))+'</option>';}).join('');
+  return opts;
+}
 function exportEntries(id){
   var list=(window._entries||{})[id]||[]; var comp=(window._acomps||{})[id]||{};
-  // Export the readable Level/Day labels rather than the stored codes.
+  var pick=(document.getElementById('entExp_'+id)||{}).value||'all';
+  var name=(comp.title||'competition');
+  if(pick.indexOf('t:')===0){ var tk=pick.slice(2); list=list.filter(function(e){return e.track===tk;}); name+='-'+trackLabel(tk); }
+  else if(pick.indexOf('d:')===0){ var dd=pick.slice(2); list=list.filter(function(e){return e.chosen_day===dd;}); name+='-'+dd; }
+  // Export the readable Level/Date labels rather than the stored codes.
   var out=list.map(function(e){ var x=Object.assign({},e); x.track_label=e.track?trackLabel(e.track):''; x.day_label=e.chosen_day||''; return x; });
   var cols=[['name','Name'],['email','Email'],['phone','Phone'],['nationality','Nationality'],['regno','Reg #'],['faculty','Faculty'],['gender','Council'],['track_label','Level'],['day_label','Date'],['level','Degree'],['program','Program'],['semester','Academic Level'],['cgpa','CGPA'],['status','Status'],['created_at','Submitted']];
-  exportCSV((comp.title||'competition')+'-registrations', out, cols);
+  exportCSV(name+'-registrations', out, cols);
+}
+// Clear ONE student's level/date choice (student stays registered).
+async function clearEntryChoice(eid,cid){
+  if(!confirm(tr("Clear this student's level/date choice? The student stays registered — only the choice is cleared.","مسح اختيار المستوى/التاريخ لهذا الطالب؟ الطالب يبقى مسجّلاً — يُمسح الاختيار فقط.")))return;
+  try{ await api('/api/entries/'+eid,{method:'PATCH',headers:authHeaders(),body:JSON.stringify({clear_choice:true})}); reopenEntries(cid); }catch(e){ alert(e&&e.message||'Error'); }
+}
+// Clear ALL students' choices in a competition (students stay registered).
+async function resetAllChoices(id){
+  if(!confirm(tr("Erase ALL students' level/date choices for this competition? Students stay registered; only the choices are cleared.","مسح اختيارات المستوى/التاريخ لكل الطلاب في هذه المسابقة؟ الطلاب يبقون مسجّلين؛ تُمسح الاختيارات فقط.")))return;
+  try{ var r=await api('/api/competitions/'+id+'/registrations',{method:'POST',headers:authHeaders(),body:JSON.stringify({action:'reset_choices'})}); alert(tr('Cleared choices for ','تم مسح اختيارات ')+(r.cleared||0)+tr(' students.',' طالب.')); reopenEntries(id); }catch(e){ alert(e&&e.message||'Error'); }
 }
 /* Export controls with a scope picker: all / council members / a specific
    competition — so the admin exports exactly the group they want. */
