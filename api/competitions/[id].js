@@ -70,6 +70,11 @@ module.exports = async (req, res) => {
       if (b.days_enabled != null) { sets.push(`days_enabled = $${i++}`); vals.push(!!b.days_enabled); }
       if (b.boys_days != null) setCol('boys_days', b.boys_days, 200);
       if (b.girls_days != null) setCol('girls_days', b.girls_days, 200);
+      if (b.reg_open != null) setCol('reg_open', b.reg_open, 20);
+      if (b.reg_close != null) setCol('reg_close', b.reg_close, 20);
+      if (b.boys_cap != null) { sets.push(`boys_cap = $${i++}`); vals.push(parseInt(b.boys_cap, 10) || null); }
+      if (b.girls_cap != null) { sets.push(`girls_cap = $${i++}`); vals.push(parseInt(b.girls_cap, 10) || null); }
+      if (b.group_links != null) { sets.push(`group_links = $${i++}`); vals.push((typeof b.group_links === 'object') ? JSON.stringify(b.group_links).slice(0, 4000) : null); }
       if (!sets.length) return send(res, 400, { error: 'Nothing to update.' });
       vals.push(id);
       const { rows } = await q(`UPDATE competitions SET ${sets.join(', ')} WHERE id = $${i} RETURNING *`, vals);

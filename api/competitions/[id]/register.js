@@ -2,7 +2,7 @@
 
 const { init, q } = require('../../_lib/db');
 const { cors, send, body, str, isEmail } = require('../../_lib/http');
-const { isValidTrack, normReg, REG_SQL, daysForGender, genToken, todayInTZ } = require('../../_lib/comp');
+const { isValidTrack, normReg, REG_SQL, daysForGender, genToken, todayInTZ, capForGender, windowState } = require('../../_lib/comp');
 
 // PUBLIC — no login. A competitor submits the registration form for an OPEN
 // competition. Saved to competition_entries (pending) for the admin to review.
@@ -17,7 +17,8 @@ module.exports = async (req, res) => {
   try {
     await init();
     const { rows } = await q(
-      `SELECT id, active, status, eligibility, eligibility_source, levels_enabled, days_enabled, boys_days, girls_days
+      `SELECT id, active, status, eligibility, eligibility_source, levels_enabled, days_enabled, boys_days, girls_days,
+              reg_open, reg_close, boys_cap, girls_cap
          FROM competitions WHERE id = $1`, [id]);
     const c = rows[0];
     if (!c || !c.active || c.status !== 'open') {
@@ -69,12 +70,20 @@ module.exports = async (req, res) => {
     } else { data.track = ''; }
     if (c.days_enabled) {
       const allowed = daysForGender(c, data.gender);
-      // Access is locked unless today is one of this student's own dates.
-      if (allowed.indexOf(todayInTZ()) === -1) {
-        return send(res, 403, { error: 'Registration is not open for you today. Your date(s): ' + allowed.join(' / ') });
-      }
+      // Registration window: choosing is open only between reg_open and reg_close.
+      const ws = windowState(c, todayInTZ());
+      if (ws === 'before') return send(res, 403, { error: 'Registration has not opened yet. It opens on ' + (c.reg_open || '') + '.' });
+      if (ws === 'after') return send(res, 403, { error: 'Registration is closed.' });
       if (!data.day) return send(res, 400, { error: 'Please choose a date.' });
       if (allowed.indexOf(data.day) === -1) return send(res, 400, { error: 'The selected date is not available for your group.' });
+      // Per-date capacity for this gender.
+      const cap = capForGender(c, data.gender);
+      if (cap) {
+        const t = await q(
+          `SELECT count(*)::int AS n FROM competition_entries WHERE competition_id = $1 AND gender = $2 AND chosen_day = $3`,
+          [id, data.gender, data.day]);
+        if (t.rows[0].n >= cap) return send(res, 400, { error: 'This date is full. Please choose another date.' });
+      }
     } else { data.day = ''; }
 
     await q(

@@ -55,4 +55,27 @@ function todayInTZ(tz) {
   }
 }
 
-module.exports = { TRACKS, isValidTrack, normReg, REG_SQL, parseDays, daysForGender, genToken, todayInTZ };
+// Per-date capacity for a gender (0/empty = unlimited).
+function capForGender(comp, gender) {
+  const g = String(gender || '').trim().toLowerCase();
+  const v = (g === 'female') ? comp.girls_cap : (g === 'male') ? comp.boys_cap : null;
+  const n = parseInt(v, 10);
+  return (n && n > 0) ? n : 0;
+}
+
+// Registration window state: 'before' | 'open' | 'after' ('open' when no window set).
+function windowState(comp, today) {
+  const o = comp.reg_open, c = comp.reg_close;
+  if (!o && !c) return 'open';
+  if (o && today < o) return 'before';
+  if (c && today > c) return 'after';
+  return 'open';
+}
+
+// The WhatsApp group invite link for a date (from the stored JSON map).
+function groupLinkFor(comp, date) {
+  try { const m = JSON.parse(comp.group_links || '{}'); return (m && m[date]) ? String(m[date]) : ''; }
+  catch (e) { return ''; }
+}
+
+module.exports = { TRACKS, isValidTrack, normReg, REG_SQL, parseDays, daysForGender, genToken, todayInTZ, capForGender, windowState, groupLinkFor };

@@ -88,6 +88,13 @@ async function init() {
       ALTER TABLE competitions ADD COLUMN IF NOT EXISTS days_enabled BOOLEAN NOT NULL DEFAULT FALSE;
       ALTER TABLE competitions ADD COLUMN IF NOT EXISTS boys_days TEXT;
       ALTER TABLE competitions ADD COLUMN IF NOT EXISTS girls_days TEXT;
+      -- Registration window (choosing is open only between these dates), per-date
+      -- capacity per gender, and a WhatsApp group invite link per date (JSON).
+      ALTER TABLE competitions ADD COLUMN IF NOT EXISTS reg_open TEXT;
+      ALTER TABLE competitions ADD COLUMN IF NOT EXISTS reg_close TEXT;
+      ALTER TABLE competitions ADD COLUMN IF NOT EXISTS boys_cap INTEGER;
+      ALTER TABLE competitions ADD COLUMN IF NOT EXISTS girls_cap INTEGER;
+      ALTER TABLE competitions ADD COLUMN IF NOT EXISTS group_links TEXT;
       ALTER TABLE competitions DROP CONSTRAINT IF EXISTS competitions_status_check;
 
       CREATE TABLE IF NOT EXISTS competition_entries (

@@ -534,24 +534,42 @@ function renderChooseForm(r){
   var fm=document.getElementById('chooseForm'); if(fm) fm.style.display='block';
   var title=(lang==='ar'&&r.title_ar)?r.title_ar:(r.title||'');
   var hello=document.getElementById('chooseHello'); if(hello) hello.textContent=(tr('Hello, ','مرحبًا، ')+(r.name||'')+(title?(' — '+title):''));
-  // Locked when today is NOT one of this student's own dates.
-  var locked = r.days_enabled && !r.openToday;
+  // Closed when the registration WINDOW isn't open (before it opens / after it closes).
+  var closed = r.days_enabled && !r.windowOpen;
+  var gb=document.getElementById('chooseGroupBtn'); if(gb) gb.style.display='none';
   var lw=document.getElementById('chooseLevelWrap');
-  if(lw){ if(r.levels_enabled && !locked){ lw.style.display='block'; renderChooseChips('chooseLevels', TRACK_OPTIONS.map(function(t){return [t[0], lang==='ar'?t[2]:t[1]];}), (window._pickSel||{}).track, 'track'); } else { lw.style.display='none'; } }
+  if(lw){ if(r.levels_enabled && !closed){ lw.style.display='block'; renderChooseChips('chooseLevels', TRACK_OPTIONS.map(function(t){return [t[0], lang==='ar'?t[2]:t[1]];}), (window._pickSel||{}).track, 'track'); } else { lw.style.display='none'; } }
   var dw=document.getElementById('chooseDayWrap');
   if(dw){
     if(r.days_enabled){
       dw.style.display='block';
       var dc=document.getElementById('chooseDays');
-      if(locked){
-        if(dc) dc.innerHTML='<div class="note-box locked" style="margin:0">'+tr('Registration is not open for you today. Your date: ','التسجيل غير متاح لك اليوم. موعدك: ')+(r.allowedDays||[]).map(dayLabel).join(' / ')+'</div>';
+      if(closed){
+        var msg=(r.windowStatus==='before')
+          ? tr('Registration has not opened yet. It opens on ','التسجيل لم يفتح بعد. يفتح بتاريخ ')+(r.reg_open?dayLabel(r.reg_open):'')
+          : tr('Registration is closed.','التسجيل مغلق.');
+        if(dc) dc.innerHTML='<div class="note-box locked" style="margin:0">'+msg+'</div>';
       } else {
-        renderDayOptions('chooseDays', buildSchedule(r.boys_days, r.girls_days), r.allowedDays||[], (window._pickSel||{}).day, 'pickSelect', r.gender);
+        renderCapDates('chooseDays', r.allowedDays||[], r.dateCounts||{}, r.cap||0, r.day||'', (window._pickSel||{}).day, 'pickSelect');
       }
     } else { dw.style.display='none'; }
   }
-  // Hide the Save button when it's not the student's day.
-  var sv=document.querySelector('#chooseForm .btn-teal'); if(sv) sv.style.display=locked?'none':'';
+  // Hide the Save button when registration is closed.
+  var sv=document.querySelector('#chooseForm .btn-teal'); if(sv) sv.style.display=closed?'none':'';
+}
+// Date buttons with per-date capacity: a full date is greyed and labelled "Full".
+function renderCapDates(containerId, allowedDays, counts, cap, currentDay, selected, onclickFn){
+  var box=document.getElementById(containerId); if(!box) return;
+  if(!allowedDays.length){ box.innerHTML='<span class="muted">'+tr('No dates available for your group yet.','لا توجد تواريخ متاحة لمجموعتك بعد.')+'</span>'; return; }
+  var note='<div class="note-box" style="margin:0 0 10px">'+tr('Pick one of your available dates.','اختر أحد التواريخ المتاحة لك.')+'</div>';
+  var btns=allowedDays.map(function(d){
+    var n=(counts&&counts[d])||0;
+    var full = cap && n>=cap && String(d)!==String(currentDay);
+    if(full){ return '<button type="button" class="btn-outline sm" disabled style="margin:4px;opacity:.45;cursor:not-allowed">'+esc(dayLabel(d))+' · '+tr('Full','ممتلئ')+'</button>'; }
+    var on=(String(selected)===String(d));
+    return '<button type="button" class="'+(on?'btn-teal':'btn-outline')+' sm" style="margin:4px" onclick="'+onclickFn+'(\'day\',\''+d+'\')">'+esc(dayLabel(d))+'</button>';
+  }).join('');
+  box.innerHTML=note+btns;
 }
 function renderChooseChips(containerId, opts, selected, kind){
   var box=document.getElementById(containerId); if(!box) return;
@@ -584,19 +602,26 @@ function renderDayOptions(containerId, schedule, allowed, selected, onclickFn, g
 }
 async function pickSave(){
   var ctx=window._pickCtx||{}, info=window._pickInfo||{}, sel=window._pickSel||{};
-  if(info.days_enabled && !info.openToday){ pickMsg('chooseSaveMsg', tr('Registration is not open for you today.','التسجيل غير متاح لك اليوم.')); return; }
+  if(info.days_enabled && !info.windowOpen){ pickMsg('chooseSaveMsg', tr('Registration is not open right now.','التسجيل غير متاح حالياً.')); return; }
   if(info.levels_enabled && !sel.track){ pickMsg('chooseSaveMsg', tr('Please choose a level.','يرجى اختيار المستوى.')); return; }
   if(info.days_enabled && !sel.day){ pickMsg('chooseSaveMsg', tr('Please choose a date.','يرجى اختيار التاريخ.')); return; }
   try{
+    var r;
     if(ctx.token){
-      await api('/api/competitions/'+ctx.compId+'/pick',{method:'POST',body:JSON.stringify({action:'save',token:ctx.token,track:sel.track,day:sel.day})});
+      r=await api('/api/competitions/'+ctx.compId+'/pick',{method:'POST',body:JSON.stringify({action:'save',token:ctx.token,track:sel.track,day:sel.day})});
     } else {
-      await api('/api/choose',{method:'POST',body:JSON.stringify({action:'save',regno:val('chooseReg'),compId:info.compId,track:sel.track,day:sel.day})});
+      r=await api('/api/choose',{method:'POST',body:JSON.stringify({action:'save',regno:val('chooseReg'),compId:info.compId,track:sel.track,day:sel.day})});
     }
     var fm=document.getElementById('chooseForm'); if(fm) fm.style.display='none';
     var dn=document.getElementById('chooseDone'); if(dn) dn.style.display='block';
     var parts=[]; if(info.levels_enabled&&sel.track) parts.push(trackLabel(sel.track)); if(info.days_enabled&&sel.day) parts.push(dayLabel(sel.day));
     var dm=document.getElementById('chooseDoneMsg'); if(dm) dm.textContent=tr('Your choice has been saved: ','تم حفظ اختيارك: ')+parts.join(' • ');
+    // WhatsApp group join button — the invite link is hidden inside the button.
+    var gb=document.getElementById('chooseGroupBtn');
+    if(gb){
+      if(r&&r.groupLink){ gb.innerHTML='<a class="btn-primary" href="'+esc(r.groupLink)+'" target="_blank" rel="noopener">'+tr('Join your group on WhatsApp','انضم إلى قروب يومك على واتساب')+' →</a>'; gb.style.display='block'; }
+      else { gb.style.display='none'; }
+    }
   }catch(e){ pickMsg('chooseSaveMsg', (e&&e.message)||tr('Could not save.','تعذّر الحفظ.')); }
 }
 
@@ -605,7 +630,8 @@ function startCompetitionEntry(id){
   state.mode = '';                                   // not a council submission
   state.flow = 'competition';
   state.competition = { id:id, title:c.title||'', title_ar:c.title_ar||'',
-    levels_enabled:!!c.levels_enabled, days_enabled:!!c.days_enabled, boys_days:c.boys_days||'', girls_days:c.girls_days||'' };
+    levels_enabled:!!c.levels_enabled, days_enabled:!!c.days_enabled, boys_days:c.boys_days||'', girls_days:c.girls_days||'',
+    reg_open:c.reg_open||'', reg_close:c.reg_close||'' };
   window._regSel = { track:'', day:'' };
   state.department = null; state.gender = null;
   document.getElementById('genderContinue').disabled = true;
@@ -666,12 +692,41 @@ function addDate(prefix,group){
   if(window._dateState[key].indexOf(inp.value)===-1){ window._dateState[key].push(inp.value); window._dateState[key].sort(); }
   inp.value='';
   var box=document.getElementById(key+'_chips'); if(box) box.innerHTML=dateChipsHtml(key);
+  if(document.getElementById(prefix+'_glinks')) renderGroupLinks(prefix);
 }
 function removeDate(key,i){
-  if(window._dateState&&window._dateState[key]){ window._dateState[key].splice(i,1); var box=document.getElementById(key+'_chips'); if(box) box.innerHTML=dateChipsHtml(key); }
+  if(window._dateState&&window._dateState[key]){ window._dateState[key].splice(i,1); var box=document.getElementById(key+'_chips'); if(box) box.innerHTML=dateChipsHtml(key); var pfx=key.replace(/_(boy|girl)$/,''); if(document.getElementById(pfx+'_glinks')) renderGroupLinks(pfx); }
 }
 function gatherDays(prefix, group){
   return ((window._dateState||{})[prefix+'_'+group]||[]).join(',');
+}
+/* ---- WhatsApp group link per date (admin) ---- */
+function allFormDates(prefix){
+  var s=window._dateState||{}, set={};
+  (s[prefix+'_boy']||[]).forEach(function(d){set[d]=1;});
+  (s[prefix+'_girl']||[]).forEach(function(d){set[d]=1;});
+  return Object.keys(set).sort();
+}
+function syncGroupLinks(prefix){
+  var box=document.getElementById(prefix+'_glinks'); if(!box) return;
+  window._glState=window._glState||{}; window._glState[prefix]=window._glState[prefix]||{};
+  box.querySelectorAll('input[data-date]').forEach(function(i){ window._glState[prefix][i.getAttribute('data-date')]=(i.value||''); });
+}
+function renderGroupLinks(prefix){
+  var box=document.getElementById(prefix+'_glinks'); if(!box) return;
+  syncGroupLinks(prefix);
+  window._glState=window._glState||{}; var st=window._glState[prefix]=window._glState[prefix]||{};
+  var dates=allFormDates(prefix);
+  if(!dates.length){ box.innerHTML='<span class="muted">'+tr('Add dates first to set their WhatsApp group links.','أضف التواريخ أولاً لتحديد روابط قروبات واتساب.')+'</span>'; return; }
+  box.innerHTML=dates.map(function(d){
+    return '<div class="field" style="margin:6px 0"><label class="fld-label" style="font-size:.82rem">'+esc(fmtDate(d))+' — '+tr('WhatsApp group link','رابط قروب واتساب')+'</label>'
+      +'<input type="text" data-date="'+esc(d)+'" value="'+esc(st[d]||'')+'" placeholder="https://chat.whatsapp.com/..."></div>';
+  }).join('');
+}
+function gatherGroupLinks(prefix){
+  var box=document.getElementById(prefix+'_glinks'); var out={};
+  if(box){ box.querySelectorAll('input[data-date]').forEach(function(i){ var v=(i.value||'').trim(); if(v) out[i.getAttribute('data-date')]=v; }); }
+  return out;
 }
 // Dropdown of OTHER competitions, used as the "existing students" source.
 function compSourceOptions(comps, selectedId){
@@ -708,7 +763,11 @@ async function renderAdminCompetitions(){
     + '<div id="cmp_elig_src_wrap" style="display:none"><label class="fld-label">'+tr('Allowed from this competition:','المسموح لهم من هذه المسابقة:')+'</label><select id="cmp_elig_src">'+compSourceOptions(comps,'')+'</select></div>'
     + '<label class="day-chk" style="margin-top:6px"><input type="checkbox" id="cmp_levels"> '+tr('Let students choose a level (Full Quran / 20 / 10)','السماح باختيار المستوى (كامل / 20 / 10)')+'</label>'
     + '<label class="day-chk"><input type="checkbox" id="cmp_days" onchange="toggleDayBox(\'cmp\')"> '+tr('Let students choose a date (by gender)','السماح باختيار التاريخ (حسب الجنس)')+'</label>'
-    + '<div id="cmp_days_box" style="display:none"><label class="fld-label">'+tr('Boys dates','تواريخ الطلاب')+'</label>'+dayPickerHtml('cmp','boy','')+'<label class="fld-label">'+tr('Girls dates','تواريخ الطالبات')+'</label>'+dayPickerHtml('cmp','girl','')+'</div>'
+    + '<div id="cmp_days_box" style="display:none"><label class="fld-label">'+tr('Boys dates','تواريخ الطلاب')+'</label>'+dayPickerHtml('cmp','boy','')+'<label class="fld-label">'+tr('Girls dates','تواريخ الطالبات')+'</label>'+dayPickerHtml('cmp','girl','')
+    + '<div class="field-row"><div class="field"><label class="fld-label">'+tr('Registration opens','يفتح التسجيل')+'</label><input type="date" id="cmp_reg_open" class="date-input"></div><div class="field"><label class="fld-label">'+tr('Registration closes','يغلق التسجيل')+'</label><input type="date" id="cmp_reg_close" class="date-input"></div></div>'
+    + '<div class="field-row"><div class="field"><label class="fld-label">'+tr('Max boys per day','حد الطلاب لكل يوم')+'</label><input type="number" id="cmp_boys_cap" min="0" placeholder="80"></div><div class="field"><label class="fld-label">'+tr('Max girls per day','حد الطالبات لكل يوم')+'</label><input type="number" id="cmp_girls_cap" min="0" placeholder="74"></div></div>'
+    + '<label class="fld-label">'+tr('WhatsApp group link per date','رابط قروب واتساب لكل تاريخ')+'</label><div id="cmp_glinks"></div>'
+    + '</div>'
     + '<label class="fld-label">'+tr('Image (optional)','صورة (اختياري)')+'</label>'
     + '<input type="file" id="cmp_image" accept="image/*">'
     + '<button class="btn-teal" type="submit">'+tr('Add competition','إضافة مسابقة')+'</button></form>';
@@ -746,6 +805,8 @@ async function renderAdminCompetitions(){
       + '</div><div class="edit-box" id="edit-'+c.id+'"></div><div class="entries-box" id="entries-'+c.id+'"></div></div>';
   }).join('') : '<div class="empty-card">'+tr('No competitions yet. Add one above.','لا توجد مسابقات بعد. أضِف واحدة بالأعلى.')+'</div>';
   box.innerHTML = '<div class="rbac-manage">'+form+tiles+'<div class="rbac-list">'+list+'</div></div>';
+  window._glState=window._glState||{}; window._glState['cmp']={};
+  try{ renderGroupLinks('cmp'); }catch(e){}
 }
 /* Edit an existing competition — does NOT affect people who already registered
    (entries live in a separate table) nor block new registrations. */
@@ -765,11 +826,19 @@ function editCompetition(id){
     +'<div id="ec_'+id+'_elig_src_wrap" style="display:'+(c.eligibility==='competition'?'block':'none')+'"><label class="fld-label">'+tr('Allowed from this competition:','المسموح لهم من هذه المسابقة:')+'</label><select id="ec_'+id+'_elig_src">'+compSourceOptions((window._acomps?Object.keys(window._acomps).map(function(k){return window._acomps[k];}):[]),c.eligibility_source)+'</select></div>'
     +'<label class="day-chk" style="margin-top:6px"><input type="checkbox" id="ec_'+id+'_levels"'+(c.levels_enabled?' checked':'')+'> '+tr('Let students choose a level (Full Quran / 20 / 10)','السماح باختيار المستوى (كامل / 20 / 10)')+'</label>'
     +'<label class="day-chk"><input type="checkbox" id="ec_'+id+'_days" onchange="toggleDayBox(\'ec_'+id+'\')"'+(c.days_enabled?' checked':'')+'> '+tr('Let students choose a date (by gender)','السماح باختيار التاريخ (حسب الجنس)')+'</label>'
-    +'<div id="ec_'+id+'_days_box" style="display:'+(c.days_enabled?'block':'none')+'"><label class="fld-label">'+tr('Boys dates','تواريخ الطلاب')+'</label>'+dayPickerHtml('ec_'+id,'boy',c.boys_days||'')+'<label class="fld-label">'+tr('Girls dates','تواريخ الطالبات')+'</label>'+dayPickerHtml('ec_'+id,'girl',c.girls_days||'')+'</div>'
+    +'<div id="ec_'+id+'_days_box" style="display:'+(c.days_enabled?'block':'none')+'"><label class="fld-label">'+tr('Boys dates','تواريخ الطلاب')+'</label>'+dayPickerHtml('ec_'+id,'boy',c.boys_days||'')+'<label class="fld-label">'+tr('Girls dates','تواريخ الطالبات')+'</label>'+dayPickerHtml('ec_'+id,'girl',c.girls_days||'')
+    +'<div class="field-row"><div class="field"><label class="fld-label">'+tr('Registration opens','يفتح التسجيل')+'</label><input type="date" id="ec_'+id+'_reg_open" class="date-input" value="'+esc(c.reg_open||'')+'"></div><div class="field"><label class="fld-label">'+tr('Registration closes','يغلق التسجيل')+'</label><input type="date" id="ec_'+id+'_reg_close" class="date-input" value="'+esc(c.reg_close||'')+'"></div></div>'
+    +'<div class="field-row"><div class="field"><label class="fld-label">'+tr('Max boys per day','حد الطلاب لكل يوم')+'</label><input type="number" id="ec_'+id+'_boys_cap" min="0" value="'+esc(c.boys_cap!=null?c.boys_cap:'')+'" placeholder="80"></div><div class="field"><label class="fld-label">'+tr('Max girls per day','حد الطالبات لكل يوم')+'</label><input type="number" id="ec_'+id+'_girls_cap" min="0" value="'+esc(c.girls_cap!=null?c.girls_cap:'')+'" placeholder="74"></div></div>'
+    +'<label class="fld-label">'+tr('WhatsApp group link per date','رابط قروب واتساب لكل تاريخ')+'</label><div id="ec_'+id+'_glinks"></div>'
+    +'</div>'
     +'<label class="fld-label">'+tr('Replace image (optional)','استبدال الصورة (اختياري)')+'</label>'
     +'<input type="file" id="ec_image_'+id+'" accept="image/*">'
     +'<div class="export-row"><button class="btn-teal" type="submit">'+tr('Save changes','حفظ التعديلات')+'</button>'
     +'<button class="btn-outline" type="button" onclick="editCompetition('+id+')">'+tr('Cancel','إلغاء')+'</button></div></form>';
+  // Seed the group-link inputs from the stored JSON, then render them.
+  window._glState=window._glState||{};
+  try{ window._glState['ec_'+id]=JSON.parse(c.group_links||'{}')||{}; }catch(e){ window._glState['ec_'+id]={}; }
+  try{ renderGroupLinks('ec_'+id); }catch(e){}
 }
 async function saveCompetition(ev,id){
   if(ev) ev.preventDefault();
@@ -782,6 +851,11 @@ async function saveCompetition(ev,id){
   body.days_enabled = !!(document.getElementById('ec_'+id+'_days')||{}).checked;
   body.boys_days = gatherDays('ec_'+id,'boy');
   body.girls_days = gatherDays('ec_'+id,'girl');
+  body.reg_open = val('ec_'+id+'_reg_open');
+  body.reg_close = val('ec_'+id+'_reg_close');
+  body.boys_cap = val('ec_'+id+'_boys_cap');
+  body.girls_cap = val('ec_'+id+'_girls_cap');
+  body.group_links = gatherGroupLinks('ec_'+id);
   var image=await readImageCompressed('ec_image_'+id,900); if(image) body.image=image;
   try{ await api('/api/competitions/'+id,{method:'PATCH',headers:authHeaders(),body:JSON.stringify(body)}); invalidateComps(); renderAdminCompetitions(); }
   catch(e){ alert(tr('Could not save: ','تعذّر الحفظ: ')+(e&&e.message||'')); }
@@ -855,7 +929,12 @@ async function createCompetition(ev){
   if(elig==='competition') body.eligibility_source = val('cmp_elig_src')||null;
   body.levels_enabled = !!(document.getElementById('cmp_levels')||{}).checked;
   body.days_enabled = !!(document.getElementById('cmp_days')||{}).checked;
-  if(body.days_enabled){ body.boys_days = gatherDays('cmp','boy'); body.girls_days = gatherDays('cmp','girl'); }
+  if(body.days_enabled){
+    body.boys_days = gatherDays('cmp','boy'); body.girls_days = gatherDays('cmp','girl');
+    body.reg_open = val('cmp_reg_open'); body.reg_close = val('cmp_reg_close');
+    body.boys_cap = val('cmp_boys_cap'); body.girls_cap = val('cmp_girls_cap');
+    body.group_links = gatherGroupLinks('cmp');
+  }
   if(image) body.image = image;
   try{ await api('/api/competitions', { method:'POST', headers: authHeaders(), body: JSON.stringify(body) }); invalidateComps(); renderAdminCompetitions(); }
   catch(e){ alert(tr('Could not save: ','تعذّر الحفظ: ')+(e && e.message || '')); }
@@ -1274,15 +1353,26 @@ function regDaysForGender(){
 }
 // Today's date (YYYY-MM-DD) in the viewer's local time.
 function todayStr(){ try{ var d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }catch(e){ return ''; } }
+// Registration window state for the wizard (before|open|after).
+function regWinState(comp){
+  var t=todayStr(), o=comp.reg_open, c=comp.reg_close;
+  if(!o && !c) return 'open';
+  if(o && t<o) return 'before';
+  if(c && t>c) return 'after';
+  return 'open';
+}
 function renderRegLevelDay(){
   var comp=state.competition||{}; window._regSel=window._regSel||{track:'',day:''};
-  var allowed=regDaysForGender(); var locked=comp.days_enabled && allowed.indexOf(todayStr())===-1;
-  var lw=document.getElementById('regLevels'); if(lw && lw.parentNode) lw.parentNode.style.display=(comp.levels_enabled && !locked)?'':'none';
-  if(comp.levels_enabled && !locked){ renderRegChips('regLevels', TRACK_OPTIONS.map(function(t){return [t[0], lang==='ar'?t[2]:t[1]];}), window._regSel.track, 'track'); }
+  var ws=comp.days_enabled?regWinState(comp):'open'; var closed=(ws!=='open');
+  var lw=document.getElementById('regLevels'); if(lw && lw.parentNode) lw.parentNode.style.display=(comp.levels_enabled && !closed)?'':'none';
+  if(comp.levels_enabled && !closed){ renderRegChips('regLevels', TRACK_OPTIONS.map(function(t){return [t[0], lang==='ar'?t[2]:t[1]];}), window._regSel.track, 'track'); }
   if(comp.days_enabled){
     var dc=document.getElementById('regDays');
-    if(locked){ if(dc) dc.innerHTML='<div class="note-box locked" style="margin:0">'+tr('Registration is not open for you today. Your date: ','التسجيل غير متاح لك اليوم. موعدك: ')+allowed.map(dayLabel).join(' / ')+'</div>'; }
-    else { renderDayOptions('regDays', buildSchedule(comp.boys_days, comp.girls_days), allowed, window._regSel.day, 'regSelect', state.gender); }
+    if(closed){
+      var msg=(ws==='before')?tr('Registration has not opened yet. It opens on ','التسجيل لم يفتح بعد. يفتح بتاريخ ')+(comp.reg_open?dayLabel(comp.reg_open):''):tr('Registration is closed.','التسجيل مغلق.');
+      if(dc) dc.innerHTML='<div class="note-box locked" style="margin:0">'+msg+'</div>';
+    }
+    else { renderDayOptions('regDays', buildSchedule(comp.boys_days, comp.girls_days), regDaysForGender(), window._regSel.day, 'regSelect', state.gender); }
   }
 }
 function renderRegChips(containerId, opts, selected, kind){
@@ -1312,8 +1402,9 @@ async function submitForm(){
   var _sel = window._regSel||{};
   if(_comp.levels_enabled || _comp.days_enabled){
     if(_comp.days_enabled){
-      var _allowed=regDaysForGender();
-      if(_allowed.indexOf(todayStr())===-1){ alert(tr('Registration is not open for you today. Your date: ','التسجيل غير متاح لك اليوم. موعدك: ')+_allowed.map(dayLabel).join(' / ')); return; }
+      var _ws=regWinState(_comp);
+      if(_ws==='before'){ alert(tr('Registration has not opened yet. It opens on ','التسجيل لم يفتح بعد. يفتح بتاريخ ')+(_comp.reg_open?dayLabel(_comp.reg_open):'')); return; }
+      if(_ws==='after'){ alert(tr('Registration is closed.','التسجيل مغلق.')); return; }
     }
     if(_comp.levels_enabled && !_sel.track){ alert(tr('Please choose a level.','يرجى اختيار المستوى.')); return; }
     if(_comp.days_enabled && !_sel.day){ alert(tr('Please choose a date.','يرجى اختيار التاريخ.')); return; }
