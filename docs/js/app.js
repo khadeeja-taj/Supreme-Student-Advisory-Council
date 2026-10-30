@@ -1003,6 +1003,8 @@ async function viewEntries(id){
     +'<div class="export-row" style="flex-wrap:wrap;gap:8px;margin-top:10px">'
       +'<select id="entExp_'+id+'" class="sm-select" onchange="filterEntries('+id+')">'+entExportOptions(exportDateKeys)+'</select>'
       +'<button class="btn-outline sm" onclick="exportEntries('+id+')">⬇ '+tr('Export CSV (Excel)','تصدير CSV (إكسل)')+'</button>'
+      +'<button class="btn-outline sm" onclick="copyEntryEmails('+id+')">📧 '+tr('Copy emails','نسخ الإيميلات')+'</button>'
+      +'<button class="btn-outline sm" onclick="copyEntryNumbers('+id+')">📱 '+tr('Copy numbers','نسخ الأرقام')+'</button>'
       +'<button class="btn-outline sm danger" onclick="resetAllChoices('+id+')">🧹 '+tr('Erase all choices','مسح كل الاختيارات')+'</button>'
     +'</div></div>';
   box.innerHTML = analytics+'<div id="entrows-'+id+'">'+entryRowsHtml(id, entries)+'</div>';
@@ -1089,6 +1091,21 @@ function exportEntries(id){
   var out=list.map(function(e){ var x=Object.assign({},e); x.track_label=e.track?trackLabel(e.track):''; x.day_label=e.chosen_day||''; return x; });
   var cols=[['name','Name'],['email','Email'],['phone','Phone'],['nationality','Nationality'],['regno','Reg #'],['faculty','Faculty'],['gender','Council'],['track_label','Level'],['day_label','Date'],['level','Degree'],['program','Program'],['semester','Academic Level'],['cgpa','CGPA'],['status','Status'],['created_at','Submitted']];
   exportCSV(name+'-registrations', out, cols);
+}
+// Copy all (filtered) registrants' emails / numbers to paste into an email BCC
+// or a WhatsApp broadcast and send your own message.
+function _copyText(text,msg){
+  if(!text){ alert(tr('Nothing to copy.','لا يوجد ما يُنسخ.')); return; }
+  try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(text).then(function(){alert(msg);},function(){prompt(msg,text);}); return; } }catch(e){}
+  prompt(msg,text);
+}
+function copyEntryEmails(id){
+  var a=entriesFiltered(id).map(function(e){return (e.email||'').trim();}).filter(Boolean);
+  _copyText(a.join(', '), tr('Copied emails: ','تم نسخ الإيميلات: ')+a.length+'\n'+tr('Paste them in the BCC field of your email.','الصقيها في خانة BCC بالإيميل.'));
+}
+function copyEntryNumbers(id){
+  var a=entriesFiltered(id).map(function(e){return (e.phone||'').trim();}).filter(Boolean);
+  _copyText(a.join('\n'), tr('Copied numbers: ','تم نسخ الأرقام: ')+a.length);
 }
 // Clear ONE student's level/date choice (student stays registered).
 async function clearEntryChoice(eid,cid){
