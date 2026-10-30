@@ -2488,6 +2488,7 @@ async function viewEntries(id){
 function entriesFiltered(id){
   var list=(window._entries||{})[id]||[];
   var pick=(document.getElementById('entExp_'+id)||{}).value||'all';
+  if(pick.indexOf('g:')===0){ var g=pick.slice(2); return list.filter(function(e){return e.gender===g;}); }
   if(pick.indexOf('t:')===0){ var tk=pick.slice(2); return list.filter(function(e){return e.track===tk;}); }
   if(pick.indexOf('d:')===0){ var dd=pick.slice(2); return list.filter(function(e){return e.chosen_day===dd;}); }
   return list;
@@ -2549,6 +2550,8 @@ function exportCSV(filename, rows, cols){
 // Export filter options: all / each level / each date.
 function entExportOptions(dateKeys){
   var opts='<option value="all">'+tr('All','الكل')+'</option>'
+    +'<option value="g:Male">'+tr('Boys (all)','الطلاب (الكل)')+'</option>'
+    +'<option value="g:Female">'+tr('Girls (all)','الطالبات (الكل)')+'</option>'
     +'<option value="t:full">'+tr('Level: Full Quran','المستوى: القرآن كاملاً')+'</option>'
     +'<option value="t:20">'+tr('Level: 20 Juz','المستوى: 20 جزء')+'</option>'
     +'<option value="t:10">'+tr('Level: 10 Juz','المستوى: 10 أجزاء')+'</option>';
@@ -2560,7 +2563,8 @@ function exportEntries(id){
   var pick=(document.getElementById('entExp_'+id)||{}).value||'all';
   var list=entriesFiltered(id);
   var name=(comp.title||'competition');
-  if(pick.indexOf('t:')===0){ name+='-'+trackLabel(pick.slice(2)); }
+  if(pick.indexOf('g:')===0){ name+='-'+(pick.slice(2)==='Male'?'boys':'girls'); }
+  else if(pick.indexOf('t:')===0){ name+='-'+trackLabel(pick.slice(2)); }
   else if(pick.indexOf('d:')===0){ name+='-'+pick.slice(2); }
   // Export the readable Level/Date labels rather than the stored codes.
   var out=list.map(function(e){ var x=Object.assign({},e); x.track_label=e.track?trackLabel(e.track):''; x.day_label=e.chosen_day||''; return x; });
