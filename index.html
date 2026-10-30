@@ -2476,11 +2476,28 @@ async function viewEntries(id){
     +'<h5 style="margin:6px 0 6px;color:var(--navy)">'+tr('By faculty','حسب الكلية')+'</h5><div class="bars">'+barRows(facKeys.map(function(f){return {label:facLabel(f),value:byFac[f]};}))+'</div>'
     +(dateKeys.length?('<h5 style="margin:10px 0 6px;color:var(--navy)">'+tr('By date','حسب التاريخ')+'</h5><div class="bars">'+barRows(dateKeys.map(function(d){var o=dateMap[d];return {label:dayLabel(d)+'  ('+tr('M','ذكور')+' '+o.male+' · '+tr('F','إناث')+' '+o.female+')', value:o.total};}))+'</div>'):'')
     +'<div class="export-row" style="flex-wrap:wrap;gap:8px;margin-top:10px">'
-      +'<select id="entExp_'+id+'" class="sm-select">'+entExportOptions(exportDateKeys)+'</select>'
+      +'<select id="entExp_'+id+'" class="sm-select" onchange="filterEntries('+id+')">'+entExportOptions(exportDateKeys)+'</select>'
       +'<button class="btn-outline sm" onclick="exportEntries('+id+')">⬇ '+tr('Export CSV (Excel)','تصدير CSV (إكسل)')+'</button>'
       +'<button class="btn-outline sm danger" onclick="resetAllChoices('+id+')">🧹 '+tr('Erase all choices','مسح كل الاختيارات')+'</button>'
     +'</div></div>';
-  var rows=entries.map(function(en){
+  box.innerHTML = analytics+'<div id="entrows-'+id+'">'+entryRowsHtml(id, entries)+'</div>';
+}
+// Filter the given list by the export/sort picker (all / a level / a date).
+function entriesFiltered(id){
+  var list=(window._entries||{})[id]||[];
+  var pick=(document.getElementById('entExp_'+id)||{}).value||'all';
+  if(pick.indexOf('t:')===0){ var tk=pick.slice(2); return list.filter(function(e){return e.track===tk;}); }
+  if(pick.indexOf('d:')===0){ var dd=pick.slice(2); return list.filter(function(e){return e.chosen_day===dd;}); }
+  return list;
+}
+// Re-render only the list below when the sort picker changes.
+function filterEntries(id){
+  var box=document.getElementById('entrows-'+id); if(!box) return;
+  var list=entriesFiltered(id);
+  box.innerHTML=list.length?entryRowsHtml(id,list):'<div class="rbac-sub" style="padding:10px">'+tr('No registrations match this filter.','لا يوجد مسجّلون مطابقون لهذا الفلتر.')+'</div>';
+}
+function entryRowsHtml(id, list){
+  return (list||[]).map(function(en){
     var badge = en.status==='approved'?'open':(en.status==='rejected'?'closed':'draft');
     var ld=(en.track?' · '+esc(trackLabel(en.track)):'')+(en.chosen_day?' · '+esc(dayLabel(en.chosen_day)):'');
     return '<div class="entry-row"><div class="rbac-info"><button class="entry-name-btn" onclick="showEntryDetail('+id+','+en.id+')">'+esc(en.name)+'</button> <span class="rbac-badge s-'+badge+'">'+esc(en.status)+'</span>'+(en.track||en.chosen_day?' <span class="rbac-badge s-draft">'+esc([en.track?trackLabel(en.track):'',en.chosen_day?dayLabel(en.chosen_day):''].filter(Boolean).join(' · '))+'</span>':'')+'<span class="rbac-sub">'+esc(en.email||'')+(en.faculty?' · '+esc(facLabel(en.faculty)):'')+(en.phone?' · '+esc(en.phone):'')+ld+'</span></div>'
@@ -2491,7 +2508,6 @@ async function viewEntries(id){
       + '<button class="btn-outline sm danger" onclick="delEntry('+en.id+','+id+')">'+tr('Delete','حذف')+'</button>'
       + '</div></div>';
   }).join('');
-  box.innerHTML = analytics+rows;
 }
 /* Registrant detail — reuses the registration modal. */
 function showEntryDetail(cid, eid){
@@ -2538,11 +2554,12 @@ function entExportOptions(dateKeys){
   return opts;
 }
 function exportEntries(id){
-  var list=(window._entries||{})[id]||[]; var comp=(window._acomps||{})[id]||{};
+  var comp=(window._acomps||{})[id]||{};
   var pick=(document.getElementById('entExp_'+id)||{}).value||'all';
+  var list=entriesFiltered(id);
   var name=(comp.title||'competition');
-  if(pick.indexOf('t:')===0){ var tk=pick.slice(2); list=list.filter(function(e){return e.track===tk;}); name+='-'+trackLabel(tk); }
-  else if(pick.indexOf('d:')===0){ var dd=pick.slice(2); list=list.filter(function(e){return e.chosen_day===dd;}); name+='-'+dd; }
+  if(pick.indexOf('t:')===0){ name+='-'+trackLabel(pick.slice(2)); }
+  else if(pick.indexOf('d:')===0){ name+='-'+pick.slice(2); }
   // Export the readable Level/Date labels rather than the stored codes.
   var out=list.map(function(e){ var x=Object.assign({},e); x.track_label=e.track?trackLabel(e.track):''; x.day_label=e.chosen_day||''; return x; });
   var cols=[['name','Name'],['email','Email'],['phone','Phone'],['nationality','Nationality'],['regno','Reg #'],['faculty','Faculty'],['gender','Council'],['track_label','Level'],['day_label','Date'],['level','Degree'],['program','Program'],['semester','Academic Level'],['cgpa','CGPA'],['status','Status'],['created_at','Submitted']];
