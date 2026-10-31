@@ -1110,22 +1110,20 @@ function copyEntryEmails(id){
 }
 // Normalise a phone number to WhatsApp form: starts with 92 (Pakistan),
 // no leading 0, no "+". e.g. 0300xxxxxxx / +92 300 xxxxxxx -> 92300xxxxxxx
-// Normalise a phone number to WhatsApp form for a PAKISTANI mobile:
-// starts with 92, no leading 0, no "+".  A Pakistani mobile's local part is
-// 10 digits starting with 3 (e.g. 3001234567).  Only numbers that clearly fit
-// that shape get the 92 prefix; anything else (foreign numbers, two numbers in
-// one cell, Excel-mangled "9.2E+11", too-short/invalid) is returned as its raw
-// digits so the admin can see it's odd and fix it by hand — instead of us
-// confidently producing a wrong 92… number.
+// Normalise a phone number for a WhatsApp bulk sender: country code + number,
+// no "+" and no leading "0".  Pakistani local numbers (start with 0, or a bare
+// 10-digit mobile starting with 3) get the 92 country code.  A number that
+// already carries a country code (92…, 1…, 93…, 44…, 62…) is kept as-is so we
+// don't wrongly stamp 92 on a foreign student's number.  When a cell holds two
+// numbers ("num1/num2") we take the first.
 function waNumber(raw){
-  var d=String(raw||'').replace(/\D/g,'');   // digits only (drops +, spaces, -, /)
+  var s=String(raw||'').split('/')[0];        // two-in-one cell -> first number
+  var d=s.replace(/\D/g,'');                  // digits only (drops +, spaces, -)
   if(!d) return '';
-  if(d.indexOf('00')===0) d=d.slice(2);      // 00 intl prefix -> drop
-  var local=d;
-  if(local.indexOf('92')===0) local=local.slice(2); // strip 92 country code
-  if(local.charAt(0)==='0') local=local.slice(1);   // strip national leading 0
-  if(local.length===10 && local.charAt(0)==='3') return '92'+local; // valid PK mobile
-  return d;                                   // not a clean PK mobile -> leave raw
+  if(d.indexOf('00')===0) d=d.slice(2);       // 00 intl prefix -> drop
+  if(d.charAt(0)==='0') return '92'+d.slice(1);         // 0xxxxxxxxxx (PK local) -> 92…
+  if(d.length===10 && d.charAt(0)==='3') return '92'+d; // bare PK mobile 3xxxxxxxxx -> 92…
+  return d;                                   // already has a country code -> keep
 }
 function copyEntryNumbers(id){
   var a=entriesFiltered(id).map(function(e){return waNumber(e.phone);}).filter(Boolean);
