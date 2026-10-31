@@ -2583,8 +2583,18 @@ function copyEntryEmails(id){
   var a=entriesFiltered(id).map(function(e){return (e.email||'').trim();}).filter(Boolean);
   _copyText(a.join(', '), tr('Copied emails: ','تم نسخ الإيميلات: ')+a.length+'\n'+tr('Paste them in the BCC field of your email.','الصقيها في خانة BCC بالإيميل.'));
 }
+// Normalise a phone number to WhatsApp form: starts with 92 (Pakistan),
+// no leading 0, no "+". e.g. 0300xxxxxxx / +92 300 xxxxxxx -> 92300xxxxxxx
+function waNumber(raw){
+  var d=String(raw||'').replace(/\D/g,'');   // digits only (drops +, spaces, -)
+  if(!d) return '';
+  if(d.indexOf('00')===0) d=d.slice(2);      // 0092... -> 92...
+  if(d.indexOf('92')===0) return d;          // already 92...
+  if(d.charAt(0)==='0') return '92'+d.slice(1); // 03xx... -> 923xx...
+  return '92'+d;                             // bare local -> prepend 92
+}
 function copyEntryNumbers(id){
-  var a=entriesFiltered(id).map(function(e){return (e.phone||'').trim();}).filter(Boolean);
+  var a=entriesFiltered(id).map(function(e){return waNumber(e.phone);}).filter(Boolean);
   _copyText(a.join('\n'), tr('Copied numbers: ','تم نسخ الأرقام: ')+a.length);
 }
 // Download all (filtered) registrants as a .vcf (vCard) file. Open it on your
@@ -2595,11 +2605,13 @@ function vcfEscape(v){ return String(v==null?'':v).replace(/\\/g,'\\\\').replace
 function downloadEntryVcf(id){
   var comp=(window._acomps||{})[id]||{};
   var tag=(comp.title||'SSAC');
-  var list=entriesFiltered(id).filter(function(e){return (e.phone||'').trim();});
+  var list=entriesFiltered(id).filter(function(e){return waNumber(e.phone);});
   if(!list.length){ alert(tr('No phone numbers to export.','لا توجد أرقام للتصدير.')); return; }
   var cards=list.map(function(e){
     var name=(e.name||tr('Participant','مشارك')).trim();
-    var phone=(e.phone||'').trim();
+    // Contact file uses +92 (E.164) so the phone saves it as an international
+    // number and WhatsApp can match it.
+    var phone='+'+waNumber(e.phone);
     return 'BEGIN:VCARD\r\nVERSION:3.0\r\n'
       +'N:;'+vcfEscape(name)+';;;\r\n'
       +'FN:'+vcfEscape(name)+'\r\n'
