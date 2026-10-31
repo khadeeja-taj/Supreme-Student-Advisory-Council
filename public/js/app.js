@@ -1005,6 +1005,7 @@ async function viewEntries(id){
       +'<button class="btn-outline sm" onclick="exportEntries('+id+')">⬇ '+tr('Export CSV (Excel)','تصدير CSV (إكسل)')+'</button>'
       +'<button class="btn-outline sm" onclick="copyEntryEmails('+id+')">📧 '+tr('Copy emails','نسخ الإيميلات')+'</button>'
       +'<button class="btn-outline sm" onclick="copyEntryNumbers('+id+')">📱 '+tr('Copy numbers','نسخ الأرقام')+'</button>'
+      +'<button class="btn-outline sm" onclick="downloadEntryVcf('+id+')">⬇️ '+tr('Contacts (vCard)','جهات اتصال (vCard)')+'</button>'
       +'<button class="btn-outline sm danger" onclick="resetAllChoices('+id+')">🧹 '+tr('Erase all choices','مسح كل الاختيارات')+'</button>'
     +'</div></div>';
   box.innerHTML = analytics+'<div id="entrows-'+id+'">'+entryRowsHtml(id, entries)+'</div>';
@@ -1110,6 +1111,34 @@ function copyEntryEmails(id){
 function copyEntryNumbers(id){
   var a=entriesFiltered(id).map(function(e){return (e.phone||'').trim();}).filter(Boolean);
   _copyText(a.join('\n'), tr('Copied numbers: ','تم نسخ الأرقام: ')+a.length);
+}
+// Download all (filtered) registrants as a .vcf (vCard) file. Open it on your
+// phone to add every number as a contact in one tap — then they appear in
+// WhatsApp and you can pick them for a Broadcast list. An ORG tag (the
+// competition title) is added so you can group/search them easily.
+function vcfEscape(v){ return String(v==null?'':v).replace(/\\/g,'\\\\').replace(/\n/g,'\\n').replace(/,/g,'\\,').replace(/;/g,'\\;'); }
+function downloadEntryVcf(id){
+  var comp=(window._acomps||{})[id]||{};
+  var tag=(comp.title||'SSAC');
+  var list=entriesFiltered(id).filter(function(e){return (e.phone||'').trim();});
+  if(!list.length){ alert(tr('No phone numbers to export.','لا توجد أرقام للتصدير.')); return; }
+  var cards=list.map(function(e){
+    var name=(e.name||tr('Participant','مشارك')).trim();
+    var phone=(e.phone||'').trim();
+    return 'BEGIN:VCARD\r\nVERSION:3.0\r\n'
+      +'N:;'+vcfEscape(name)+';;;\r\n'
+      +'FN:'+vcfEscape(name)+'\r\n'
+      +'ORG:'+vcfEscape(tag)+'\r\n'
+      +(e.email?('EMAIL;TYPE=INTERNET:'+vcfEscape(e.email.trim())+'\r\n'):'')
+      +'TEL;TYPE=CELL:'+vcfEscape(phone)+'\r\n'
+      +'END:VCARD';
+  }).join('\r\n');
+  var blob=new Blob([cards],{type:'text/vcard;charset=utf-8;'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a'); a.href=url;
+  a.download=((comp.title||'contacts')).replace(/[^\w\-]+/g,'_')+'-contacts.vcf';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+  alert(tr('Downloaded ','تم تنزيل ')+list.length+tr(' contacts. Open the file on your phone to add them, then pick them in a WhatsApp Broadcast.',' جهة اتصال. افتحي الملف على جوالك لإضافتهم، ثم اختاريهم في قائمة بث واتساب.'));
 }
 // Clear ONE student's level/date choice (student stays registered).
 async function clearEntryChoice(eid,cid){
