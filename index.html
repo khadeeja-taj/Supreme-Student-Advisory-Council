@@ -2595,7 +2595,7 @@ function waNumber(raw){
 }
 function copyEntryNumbers(id){
   var a=entriesFiltered(id).map(function(e){return waNumber(e.phone);}).filter(Boolean);
-  _copyText(a.join('\n'), tr('Copied numbers: ','تم نسخ الأرقام: ')+a.length);
+  _copyText(a.join(', '), tr('Copied numbers: ','تم نسخ الأرقام: ')+a.length);
 }
 // Download all (filtered) registrants as a .vcf (vCard) file. Open it on your
 // phone to add every number as a contact in one tap — then they appear in
