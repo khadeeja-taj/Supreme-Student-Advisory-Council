@@ -17,7 +17,6 @@
     <a href="#" onclick="go('home');closeDrawer();return false;" data-i18n="nav.home">Home</a>
     <a href="#" onclick="go('reps');closeDrawer();return false;" data-i18n="nav.reps">Members</a>
     <a href="#" onclick="go('news');closeDrawer();return false;" data-i18n="nav.news">News</a>
-    <a href="#" onclick="go('contact');closeDrawer();return false;" data-i18n="nav.contact">Contact</a>
     <a href="#" id="m_navCouncil" style="display:none" onclick="go('council');closeDrawer();return false;" data-i18n="nav.council">Advisory Council</a>
     <a href="#" id="m_navCompetitions" style="display:none" onclick="go('competitions');closeDrawer();return false;" data-i18n="nav.competitions">Competitions</a>
     <a href="#" id="m_navAdmin" style="display:none" onclick="go('admin');closeDrawer();return false;" data-i18n="nav.admin">Admin</a>
@@ -48,7 +47,6 @@
       <a href="#" onclick="go('home');return false;" data-i18n="nav.home">Home</a>
       <a href="#" onclick="go('reps');return false;" data-i18n="nav.reps">Members</a>
       <a href="#" onclick="go('news');return false;" data-i18n="nav.news">News</a>
-      <a href="#" onclick="go('contact');return false;" data-i18n="nav.contact">Contact</a>
       <a href="#" id="navCouncil" style="display:none" onclick="go('council');return false;" data-i18n="nav.council">Advisory Council</a>
       <a href="#" id="navCompetitions" style="display:none" onclick="go('competitions');return false;" data-i18n="nav.competitions">Competitions</a>
       <a href="#" id="navAdmin" style="display:none" onclick="go('admin');return false;" data-i18n="nav.admin">Admin</a>
@@ -405,36 +403,6 @@
   <div class="wrap-narrow"><div id="newsList" class="news-list"></div></div>
 </section>
 
-<!-- ================= CONTACT ================= -->
-<section class="page" id="page-contact">
-  <div class="stepheader">
-    <div class="chevron-motif"></div>
-    <div class="sh-panel"><div class="kicker" data-i18n="contact.kicker">GET IN TOUCH</div>
-    <h2 data-i18n="contact.title">Contact Us</h2>
-    <p data-i18n="contact.sub">We would be honored to answer your questions</p></div>
-  </div>
-  <div class="wrap-narrow">
-    <div class="contact-grid">
-      <div class="contact-info">
-        <div class="ci-item"><span class="ci-ic">📞</span><div><small data-i18n="c.phone">PHONE</small><b dir="ltr">+92 51 9019000</b></div></div>
-        <div class="ci-item"><span class="ci-ic">✉️</span><div><small data-i18n="c.email">EMAIL</small><b dir="ltr">ssac@iiu.edu.pk</b></div></div>
-        <div class="ci-item"><span class="ci-ic">📍</span><div><small data-i18n="c.address">ADDRESS</small><b data-i18n="c.addressv">International Islamic University, Islamabad, Pakistan</b></div></div>
-        <a class="map-link" href="https://www.google.com/maps/search/?api=1&amp;query=International+Islamic+University+Islamabad" target="_blank" rel="noopener" data-i18n="c.map">Open location in Google Maps →</a>
-      </div>
-      <form class="contact-form" onsubmit="submitMessage(event)">
-        <div class="field-row">
-          <div class="field"><label data-i18n="c.name">Your Name *</label><input id="c_name" type="text" data-i18n-ph="ph.cname" placeholder="Your name"></div>
-          <div class="field"><label data-i18n="c.emaill">Email *</label><input id="c_email" type="email" data-i18n-ph="ph.cemail" placeholder="you@example.com"></div>
-        </div>
-        <div class="field"><label data-i18n="c.subject">Subject</label><input id="c_subject" type="text" data-i18n-ph="ph.csubject" placeholder="Subject"></div>
-        <div class="field"><label data-i18n="c.message">Message *</label><textarea id="c_message" rows="5" data-i18n-ph="ph.cmessage" placeholder="Your message"></textarea></div>
-        <div id="contactThanks" class="thanks-note" hidden data-i18n="c.thanks">✓ Thank you — your message has been sent to the Council.</div>
-        <button class="btn-teal" type="submit" data-i18n="c.send">Send Message</button>
-      </form>
-    </div>
-  </div>
-</section>
-
 <!-- ================= ADMIN ================= -->
 <!-- ================= LOGIN ================= -->
 <section class="page" id="page-login">
@@ -635,7 +603,6 @@
       <a href="#" onclick="go('home');return false;" data-i18n="nav.home">Home</a>
       <a href="#" onclick="go('reps');return false;" data-i18n="nav.reps">Representatives</a>
       <a href="#" onclick="go('news');return false;" data-i18n="footer.news">News &amp; Announcements</a>
-      <a href="#" onclick="go('contact');return false;" data-i18n="nav.contact">Contact</a>
       <a href="#" onclick="startStudentReg();return false;" data-i18n="footer.reg">Student Registration</a>
     </div>
     <div class="footer-col">
