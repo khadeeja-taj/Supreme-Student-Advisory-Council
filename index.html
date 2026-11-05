@@ -2441,6 +2441,7 @@ async function viewEntries(id){
       +'<button class="btn-outline sm" onclick="exportEntries('+id+')">⬇ '+tr('Export CSV (Excel)','تصدير CSV (إكسل)')+'</button>'
       +'<button class="btn-outline sm" onclick="copyEntryEmails('+id+')">📧 '+tr('Copy emails','نسخ الإيميلات')+'</button>'
       +'<button class="btn-outline sm" onclick="copyEntryNumbers('+id+')">📱 '+tr('Copy numbers','نسخ الأرقام')+'</button>'
+      +'<button class="btn-outline sm" onclick="downloadEntryNumbersCsv('+id+')">⬇ '+tr('Numbers CSV','أرقام CSV')+'</button>'
       +'<button class="btn-outline sm" onclick="downloadEntryVcf('+id+')">⬇️ '+tr('Contacts (vCard)','جهات اتصال (vCard)')+'</button>'
       +'<button class="btn-outline sm danger" onclick="resetAllChoices('+id+')">🧹 '+tr('Erase all choices','مسح كل الاختيارات')+'</button>'
     +'</div></div>';
@@ -2564,6 +2565,20 @@ function waNumber(raw){
 function copyEntryNumbers(id){
   var a=entriesFiltered(id).map(function(e){return waNumber(e.phone);}).filter(Boolean);
   _copyText(a.join(', '), tr('Copied numbers: ','تم نسخ الأرقام: ')+a.length);
+}
+// Download the (filtered) WhatsApp numbers as a CSV file (one per row),
+// ready to open in Excel / Google Sheets.
+function downloadEntryNumbersCsv(id){
+  var comp=(window._acomps||{})[id]||{};
+  var pick=(document.getElementById('entExp_'+id)||{}).value||'all';
+  var rows=entriesFiltered(id).map(function(e){ return {name:e.name||'', whatsapp:waNumber(e.phone)}; })
+                              .filter(function(r){ return r.whatsapp; });
+  if(!rows.length){ alert(tr('No numbers to export.','لا توجد أرقام للتصدير.')); return; }
+  var name=(comp.title||'competition');
+  if(pick.indexOf('g:')===0){ name+='-'+(pick.slice(2)==='Male'?'boys':'girls'); }
+  else if(pick.indexOf('t:')===0){ name+='-'+trackLabel(pick.slice(2)); }
+  else if(pick.indexOf('d:')===0){ name+='-'+pick.slice(2); }
+  exportCSV(name+'-numbers', rows, [['name','Name'],['whatsapp','WhatsApp']]);
 }
 // Download all (filtered) registrants as a .vcf (vCard) file. Open it on your
 // phone to add every number as a contact in one tap — then they appear in
